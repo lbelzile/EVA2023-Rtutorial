@@ -1,0 +1,50 @@
+
+## Maximum likelihood estimation
+
+- Example application from vignette (Venice sea level data using 2-largest with trend vs GEV, threshold exceedances with Eskdalemuir data)
+- Extremal type theorem and alternative representations
+- Key likelihood equations and equivalence: generalized Pareto vs inhomogeneous Poisson process + return levels
+- Support constraints and gradient algorithms
+- Score equation and information matrix
+- Convergence issues in small samples
+- Sampling distribution and bias
+- Computing quantities of interest: return levels and interpretation, etc.
+- Reparametrizing the model: orthogonality and optimisation 
+- Don't code the likelihood yourself!
+- Incorrectly implementations and reasons for this
+- Don't fix the shape (incorrect uncertainty quantification)
+
+
+
+
+## Bayesian inference
+
+- Bayes theorem and change of paradigm
+- Priors for extreme value distributions
+- 'revdbayes' with binomial - GP model
+- Diagnostics for MCMC
+- Posterior samples and return levels
+- Example from EVA2023 data competition with loss function
+
+## Semiparametric estimation
+
+- Hill's estimator and variants thereof
+- Choosing the number of order statistics (table with different options)
+- Computing quantiles using Weissman's estimator
+
+## Threshold selection
+
+- Some common diagnostics
+- The cross-validation threshold model averaging
+- Hill estimator type with 'rbm' package
+
+## Regression models using 'evgam'
+
+- Approaches to nonstationarity: Box-Cox transform, modelling residuals and generalized linear/additive modelling of parameters
+- Standardize covariates for numerical stability
+- Check goodness of fit using usual diagnostics (Q-Q plots)
+- Careful with return levels (cautionary warning from Eastoe and Tawn with time-varying covariates)
+- GAMs and overfitting: how to tell whether you are overfitting from the posterior distribution
+- Using 'lax' to adjust for clustering in time series
+- Bayesian paradigm and hierarchical models (an example using STAN or texmex?)
+

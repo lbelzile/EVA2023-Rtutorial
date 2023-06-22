@@ -1,0 +1,95 @@
+---
+title: "Regression models"
+page-layout: full
+title-block-banner: false
+cache: true
+---
+
+
+Most data encountered display various forms of nonstationarity, including trends, seasonality and covariate effects, which the extreme value distributions cannot capture without modification.
+In environmental applications, this may be partly attributed to different weather patterns, climate change, etc.
+
+There are multiple strategies that one can consider for modelling. The first consists in fitting a regression for the whole data and perform extreme value analysis with the residuals, as before assuming stationarity [@Eastoe.Tawn:2009]. The other, proposed by @Davison.Smith:1990, tries to incorporate covariates in the parameters $\mu$, $\sigma$, etc. --- fixing the shape parameters is often recommended as it is hard to estimate.
+
+General linear modelling would consist in regression models, e.g.,
+\begin{align*}
+\mu(\mathbf{X}) = \beta_0 + \beta_1 \mathrm{X}_1 + \cdots \beta_p \mathrm{X}_p,
+\end{align*}
+and estimate as before parameters by maximum likelihood. The difficulty now is that there are more parameters to estimate and the support restriction translates into up to $n$ inequality constraints, as they must be supported for every combination of covariates found in the database. These two facts mean numerical optimization is more difficult.
+
+In models with a relatively large number of parameters, it is useful to  include additive penalty terms to the log likelihood: for example, generalized additive models for the parameters include smooth functions, typically splines, with a penalty that controls the wiggliness of the estimated predictor functions. The latter is typically evaluated using the second-order derivative of the basis functions. 
+
+In nonstationary models, risk measures of interest are defined conditionally on the value of covariates: for example, the $1-p$ conditional return level is [@Eastoe.Tawn:2009]
+\begin{align*}
+\Pr(Y_t  > y \mid \mathbf{X}_t =\boldsymbol{x}_t) = p
+\end{align*}
+and the corresponding unconditional return level,
+\begin{align*}
+\int_{\mathcal{X}} \Pr(Y_t  > y \mid \mathbf{X}_t =\boldsymbol{x}_t) \mathrm{d} P(\boldsymbol{x}_t),
+\end{align*}
+ is obtained by averaging out over the distribution of covariates that are employed in the model. For future quantities, this may or not be a sensible risk summary to compute^[What does return levels mean in a nonstationary climate? See @Rootzen.Katz:2013 for an alternative.] and may prove tricky to obtain as it requires either knowledge about the future distribution of the covariates, or else a perhaps unrealistically strong stationary assumption.
+ 
+Some parametrizations are better suited than others for regression modelling: for the nonstationary case, the generalized Pareto model with varying scale and shape is not stationary unless, for any $v$ greater than the original threshold $u$, 
+\begin{align*}
+\sigma_v(\boldsymbol{x}_t) = \sigma_u(\boldsymbol{x}_t) + (v-u) \xi(\boldsymbol{x}_t)
+\end{align*}
+which, even with constant shape $\xi$ must imply a linear or constant functional form for $\sigma_u$. Using the inhomogeneous Poisson point process representation avoids these problems.
+
+## Generalized additive models for extremes 
+
+The function `evgam` from the eponymous package allows one to specify smooth functional forms and objective estimation of the smoothing parameters using Laplace's methods [@Wood.Pya.Safken:2016], building on the `mgcv` package of Simon Wood [@Wood:2017:mgcv].
+
+The setup is `evgam(formula, data, family, ...)`, where formula is a list of formula for parameters (in the order location, scale, shape) and `family` is the character string for the extreme value distribution. Choices include `gev`, `gpd`, `rlarg` and `ald` for asymmetric Laplace, used in quantile regression, among other.
+
+```{r}
+#| label: evgam-setup
+library(evgam)
+data(frwind, package = "mev")
+lyon <- with(frwind,
+             xts::xts(x = S2, order.by = date))
+ymax <- xts::apply.yearly(lyon, max)
+years <- unique(lubridate::year(lyon))
+opt_gev_spl <- evgam::evgam(
+  data = data.frame(
+    syear = scale(years),
+    ymax = ymax),
+  formula = list(ymax ~ s(syear, k = 5, bs = "cr"),
+                 ~ 1, 
+                 ~ 1),
+  family = "gev")
+## Summary with coefficients
+summary(opt_gev_spl)
+## Plot splines (if any)
+plot(opt_gev_spl)
+## Fitted value, depend on covariates
+# predict(opt_gev_spl)
+```
+
+Given the fitted model is fitted with a quadratic penalty, we can view this under the Bayesian lens as a Gaussian prior. The posterior distribution isn't available in closed-form, but we can do a Gaussian approximation at the mode on a suitable scale (e.g., log-scale) and transform them back on the data scale. We can next simulate from the approximate posterior predictive to get samples for a new combination of covariates, or for the data matrix that was used as covariates for the fitted model (default).
+
+@fig-density-post-evgam shows the output density for each time period, which is the only one that varies in time: all other are drawn from the same marginal distribution, even if simulated samples are different for each parameter combination. If the model is severely overfitted, this will be visible because the posterior standard deviation will be tiny.
+
+```{r}
+#| eval: true
+#| echo: true
+#| label: fig-density-post-evgam
+#| fig-cap: "Density plots of 1000 posterior samples based on a normal approximation to the posterior of the location parameter of the generalized extreme value distribution, colored by year."
+#| fig-align: 'center'
+#| out-width: '80%'
+## Simulate from the posterior of parameters
+post_sim <- simulate(opt_gev_spl, nsim = 1000L, seed = 2023)
+library(ggplot2)
+ggplot(
+  data = data.frame(
+    location = c(post_sim$location),
+    year = factor(rep(1:length(years), 
+               length.out = prod(dim(post_sim$location))))),
+  mapping = aes(x = location,
+                color = year,
+                group = year)) +
+  geom_density() +
+  theme_minimal() +
+  viridis::scale_color_viridis(discrete = TRUE) +
+  theme(legend.position = "none")
+```
+

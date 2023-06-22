@@ -1,0 +1,46 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    - "*.qmd"
+    - "!contents/conditional.qmd"
+url: https://lbelzile.github.io/EVA2023-tutorial
+
+bibliography: files/bib/vignette.bib
+csl: files/bib/apa.csl
+
+website:
+  title: "Tutorial on Statistical Computing on Extremes with R"
+  navbar:
+    pinned: true
+    background: "#003C71"
+    right:
+     - text: "Notes"
+       menu: 
+        - text: "1: Likelihood-based inference"
+          file: content/likelihood.qmd
+        - text: "2: Bayesian modelling"
+          file: content/bayesian.qmd
+        - text: "3: Semiparametric modelling"
+          file: content/semiparametric.qmd
+        - text: "4: Nonstationary regression models"
+          file: content/regression.qmd
+        #- text: "5: Conditional extremes"
+        #  file: content/conditional.qmd  
+        #- text: "6: Models for time series"
+        #  file: content/timeseries.qmd  
+  search: 
+    location: navbar
+    type: textbox
+
+  page-footer:
+    left: |
+      [EVA2023](https://dec.unibocconi.eu/research/extreme-value-analysis-eva-2023)
+    right: |
+      Website built with [Quarto](https://quarto.org/)
+format:
+  html:
+    theme:
+      - litera
+      - html/custom.scss
+

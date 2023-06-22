@@ -1,0 +1,49 @@
+---
+page-layout: full
+title-block-banner: false
+---
+
+# Description
+
+This satellite workshop will review **R** implementations of a variety of techniques for statistical analysis of extreme values. The focus of the first part of the workshop will be on univariate extremes, including likelihood-based, Bayesian and nonparametric methods for both peaks-over-threshold and block maxima approaches, with a foray into nonstationary extremes. The second part of the workshop will concentrate on conditional extremes and time series.
+
+The tutorial takes place Friday, June 30th, 2023, from 14:00 until 18:15. 
+
+# Course content
+
+Univariate extremes: 
+
+- [Likelihood-based modelling](slides/EVA2023-Rsoftware-likelihood.html)
+- Threshold selection for peaks over threshold
+- Semiparametric methods
+- Bayesian inference
+- Nonstationary extremes
+
+Multivariate extremes and time series:
+
+- Conditional extremes model
+- Time series
+
+
+# Instructions
+
+We will be using multiple **R** packages from the Comprehensive R Archive Network, as well as development versions of some packages.
+
+If you plan on using your own laptop, download and install [**R** (current version `r version$major`.`r version$minor`, nicknamed "`r version$nickname`")](https://cran.r-project.org/) and an integrated development environment such as [**RStudio**](https://www.rstudio.com/products/rstudio/download/#download).
+
+```{r}
+#| eval: false
+#| echo: true
+devpkgs <- c("lbelzile/mev", "swager/rbm")
+cranpkgs <- c("lite", "revdbayes", "texmex",
+              "threshr", "tea", "evt0", "remotes",
+              "xts", "lubridate", "ggplot2")
+install.packages(cranpkgs)
+remotes::install_github(devpkgs)
+```
+
+# Instructors
+
+- [Thomas Opitz](https://biosp.mathnum.inrae.fr/homepage-thomas-opitz), INRAE
+- [Léo Belzile](https://lbelzile.bitbucket.io), HEC Montréal
+
