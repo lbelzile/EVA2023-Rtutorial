@@ -34,7 +34,7 @@ If you plan on using your own laptop, download and install [**R** (current versi
 ```{r}
 #| eval: false
 #| echo: true
-devpkgs <- c("lbelzile/mev", "swager/rbm")
+devpkgs <- c("lbelzile/mev", "lbelzile/rbm")
 cranpkgs <- c("lite", "revdbayes", "texmex",
               "threshr", "tea", "evt0", "remotes",
               "xts", "lubridate", "ggplot2")
