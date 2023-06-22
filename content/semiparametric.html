@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.361">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Tutorial on Statistical Computing on Extremes with R - Semiparametric methods and Hill estimation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Tutorial on Statistical Computing on Extremes with R</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-notes" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Notes</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-notes">    
+        <li>
+    <a class="dropdown-item" href="../content/likelihood.html" rel="" target="">
+ <span class="dropdown-text">1: Likelihood-based inference</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../content/bayesian.html" rel="" target="">
+ <span class="dropdown-text">2: Bayesian modelling</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../content/semiparametric.html" rel="" target="">
+ <span class="dropdown-text">3: Semiparametric modelling</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../content/regression.html" rel="" target="">
+ <span class="dropdown-text">4: Nonstationary regression models</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content column-page" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Semiparametric methods and Hill estimation</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<p>There are multiple alternative estimators of the shape parameter for heavy-tailed data, the most popular of which is the <span class="citation" data-cites="Hill:1975">Hill (<a href="#ref-Hill:1975" role="doc-biblioref">1975</a>)</span> estimator . Consider a random sample of order statistics <span class="math inline">\(Y_{(1)} &gt; \cdots &gt; Y_{(n)}\)</span>. The latter is, for exceedances above <span class="math inline">\(Y_{(n-k)} &gt;0\)</span>, <span class="math display">\[\begin{align}
+H_{n,k}(\boldsymbol{Y}) = \frac{1}{k}\sum_{i=n-k+1}^{n} \log Y_{(i)} - \log Y_{(n-k)}, \qquad (j=1, 2), \label{eq:Hillest}
+\end{align}\]</span></p>
+<p>Under a second order regular variation assumption and provided <span class="math inline">\(\lim_{k \to \infty} k^{1/2}A(n/k) = \lambda\in \mathbb{R}\)</span>, Hill’s estimator is asymptotically normal with <span class="math display">\[\begin{align*}
+k^{1/2}(H_{n,k} - \xi) \to \mathsf{No}\{\lambda/(1-\rho), \xi^2\}, \qquad \xi&gt;0, \rho \leq 0;
+\end{align*}\]</span> the asymptotic bias term is dictated by the rate at which the number of extreme observations grows relative to the total sample size and depends on the unknown second-order auxiliary function <span class="math inline">\(A(\cdot)\)</span> which is distribution-specific. The estimator is consistent for <span class="math inline">\(\xi\)</span> provided <span class="math inline">\(k=k(n)\)</span> is an intermediate sequence satisfying <span class="math inline">\(k/n \to 0\)</span> as <span class="math inline">\(k, n \to \infty\)</span> such that <span class="math inline">\(\lambda \to 0\)</span>. Note the asymptotic variance, to be constrasted with that of the maximum likelihood estimator of the shape for the generalized Pareto shape, which is <span class="math inline">\((1+\xi)^2\)</span>.</p>
+<section id="threshold-selection-for-hills-estimator" class="level2">
+<h2 class="anchored" data-anchor-id="threshold-selection-for-hills-estimator">Threshold selection for Hill’s estimator</h2>
+<div class="cell" data-hash="semiparametric_cache/html/unnamed-chunk-1_e795be45c06ba108a01b0456f2c2522c">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(frwind, <span class="at">package =</span> <span class="st">"mev"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>lyon <span class="ot">&lt;-</span> <span class="fu">sort</span>(frwind<span class="sc">$</span>S2, <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"lbelzile/rbm"</span>, <span class="at">quiet =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit Hill's estimator</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>hill_est <span class="ot">&lt;-</span> rbm<span class="sc">::</span><span class="fu">hill</span>(<span class="at">data_array =</span> lyon,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">idx =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">400</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hill_est)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="semiparametric_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We can see that the Hill estimator values are quite stable (which is seldom the case) and however around 0.1. However, maximum likelihood estimators of the shape parameter <span class="math inline">\(\xi\)</span> are much closer to zero and negative for other wind speed series. The noticeable tilted staircase pattern is an artefact of rounding.</p>
+<p>A simple graphical method for choosing the number of order statistics to keep is a plot of the rank against shape parameters, termed Hill plots. Practical recommendations are that (1) the number of order statistics should be restricted (say 20 to 500), (2) the graph is more easily interpreted when the <span class="math inline">\(x\)</span>-axis shows normalized log ranks <span class="math inline">\(\log(k)/\log(n)\)</span>, and (3) parameters should be smoothed using a moving window estimator, as the sample path of the Hill estimator are analogous to a Brownian motion.</p>
+<p>Note that Hill estimator is not location invariant. The pointwise confidence intervals reported by must methods are based on exact Pareto tails, so are at best approximate.</p>
+<div class="cell" data-hash="semiparametric_cache/html/unnamed-chunk-2_b56dbd290074409cb18fd1168822fda8">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>evmix<span class="sc">::</span><span class="fu">hillplot</span>(<span class="at">data =</span> lyon[<span class="dv">1</span><span class="sc">:</span><span class="dv">300</span>],</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">hill.type =</span> <span class="st">"SmooHill"</span>, </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">r =</span> 3L, </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">x.theta =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="semiparametric_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>There are multiple alternative estimators of the shape parameter: extensive simulation studies show that the threshold selection performance using the random block maxima estimator of <span class="citation" data-cites="Wager:2014">Wager (<a href="#ref-Wager:2014" role="doc-biblioref">2014</a>)</span> is competitive. The latter is a <span class="math inline">\(U\)</span> statistic and has <span class="math inline">\(\mathcal{C}^{\infty}\)</span> sample paths: the selection is based on empirical risk minimization using a finite-difference approximation to the squared derivative of the process, subject to a penalty term. Although the computational cost is higher than Hill’s estimator, it can be kept reasonable by restricting attention to only largest exceedances.</p>
+<div class="cell" data-hash="semiparametric_cache/html/unnamed-chunk-3_cfd6bb2b0db0646f949df7ff6a45fd90">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>rbm_est <span class="ot">&lt;-</span> rbm<span class="sc">::</span><span class="fu">rbm.point_estimate</span>(lyon[<span class="dv">1</span><span class="sc">:</span><span class="dv">300</span>])</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>plot <span class="ot">&lt;-</span> rbm<span class="sc">::</span><span class="fu">rbm.plot</span>(lyon[<span class="dv">1</span><span class="sc">:</span><span class="dv">300</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="semiparametric_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Other threshold selection methods, including the minimization of the asymptotic mean squared error of the Hill estimator highlighted in Section 2 of <span class="citation" data-cites="Caeiro.Gomes:2016">Caeiro &amp; Gomes (<a href="#ref-Caeiro.Gomes:2016" role="doc-biblioref">2016</a>)</span>, also works well but can fail catastrophically in some settings. Here, the answer (in terms of the tail index <span class="math inline">\(\alpha=1/\xi\)</span>), is similar to other packages</p>
+<div class="cell" data-hash="semiparametric_cache/html/unnamed-chunk-4_342174c0929304cb0bf74f88ac27f734">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>est_AMSE <span class="ot">&lt;-</span> tea<span class="sc">::</span><span class="fu">dAMSE</span>(lyon[<span class="dv">1</span><span class="sc">:</span><span class="dv">300</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Many such estimators are available from the <code>tea</code> package. Extensions that deal with censoring and conditional estimators (<code>ReIns</code>), time series (<code>extremefit</code>), etc. but we will not attempt to cover those.</p>
+</section>
+<section id="quantile-estimator" class="level2">
+<h2 class="anchored" data-anchor-id="quantile-estimator">Quantile estimator</h2>
+<p>Given an estimate of a positive shape parameter, we can get quantile estimates through <span class="citation" data-cites="Weissman:1978">Weissman (<a href="#ref-Weissman:1978" role="doc-biblioref">1978</a>)</span> formula. The estimator of the quantile at level <span class="math inline">\(1-p\)</span>, for small <span class="math inline">\(p\)</span>, is <span class="math display">\[\begin{align*}
+Q^W_{k,n}(1-p) = Y_{(n-k)} \left\{ \frac{k+1}{p(n+1)} \right\}^{H_{k,n}},                                                                     \end{align*}\]</span> where <span class="math inline">\(H_{k,n}\)</span> is the Hill estimator of the shape parameter and <span class="math inline">\(Y_{(n-k)}\)</span> is the <span class="math inline">\((n-k)\)</span>th order statistic, acting as threshold. While there are software that return these quantities, including the <code>ReIns</code>, <code>evt0</code> and <code>extremefit</code> packages, they are easily coded.</p>
+<p>Below, we show how to estimate the 0.999 quantile of the distribution by extrapolating the shape</p>
+<div class="cell" data-hash="semiparametric_cache/html/unnamed-chunk-5_ff1d257f0c0f9bb8db4e79d215ba63f6">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>qweissman <span class="ot">&lt;-</span> <span class="cf">function</span>(n, p, k, thresh, shape){</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  thresh <span class="sc">*</span> ((k <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> p)<span class="sc">/</span> (n <span class="sc">+</span> <span class="dv">1</span>))<span class="sc">^</span>shape</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>quants <span class="ot">&lt;-</span> <span class="fu">qweissman</span>(<span class="at">n =</span> <span class="fu">length</span>(lyon), </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">p =</span> <span class="fu">seq</span>(<span class="fl">0.99</span>, <span class="fl">0.999</span>, <span class="at">length.out =</span> <span class="dv">101</span>), </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">thresh =</span> est_AMSE<span class="sc">$</span>threshold,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">k =</span> est_AMSE<span class="sc">$</span>k0, </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">shape =</span> <span class="dv">1</span><span class="sc">/</span>est_AMSE<span class="sc">$</span>tail.index)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Uncertainty statements, if any, could be obtained by bootstrap methods or using asymptotic normality, but given the sampling distribution of the quantile estimator is strongly asymmetric, Wald-type (symmetric) confidence intervals are bound to give poor coverage.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-line-spacing="2" role="list">
+<div id="ref-Caeiro.Gomes:2016" class="csl-entry" role="listitem">
+Caeiro, F., &amp; Gomes, M. I. (2016). Threshold selection in extreme value analysis. In D. K. Dey &amp; J. Yan (Eds.), <em>Extreme value modeling and risk analysis: Methods and applications</em> (pp. 69–86). CRC Press. <a href="https://doi.org/10.1201/b19721">https://doi.org/10.1201/b19721</a>
+</div>
+<div id="ref-Hill:1975" class="csl-entry" role="listitem">
+Hill, B. M. (1975). A simple general approach to inference about the tail of a distribution. <em>Annals of Statistics</em>, <em>3</em>, 1163–1174. <a href="https://doi.org/10.1214/aos/1176343247">https://doi.org/10.1214/aos/1176343247</a>
+</div>
+<div id="ref-Wager:2014" class="csl-entry" role="listitem">
+Wager, S. (2014). Subsampling extremes: From block maxima to smooth tail estimation. <em>Journal of Multivariate Analysis</em>, <em>130</em>, 335–353. <a href="https://doi.org/10.1016/j.jmva.2014.06.010">https://doi.org/10.1016/j.jmva.2014.06.010</a>
+</div>
+<div id="ref-Weissman:1978" class="csl-entry" role="listitem">
+Weissman, I. (1978). Estimation of parameters and large quantiles based on the <span class="math inline">\(k\)</span> largest observations. <em>Journal of the American Statistical Association</em>, <em>73</em>, 812–815. <a href="https://doi.org/10.1080/01621459.1978.10480104">https://doi.org/10.1080/01621459.1978.10480104</a>
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left"><a href="https://dec.unibocconi.eu/research/extreme-value-analysis-eva-2023">EVA2023</a></div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">Website built with <a href="https://quarto.org/">Quarto</a></div>
+  </div>
+</footer>
+
+
+
+</body></html>
