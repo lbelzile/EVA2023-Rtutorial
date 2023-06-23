@@ -28,5 +28,8 @@
   },
   "slides/EVA2023-Rsoftware-likelihood.qmd": {
     "EVA2023-Rsoftware-likelihood.html": "005fcf77"
+  },
+  "slides/EVA2023-Rsoftware-bayesian.qmd": {
+    "EVA2023-Rsoftware-bayesian.html": "97d7cee4"
   }
 }

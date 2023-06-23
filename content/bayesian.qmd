@@ -10,7 +10,7 @@ The posterior distribution,
 $$
  p(\boldsymbol{\theta} \mid \boldsymbol{Y}) = \frac{p(\boldsymbol{Y} \mid \boldsymbol{\theta})p(\boldsymbol{\theta})}{ \int p(\boldsymbol{Y} \mid \boldsymbol{\theta})p(\boldsymbol{\theta})\mathrm{d}\boldsymbol{\theta}},
 $$ {#eq-bayes}
- is proportional, as a function of $\boldsymbol{\theta}$, to the product of the likelihood and the priors in the numerator, but the integral appearing in the denominator of @eq-bayes is untractable in general.  In such cases, the posterior density  $p(\boldsymbol{\theta} \mid \boldsymbol{Y})$ usually does not correspond to any well-known distribution family, and posterior inferences about the components of $\boldsymbol{\theta}$ further involve marginalizing out the other components. 
+ is proportional, as a function of $\boldsymbol{\theta}$, to the product of the likelihood and the priors in the numerator, but the integral appearing in the denominator of @eq-bayes is intractable in general.  In such cases, the posterior density  $p(\boldsymbol{\theta} \mid \boldsymbol{Y})$ usually does not correspond to any well-known distribution family, and posterior inferences about the components of $\boldsymbol{\theta}$ further involve marginalizing out the other components. 
  
  
  For instance, to obtain the posterior density $p(\theta_1\mid \boldsymbol{Y})$ of the first parameter in $\boldsymbol{\theta}$, we have to evaluate the $(m-1)$-dimensional integral $\int p(\boldsymbol{\theta} \mid \boldsymbol{Y})\,\mathrm{d}(\theta_2,\ldots,\theta_m)$. If we have posterior draws from $\boldsymbol{\theta}$, this amounts to picking out only entries that correspond to the particular parameter of interest, e.g., $\theta_1$. 

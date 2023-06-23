@@ -1,7 +1,7 @@
 ---
 title: "Tutorial on Statistical Computing for Extremes with **R**"
 author: "Léo Belzile"
-subtitle: "Extreme Value Analysis"
+subtitle: "Likelihood-based inference for univariate extremes"
 date: "June 30, 2023"
 eval: true
 echo: true
@@ -38,7 +38,7 @@ knitr::opts_chunk$set(fig.retina = 3, collapse = TRUE)
 options(digits = 3, width = 75)
 ```
 
-
+<!--
 ## Plan for today {background-color="`r pcols['bleu']`" .white}
 
 :::: {.columns}
@@ -61,6 +61,9 @@ options(digits = 3, width = 75)
 :::
 
 ::::
+
+-->
+
 ## Extremal type theorem
 
 Consider $Y_i$ $(i=1,2,\ldots)$ i.i.d. with distribution $F$. 
@@ -167,7 +170,7 @@ plot(opt_gev)
 
 If $h$ is a mapping, then $h(\widehat{\boldsymbol{\theta}})$ is the MLE of $h(\boldsymbol{\theta})$.
 
-For example, the expected maximum for $n=50$ years of data, assuming annual maximum are exactly GEV and $\xi < 1$, is  \begin{align*}\mathfrak{e}_N = h(\mu, \sigma, \xi) = \mu_N + \sigma_N{\Gamma(1-\xi)-1\}/\xi.
+The expected value of the $N=50$-years maximum for $\xi < 1$, is  \begin{align*}\mathfrak{e}_N = h(\mu, \sigma, \xi) = \mu_N + \sigma_N\{\Gamma(1-\xi)-1\}/\xi.
 \end{align*}
 
 

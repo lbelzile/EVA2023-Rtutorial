@@ -49,7 +49,8 @@ term. Although the computational cost is higher than Hill’s estimator, it can 
 ```{r}
 rbm_est <- rbm::rbm.point_estimate(lyon[1:300])
 plot <- rbm::rbm.plot(lyon[1:300])
-````
+```
+
 Other threshold selection methods, including the minimization of the asymptotic mean squared error of the Hill estimator highlighted in Section 2 of @Caeiro.Gomes:2016, also works well but can fail catastrophically in some settings. Here, the answer (in terms of the tail index $\alpha=1/\xi$), is similar to other packages
 
 ```{r}
@@ -62,7 +63,9 @@ Many such estimators are available from the `tea` package. Extensions that deal 
 
 Given an estimate of a positive shape parameter, we can get quantile estimates through @Weissman:1978 formula. The estimator of the quantile at level $1-p$, for small $p$, is
 \begin{align*}
-Q^W_{k,n}(1-p) = Y_{(n-k)} \left\{ \frac{k+1}{p(n+1)} \right\}^{H_{k,n}},                                                                     \end{align*}
+Q^W_{k,n}(1-p) = Y_{(n-k)} \left\{ \frac{k+1}{p(n+1)} \right\}^{H_{k,n}},                                      
+\end{align*}
+
 where $H_{k,n}$ is the Hill estimator of the shape parameter and $Y_{(n-k)}$ is the $(n-k)$th order statistic, acting as threshold. While there are software that return these quantities, including the `ReIns`, `evt0` and `extremefit` packages, they are easily coded.
 
 

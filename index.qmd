@@ -16,7 +16,7 @@ Univariate extremes:
 - [Likelihood-based modelling](slides/EVA2023-Rsoftware-likelihood.html)
 - Threshold selection for peaks over threshold
 - Semiparametric methods
-- Bayesian inference
+- [Bayesian inference](slides/EVA2023-Rsoftware-bayesian.html)
 - Nonstationary extremes
 
 Multivariate extremes and time series:

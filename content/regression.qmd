@@ -6,10 +6,9 @@ cache: true
 ---
 
 
-Most data encountered display various forms of nonstationarity, including trends, seasonality and covariate effects, which the extreme value distributions cannot capture without modification.
-In environmental applications, this may be partly attributed to different weather patterns, climate change, etc.
+Most data encountered in applications display various forms of nonstationarity, including trends, time-varying variance, seasonality and covariate effects. In environmental applications, these may be partly attributed to the presence of different weather patterns or regimes, to climate change, etc. Extreme value distributions cannot capture these phenomena without modification. There is no general theory for nonstationary extremes, and therefore there are multiple strategies that one can consider for modelling. 
 
-There are multiple strategies that one can consider for modelling. The first consists in fitting a regression for the whole data and perform extreme value analysis with the residuals, as before assuming stationarity [@Eastoe.Tawn:2009]. The other, proposed by @Davison.Smith:1990, tries to incorporate covariates in the parameters $\mu$, $\sigma$, etc. --- fixing the shape parameters is often recommended as it is hard to estimate.
+The first consists in fitting a regression for the whole data and perform extreme value analysis with the residuals, as before assuming stationarity [@Eastoe.Tawn:2009]. The second, proposed by @Davison.Smith:1990, tries to incorporate covariates in the parameters $\mu$, $\sigma$, etc. --- fixing the shape parameters is often recommended as it is hard to estimate.
 
 General linear modelling would consist in regression models, e.g.,
 \begin{align*}
@@ -18,6 +17,11 @@ General linear modelling would consist in regression models, e.g.,
 and estimate as before parameters by maximum likelihood. The difficulty now is that there are more parameters to estimate and the support restriction translates into up to $n$ inequality constraints, as they must be supported for every combination of covariates found in the database. These two facts mean numerical optimization is more difficult.
 
 In models with a relatively large number of parameters, it is useful to  include additive penalty terms to the log likelihood: for example, generalized additive models for the parameters include smooth functions, typically splines, with a penalty that controls the wiggliness of the estimated predictor functions. The latter is typically evaluated using the second-order derivative of the basis functions. 
+
+For example, consider a function of covariates $f(x_j) = \sum_{k=1}^K \beta_k b_k(x_j)$, where $b_k(\cdot)$ is a basis function, possibly with compact support. We then consider penalties that penalize the squared second derivative of the function $f(x)$. Since the regression coefficients $\beta$'s are constants, the penalty can be expressed in terms of the second derivative of the basis functions concatenated in a smooth matrix $\mathbf{S}$ with $(i,j)$th entry $S_{ij} = \int b_i''(x) b_j''(x)\mathrm{d} x$, so the penalty can be written $\lambda \boldsymbol{\beta}^\top \mathbf{S}\boldsymbol{\beta}$ for some tuning parameter $\lambda \geq 0$ that controls the tuning. The penalty can be viewed in the Bayesian paradigm as an improper Gaussian prior. The optimal value of $\lambda$ for smoothing is selected by maximizing the marginal likelihood: in high-dimensional settings, or why we include interactions, optimization of this is far from trivial.
+
+The `mgcv` package in **R** allows for estimation of generalized additive models using the methods described above. There are multiple choice of basis functions that can be used, including the default thin-plate spline `tp`, cubic splines `cs` and cubic cyclic splines `cc` for cyclic covariates such as period of year.
+While most software for generalized additive models will allow for The smooths consisting of linear combination of basis functions
 
 In nonstationary models, risk measures of interest are defined conditionally on the value of covariates: for example, the $1-p$ conditional return level is [@Eastoe.Tawn:2009]
 \begin{align*}
@@ -65,9 +69,9 @@ plot(opt_gev_spl)
 # predict(opt_gev_spl)
 ```
 
-Given the fitted model is fitted with a quadratic penalty, we can view this under the Bayesian lens as a Gaussian prior. The posterior distribution isn't available in closed-form, but we can do a Gaussian approximation at the mode on a suitable scale (e.g., log-scale) and transform them back on the data scale. We can next simulate from the approximate posterior predictive to get samples for a new combination of covariates, or for the data matrix that was used as covariates for the fitted model (default).
+Interpreting the penalty as an improper Gaussian prior, we can view this model under the Bayesian lens. The posterior distribution isn't available in closed-form, but we can do a Gaussian approximation at the mode on a suitable scale (e.g., log-scale), sample from this multivariate Gaussian approximation of $p(\boldsymbol{\theta}) \stackrel{\cdot}{\sim}\mathsf{No}_p$ and transform them back on the parameter scale. Given draws of $\boldsymbol{\theta}$, we can next simulate new realizations $p(Y \mid \boldsymbol{\theta}, \mathbf{X}_{\text{new}})$ from the approximate posterior predictive  for new combinations of covariates, or even for the data matrix that was used as covariates for the fitted model (default).
 
-@fig-density-post-evgam shows the output density for each time period, which is the only one that varies in time: all other are drawn from the same marginal distribution, even if simulated samples are different for each parameter combination. If the model is severely overfitted, this will be visible because the posterior standard deviation will be tiny.
+@fig-density-post-evgam shows the output density for the location parameter for each time period in the records, as this is the only parameter that varies as a function of time ($\log(\sigma)$ and $\xi$ are drawn from the same marginal distribution, even if simulated sample values are different for each time period combination). If the model is severely overfitted, this will be visible because the posterior standard deviation will be tiny.
 
 ```{r}
 #| eval: true

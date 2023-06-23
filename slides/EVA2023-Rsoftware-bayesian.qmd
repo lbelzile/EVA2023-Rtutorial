@@ -1,0 +1,371 @@
+---
+title: "Tutorial on Statistical Computing for Extremes with **R**"
+author: "Léo Belzile"
+subtitle: "Bayesian inference"
+date: "June 30, 2023"
+eval: true
+cache: true
+echo: true
+format:
+  revealjs:
+    slide-number: true
+    preview-links: auto
+    theme: [simple, hecmontreal.scss]
+    title-slide-attributes:
+      data-background-color: "#002855"
+bibliography: EVA2023-software.bib
+---
+
+
+```{r include=FALSE}
+
+hecbleu <- c("#002855")
+fcols <- c(gris = "#888b8d",
+           bleu = "#0072ce",
+           aqua = "#00aec7",
+           vert = "#26d07c",
+           rouge = "#ff585d",
+           rose = "#eb6fbd",
+           jaune = "#f3d03e")
+pcols <- c(gris = "#d9d9d6",
+           bleu = "#92c1e9",
+           agua = "#88dbdf",
+           vert = "#8fe2b0",
+           rouge = "#ffb1bb",
+           rose = "#eab8e4",
+           jaune = "#f2f0a1")
+
+knitr::opts_chunk$set(fig.retina = 3, collapse = TRUE)
+options(digits = 3, width = 75)
+```
+
+
+## Bayesian inference
+
+- Combine likelihood with a prior: posterior.
+
+$$
+ p(\boldsymbol{\theta} \mid \boldsymbol{Y}) = \frac{p(\boldsymbol{Y} \mid \boldsymbol{\theta})p(\boldsymbol{\theta})}{ \int p(\boldsymbol{Y} \mid \boldsymbol{\theta})p(\boldsymbol{\theta})\mathrm{d}\boldsymbol{\theta}},
+$$ {#eq-bayes}
+
+- Posterior is proper (if likelihood times prior is integrable).
+- Parameters asymptotically normal in large samples under general conditions.
+- Need to evaluate integral in denominator (normalizing constant that does not depend on $\boldsymbol{\theta}$).
+
+
+## Change of paradigm
+
+In the Bayesian world,
+
+- inference is conditional on observations, 
+- parameters are treated as random variables
+   - (reflecting uncertainty about their true value).
+
+## Inference
+
+- In all scenarios, we will have samples from the posterior distribution for parameters $\boldsymbol{\theta}$: any summary can be computed from these via Monte Carlo methods.
+
+- e.g., we can report the posterior mean or median
+- credible intervals (probability that parameter falls in) are simply quantiles of functionals
+
+## Prediction 
+
+We consider new realizations from **posterior predictive**
+\begin{align*}
+p(Y_{\text{new}} \mid \boldsymbol{Y})
+\int_{\Theta} p(Y_{\text{new}}  \mid \boldsymbol{\theta}) p(\boldsymbol{\theta} \mid  \boldsymbol{Y}) \mathrm{d} \boldsymbol{\theta}
+\end{align*}
+
+- For every posterior draw $\boldsymbol{\theta}_b$ $(b=1, \ldots, B)$, sample new realization from generative model.
+- Marginalization means discarding $\boldsymbol{\theta}_b$'s
+
+## Why bother?
+
+- Priors can act as penalty
+   - regularizing parameter estimates in small samples.
+- Natural extensions via hierarchical modelling (e.g., random effects).
+- Expert knowledge can be encoded through the priors.
+
+
+## Intractable models
+
+Trade optimization for integration problem!
+
+
+The integral is intractable, so we need to resort to alternative schemes:
+
+- Numerical integration via Laplace approximations (INLA)
+- Monte Carlo methods to simulate (approximate) draws from the posterior
+
+## Monte Carlo methods
+
+- Most packages implement offer Markov chain Monte Carlo algorithms
+   - gives approximate correlated draws
+   - requires tuning
+   - need to check convergence
+   
+   
+For models without covariates, @revdbayes offers *exact* draws from posterior via the ratio-of-uniform algorithm.
+   
+## Bayesian dispute
+
+One objection to Bayesian inference is arbitrary selection of priors
+
+- Influence of the prior vanishes as sample size grows unless it imposes support constraints!
+- Likelihood are also often used for convenience
+- Same for lasso and ridge ($L_1$ and $L_2$) penalties in regression.
+
+## Prior selection
+
+- Typically, parameters are assumed independent apriori (so prior factorizes), even if posterior doesn't
+- Choosing proper priors (density functions) ensure proper posteriors.
+- Care is needed, especially for shape parameter
+
+## Priors for extreme value models (1/2)
+
+Popular choices include
+
+- improper uniform priors
+- vague or diffuse Gaussian priors, e.g., $\xi \sim \mathsf{No}(0, 10)$
+- Jeffrey's prior (invariant to reparametrization.
+   - for generalized Pareto $$\sigma^{-1}(1+\xi)^{-1}(1+2\xi)^{-1/2}\mathrm{I}_{\xi > -1/2}$$
+   - invalid for the GEV regardless of sample size[@Northrop.Attalides:2016]!
+
+## Priors for extreme value models (2/2)
+
+Better choices penalize the shape, including
+
+- @Martins.Stedinger:2001 prior $\xi + 0.5 \sim \mathsf{Beta}(6, 9)$
+- Maximal data information (MDI): $\sigma^{-1}\exp\{-a(1+\xi)\}\mathrm{I}_{\xi \geq -1}$ @Northrop.Attalides:2016
+- Prior on quantiles [@Coles.Tawn:1996], back-transformed
+
+## Impact of priors
+
+```{r}
+#| cache: true
+#| eval: true
+#| echo: false
+#| label: fig-posteriorxi
+#| fig-cap: "Marginal posterior of GEV shape parameter for different prior distributions."
+#| fig-align: 'center'
+#| message: false
+library(revdbayes)
+library(ggplot2)
+data("frwind", package = "mev")
+lyon <- with(frwind,
+             xts::xts(x = S2, order.by = date))
+# Create series of yearly maximum
+ymax <- as.numeric(xts::apply.yearly(lyon, max))
+# Fit a model with a trivariate normal prior for mu, log(sigma), xi
+prior1 <- set_prior(prior = "mdi", model = "gev")
+prior2 <- set_prior(prior = "beta", model = "gev")
+prior3 <- set_prior(prior = "norm", 
+                model = "gev", 
+                mean = c(mean(ymax), log(sd(ymax)), 0), 
+                cov = diag(c(1000, 1000, 1)))
+
+post_1 <- revdbayes::rpost_rcpp(
+  n = 1e4L, 
+  model = "gev",
+  data = ymax,
+  prior = prior1,
+  nrep = 100)
+post_samp1 <- post_1$sim_vals
+post_samp2 <- revdbayes::rpost_rcpp(
+  n = 1e4L, 
+  model = "gev",
+  data = ymax,
+  prior = prior2)$sim_vals
+post_samp3 <- revdbayes::rpost_rcpp(
+  n = 1e4L, 
+  model = "gev",
+  data = ymax,
+  prior = prior3)$sim_vals
+# Compute marginal posterior for shape
+ggplot(data = data.frame(
+  shape = c(post_samp1[,'xi'],
+            post_samp2[,'xi'],
+            post_samp3[,'xi']),
+  prior = rep(c("mdi", "beta", "normal"), 
+              each = 1e4L)),
+  mapping = aes(x = shape,
+                col = prior, 
+                group = prior)) +
+  geom_density() +
+  scale_color_viridis_d() + 
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+## Ratio-of-uniform sampling 
+
+The `revdbayes` [@revdbayes] provides the state-of-the-art for stationary models (faster than MCMC, exact sampling).
+
+```{r}
+#| eval: true
+#| echo: false
+library(ggplot2)
+data("frwind", package = "mev")
+lyon <- with(frwind,
+             xts::xts(x = S2, order.by = date))
+ymax <- as.numeric(xts::apply.yearly(lyon, max))
+```
+
+```{r}
+#| eval: true
+#| echo: true
+library(revdbayes)
+post <- revdbayes::rpost_rcpp(
+  n = 1e4L, # number of posterior samples
+  model = "gev", # extreme value distribution
+  data = ymax, # vector of yearly maximum
+  prior = set_prior(prior = "mdi", model = "gev"),
+  nrep = 100) # number of post. predictive samples
+```
+
+## Point estimators and credible intervals
+
+For each combination of posterior draw, compute the functional of interest (e.g., the median of the 50-year maximum) and/or quantiles.
+
+```{r}
+post_gev_Nmed <- apply(post$sim_vals, 1, function(x){
+  revdbayes::qgev(p = 0.5, loc = x[1], scale = x[2], 
+                  shape = x[3], m = 50)
+})
+# Posterior mean
+mean(post_gev_Nmed)
+# To get a 95% credible interval, simply compute quantiles
+quantile(post_gev_Nmed, c(0.025, 0.975))
+```
+
+## Posterior predictive samples
+
+Here, using max-stability to get a new observation (maximum of 50 yearly max) for each draw $\boldsymbol{\theta}$.
+
+```{r}
+postpred <- revdbayes::rgev(
+  n = nrow(post$sim_vals), 
+  loc = post$sim_vals[,1],
+  scale = post$sim_vals[,2],
+  shape = post$sim_vals[,3],
+  m = 50)
+```
+
+## Posterior predictive
+
+
+```{r}
+#| label: fig-postpred
+#| echo: false
+#| fig-cap: "Density of posterior predictive (black) and posterior median (grey) of 50 year maximum."
+ggplot(data = data.frame(
+  postpred = postpred,
+  postmed = post_gev_Nmed)) +
+  geom_density(mapping = aes(x = postmed), color = "grey") +
+  geom_density(mapping = aes(x = postpred), color = "black", linewidth = 2) +
+  labs(x = "average wind speed (in km/h)") + 
+  theme_classic() +
+  theme(legend.position = "none") 
+```
+
+## Diagnostics for Bayesian workflow
+
+Can model capture summaries of data?
+
+```{r}
+pp_check(post, stat = median)
+```
+
+See `bayesplot` and `loo` packages for more information and options about the Bayesian workflow [@Gabry:2019].
+
+## Regression model
+
+```{r}
+library(texmex)
+post_reg <- texmex::evm(
+  y = ymax, 
+  data = data.frame(
+    syear = scale(1976:2023), 
+    ymax = ymax),
+  family = texmex::gev,
+  method = "simulate",
+  burn = 1000L,
+  chains = 4L,
+  iter  = 1.1e4,
+  proposal.dist = "gaussian",
+  mu = ~ syear,
+  verbose = FALSE)
+```
+
+## Posterior estimates
+
+```{r}
+summary(post_reg)
+```
+```{r}
+#| eval: false
+## Default 'plot' method for texmex objects:
+# density, traceplots and correlograms plots
+library(gridExtra)
+ggplot(post_reg)
+```
+
+## Monitoring Markov chain Monte Carlo
+
+- run multiple Markov chains from different starting values
+- discard initial samples (burn-in)  
+- check convergence:
+   - are all chains converging to the same region 
+   - are chains stationary?
+
+## Effective sample size
+
+With multiple chains, it is easier to use output of `coda` package.
+
+For summaries to be reliable (e.g., quantiles of posterior), the approximate number of independent samples from the total simulated should be large enough.
+```{r}
+chains <- coda::as.mcmc.list(
+  lapply(post_reg$chains, coda::as.mcmc))
+# effective sample size is sufficient here
+coda::effectiveSize(chains)
+```
+
+Can compare algorithms efficiency via effective sample size per second.
+
+## Traceplots
+
+```{r}
+## Default 'plot' method for texmex objects:
+# density, traceplots and correlograms plots
+plot(chains, density = FALSE)
+```
+
+Should look like fat hairy catterpilars.
+
+
+## Algorithm efficiency
+
+While some MCMC algorithms are more costly, they yield samples that are less autocorrelated (so contain more information altogether).
+
+- Is autocorrelation reasonable?
+- Related to acceptance rate (Goldilock principle)
+- Ideally, algorithms sample parameters on unconstrained space 
+- Good proposals adapt to the local geometry and satisfy support constraints
+
+## Correlograms
+```{r}
+coda::acfplot(chains)
+```
+## Summaries
+
+We can get directly summaries (e.g., posterior sample mean)
+
+- standard errors for functionals is more complicated due to the autocorrelation
+
+Due to autocorrelation, we need to use dedicated method to get standard errors.
+
+```{r}
+summary(chains)
+```
+
+## References

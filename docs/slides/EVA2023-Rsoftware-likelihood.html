@@ -411,7 +411,7 @@
 
 <section id="title-slide" data-background-color="#002855" class="quarto-title-block center">
   <h1 class="title">Tutorial on Statistical Computing for Extremes with <strong>R</strong></h1>
-  <p class="subtitle">Extreme Value Analysis</p>
+  <p class="subtitle">Likelihood-based inference for univariate extremes</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -423,26 +423,33 @@ Léo Belzile
 
   <p class="date">2023-06-30</p>
 </section>
-<section id="plan-for-today" class="slide level2 white" data-background-color="#92c1e9">
-<h2>Plan for today</h2>
-<div class="columns">
-<div class="column" style="width:40%;">
-<ul>
-<li>Univariate extremes
-<ul>
-<li>Maximum likelihood</li>
-<li>Bayesian</li>
-<li>Semiparametric methods</li>
-</ul></li>
-<li>Regression models</li>
-</ul>
-</div><div class="column" style="width:40%;">
-<ul>
-<li>Conditional extremes</li>
-<li>Models for time series</li>
-</ul>
-</div>
-</div>
+<section class="slide level2">
+
+<!--
+## Plan for today {background-color="#92c1e9" .white}
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+- Univariate extremes
+  - Maximum likelihood
+  - Bayesian
+  - Semiparametric methods
+- Regression models
+
+:::
+
+::: {.column width="40%"}
+
+- Conditional extremes
+- Models for time series
+
+:::
+
+::::
+
+-->
 </section>
 <section id="extremal-type-theorem" class="slide level2">
 <h2>Extremal type theorem</h2>
@@ -515,8 +522,8 @@ G(x) =\begin{cases}
 <span id="cb2-11"><a href="#cb2-11"></a><span class="do">## </span></span>
 <span id="cb2-12"><a href="#cb2-12"></a><span class="do">## Optimization Information</span></span>
 <span id="cb2-13"><a href="#cb2-13"></a><span class="do">##   Convergence: successful </span></span>
-<span id="cb2-14"><a href="#cb2-14"></a><span class="do">##   Function Evaluations: 27 </span></span>
-<span id="cb2-15"><a href="#cb2-15"></a><span class="do">##   Gradient Evaluations: 11</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="do">##   Function Evaluations: 30 </span></span>
+<span id="cb2-15"><a href="#cb2-15"></a><span class="do">##   Gradient Evaluations: 14</span></span>
 <span id="cb2-16"><a href="#cb2-16"></a>mle <span class="ot">&lt;-</span> <span class="fu">coef</span>(opt_gev)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
@@ -557,7 +564,7 @@ G(x) =\begin{cases}
 <section id="invariance-property-of-maximum-likelihood" class="slide level2">
 <h2>Invariance property of maximum likelihood</h2>
 <p>If <span class="math inline">\(h\)</span> is a mapping, then <span class="math inline">\(h(\widehat{\boldsymbol{\theta}})\)</span> is the MLE of <span class="math inline">\(h(\boldsymbol{\theta})\)</span>.</p>
-<p>For example, the expected maximum for <span class="math inline">\(n=50\)</span> years of data, assuming annual maximum are exactly GEV and <span class="math inline">\(\xi &lt; 1\)</span>, is <span class="math display">\[\begin{align*}\mathfrak{e}_N = h(\mu, \sigma, \xi) = \mu_N + \sigma_N{\Gamma(1-\xi)-1\}/\xi.
+<p>The expected value of the <span class="math inline">\(N=50\)</span>-years maximum for <span class="math inline">\(\xi &lt; 1\)</span>, is <span class="math display">\[\begin{align*}\mathfrak{e}_N = h(\mu, \sigma, \xi) = \mu_N + \sigma_N\{\Gamma(1-\xi)-1\}/\xi.
 \end{align*}\]</span></p>
 <p>Thus, the MLE <span class="math inline">\(\widehat{\mathfrak{e}}_N=h(\widehat{\mu}, \widehat{\sigma}, \widehat{\xi})\)</span>.</p>
 <div class="cell">
@@ -572,7 +579,7 @@ G(x) =\begin{cases}
 <p>When the log likelihood is differentiable, the MLE is the root of the score equation, meaning <span class="math inline">\(\ell_{\boldsymbol{\theta}}(\widehat{\boldsymbol{\theta}}) = \partial \ell(\boldsymbol{\theta}) / \partial \boldsymbol{\theta} = \boldsymbol{0}_p\)</span>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>mev<span class="sc">::</span><span class="fu">gev.score</span>(<span class="at">par =</span> mle, <span class="at">dat =</span> ymax) <span class="co"># score</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a><span class="do">## [1]  4.24e-08 -5.94e-08 -1.91e-07</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="do">## [1]  4.44e-08 -5.53e-08 -1.49e-07</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ul>
 <li>Gradient-based algorithms exploit this feature for optimization</li>
@@ -661,7 +668,7 @@ G(x) =\begin{cases}
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>(<span class="fu">confint</span>(prof))</span>
 <span id="cb8-2"><a href="#cb8-2"></a><span class="do">## Estimate Lower CI Upper CI </span></span>
-<span id="cb8-3"><a href="#cb8-3"></a><span class="do">##     53.4     47.8     73.6</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="do">##     53.4     47.9     73.6</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="generalized-pareto" class="slide level2">
@@ -836,7 +843,7 @@ c \left\{1+ \xi \left( \frac{u-\mu}{\sigma}\right)\right\}^{-1/\xi} \approx n_u.
 Grimshaw, S. D. (1993). Computing maximum likelihood estimates for the generalized <span>P</span>areto distribution. <em>Technometrics</em>, <em>35</em>(2), 185–191. <a href="https://doi.org/10.1080/00401706.1993.10485040">https://doi.org/10.1080/00401706.1993.10485040</a>
 </div>
 <div id="ref-Moins:arxiv" class="csl-entry" role="listitem">
-Moins, T., Arbel, J., Girard, S., &amp; Dutfoy, A. (2023). Reparameterization of extreme value framework for improved <span>B</span>ayesian workflow. <em>Computational Statistics and Data Analysis</em>, <em>to appear</em>. <a href="https://doi.org/10.48550/ARXIV.2210.05224">https://doi.org/10.48550/ARXIV.2210.05224</a>
+Moins, T., Arbel, J., Girard, S., &amp; Dutfoy, A. (2023). Reparameterization of extreme value framework for improved <span>B</span>ayesian workflow. <em>Computational Statistics &amp; Data Analysis</em>, <em>to appear</em>. https://doi.org/<a href="https://doi.org/10.1016/j.csda.2023.107807">https://doi.org/10.1016/j.csda.2023.107807</a>
 </div>
 <div id="ref-Smith:1985" class="csl-entry" role="listitem">
 Smith, R. L. (1985). Maximum likelihood estimation in a class of nonregular cases. <em>Biometrika</em>, <em>72</em>(1), 67–90. <a href="https://doi.org/10.1093/biomet/72.1.67">https://doi.org/10.1093/biomet/72.1.67</a>

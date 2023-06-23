@@ -238,7 +238,9 @@ k^{1/2}(H_{n,k} - \xi) \to \mathsf{No}\{\lambda/(1-\rho), \xi^2\}, \qquad \xi&gt
 <section id="quantile-estimator" class="level2">
 <h2 class="anchored" data-anchor-id="quantile-estimator">Quantile estimator</h2>
 <p>Given an estimate of a positive shape parameter, we can get quantile estimates through <span class="citation" data-cites="Weissman:1978">Weissman (<a href="#ref-Weissman:1978" role="doc-biblioref">1978</a>)</span> formula. The estimator of the quantile at level <span class="math inline">\(1-p\)</span>, for small <span class="math inline">\(p\)</span>, is <span class="math display">\[\begin{align*}
-Q^W_{k,n}(1-p) = Y_{(n-k)} \left\{ \frac{k+1}{p(n+1)} \right\}^{H_{k,n}},                                                                     \end{align*}\]</span> where <span class="math inline">\(H_{k,n}\)</span> is the Hill estimator of the shape parameter and <span class="math inline">\(Y_{(n-k)}\)</span> is the <span class="math inline">\((n-k)\)</span>th order statistic, acting as threshold. While there are software that return these quantities, including the <code>ReIns</code>, <code>evt0</code> and <code>extremefit</code> packages, they are easily coded.</p>
+Q^W_{k,n}(1-p) = Y_{(n-k)} \left\{ \frac{k+1}{p(n+1)} \right\}^{H_{k,n}},                                      
+\end{align*}\]</span></p>
+<p>where <span class="math inline">\(H_{k,n}\)</span> is the Hill estimator of the shape parameter and <span class="math inline">\(Y_{(n-k)}\)</span> is the <span class="math inline">\((n-k)\)</span>th order statistic, acting as threshold. While there are software that return these quantities, including the <code>ReIns</code>, <code>evt0</code> and <code>extremefit</code> packages, they are easily coded.</p>
 <p>Below, we show how to estimate the 0.999 quantile of the distribution by extrapolating the shape</p>
 <div class="cell" data-hash="semiparametric_cache/html/unnamed-chunk-5_ff1d257f0c0f9bb8db4e79d215ba63f6">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>qweissman <span class="ot">&lt;-</span> <span class="cf">function</span>(n, p, k, thresh, shape){</span>
@@ -506,7 +508,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
-    <div class="nav-footer-left"><a href="https://dec.unibocconi.eu/research/extreme-value-analysis-eva-2023">EVA2023</a></div>   
+    <div class="nav-footer-left"><a href="https://dec.unibocconi.eu/research/extreme-value-analysis-eva-2023">EVA 2023</a></div>   
     <div class="nav-footer-center">
       &nbsp;
     </div>

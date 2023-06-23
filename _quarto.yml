@@ -35,7 +35,7 @@ website:
 
   page-footer:
     left: |
-      [EVA2023](https://dec.unibocconi.eu/research/extreme-value-analysis-eva-2023)
+      [EVA 2023](https://dec.unibocconi.eu/research/extreme-value-analysis-eva-2023)
     right: |
       Website built with [Quarto](https://quarto.org/)
 format:
