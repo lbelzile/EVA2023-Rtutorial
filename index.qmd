@@ -24,6 +24,9 @@ Multivariate extremes and time series:
 - Conditional extremes model
 - Time series
 
+# Exercices
+
+- [Exercise sheet 1](exercices/EVA2023-Rsoftware-exercices.pdf)
 
 # Instructions
 

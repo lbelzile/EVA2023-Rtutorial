@@ -1,0 +1,46 @@
+---
+title: "Exercice sheet"
+format: pdf
+---
+
+# Maximum likelihood estimation
+
+1. Using the **R** package `mev` or otherwise
+   - Simulate $n=15$ observations from a generalized Pareto model with unit scale and shape $\xi=-0.1$
+   - Fit a generalized Pareto distribution.
+2. Repeat these instructions $B=1000$ times
+   - What is the average shape parameter: does it match your intuition?
+   - How often does the MLE lie on the boundary of the parameter space (i.e., $\widehat{\xi} = -1$)?
+
+## Univariate extreme value modelling
+
+Consider the data for station Montélimar from `frwind` (series `S4`). 
+
+1. Extract the three largest observations per year
+2. it a generalized extreme value distribution to annual maxima.
+3. Compare the parameter estimates with the fit of the $r$-largest order statistic, via `fit.rlarg`.
+4. Compute a score test statistic for the hypothesis $\xi=0$ with the GEV. To do so,
+   - fit in addition the restricted model via `fit.gev` with fixed parameter `fpar = list(shape=0)`
+   - compute the score and information matrices with the restricted parameters and form the statistic $\ell_{\boldsymbol{\theta}}^\top(\boldsymbol{\theta}_0) \jmath^{-1}(\boldsymbol{\theta}_0) \ell_{\boldsymbol{\theta}}(\boldsymbol{\theta}_0)$
+   - under the null hypothesis, the score statistic is distributed as $\chi^2_1$.
+   - compare with the likelihood ratio statistic, obtained by comparing models using the `anova` method.
+5. Compute the 50-year return level using the generalized extreme value model and provide a 50% confidence interval for the latter.
+
+<!--
+## Peaks over threshold model
+
+We could alternatively fit a model using the generalized Pareto distribution
+
+-->
+
+## Nonstationary models
+
+1. Using `evgam`, fit a binomial - generalized Pareto model to all four stations 
+  - set thresholds at the site-wise 98% empirical percentile.
+  - consider site-specific scale 
+  - and a common shape for all four stations. 
+To this effect, create a new data frame by concatenating exceedances, with a factor (dummy) for the station identifier.
+2. Use a likelihood ratio test to compare the models with different shape parameters for each station. Are there evidence of different shapes?
+3. Based on the estimated coefficients, which model will yield the highest 50-year return level? Rank the stations from smallest to largest.
+4. Using `revdbayes` and a binomial-generalized Pareto model with a Beta/maximal data information prior, obtain 50% credible interval for the model fitted to each station separately.
+5. Compare these with approximate 50% credible interval obtained using the Gaussian approximation to the posterior from `evgam`.
