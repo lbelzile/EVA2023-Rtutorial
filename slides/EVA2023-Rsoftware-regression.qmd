@@ -1,0 +1,171 @@
+---
+title: "Tutorial on Statistical Computing for Extremes with **R**"
+author: "Léo Belzile"
+subtitle: "Regression models for nonstationary extremes"
+date: "June 30, 2023"
+eval: true
+cache: true
+echo: true
+format:
+  revealjs:
+    slide-number: true
+    preview-links: auto
+    theme: [simple, hecmontreal.scss]
+    title-slide-attributes:
+      data-background-color: "#002855"
+bibliography: EVA2023-software.bib
+---
+
+
+```{r include=FALSE}
+
+hecbleu <- c("#002855")
+fcols <- c(gris = "#888b8d",
+           bleu = "#0072ce",
+           aqua = "#00aec7",
+           vert = "#26d07c",
+           rouge = "#ff585d",
+           rose = "#eb6fbd",
+           jaune = "#f3d03e")
+pcols <- c(gris = "#d9d9d6",
+           bleu = "#92c1e9",
+           agua = "#88dbdf",
+           vert = "#8fe2b0",
+           rouge = "#ffb1bb",
+           rose = "#eab8e4",
+           jaune = "#f2f0a1")
+
+knitr::opts_chunk$set(fig.retina = 3, collapse = TRUE)
+options(digits = 3, width = 75)
+```
+
+
+## Nonstationarity
+
+There are various forms of nonstationarity, including 
+
+- trends, 
+- time-varying variance,
+- seasonality,  
+- covariate effects.
+
+No general theory
+
+## Solution 1: preprocessing
+
+- detrend data to approximate stationary.
+   - for financial time series, fit ARMA-GARCH model
+   - use Box-Cox transformation with regression model
+- analyze residuals $R_i = Y_i - \widehat{f}(\mathbf{X}_i)$, where the postulated model is such that $\mathsf{E}(Y_i) = f(\mathbf{X}_i)$.
+
+Benefit: more data to estimate trend
+
+## Estimating probability of rare events
+
+\begin{align*}
+&\Pr(Y_i > y \mid \mathbf{X}_i) \\\quad &= \Pr\{R_i > y - \widehat{f}(\mathbf{X}_i)\mid \mathbf{X}_i\}
+\\\quad & = \Pr\{R_i > y - \widehat{f}(\mathbf{X}_i)\mid \mathbf{X}_i, R_i > u\}\Pr(R_i > u) \\& \qquad + \Pr\{u  \leq R_i > y - \widehat{f}(\mathbf{X}_i)\mid \mathbf{X}_i\}\Pr(R_i \leq u)
+\end{align*}
+where the first term of the last line can be estimated using a generalized Pareto and the latter empirically (typically zero if $y$ is sufficiently large).
+
+## Solution 2: hierarchical models
+
+We can also incorporate parameters in the parameters of the extreme value distribution.
+
+- Model $\mu=f_{\mu}(\mathbf{X}; \boldsymbol{\beta}_{\mu})$, $\sigma(\mathbf{X})=f_{\sigma}(\mathbf{X}; \boldsymbol{\beta}_{\sigma})$, etc.
+- Typically keep shape constant.
+
+For explanatories $\mathbf{X}$, fit regression models of the form
+\begin{align*}
+\mu(\mathbf{X}) = \beta_0 + \beta_1 \mathrm{X}_1 + \cdots \beta_p \mathrm{X}_p,
+\end{align*}
+and estimate parameters by maximum likelihood.
+
+## Generalized additive models
+
+Rather than linear effects or changepoints (if $\mathrm{X}_j$ is binary), we could consider smooths
+
+\begin{align*}
+f(\mathrm{X}_j) = \sum_{k=1}^K \beta_k b_k(\mathbf{X}_j)
+\end{align*}
+where $b_k$ are basis functions, e.g., thin-plate splines (`tp`), cubic regression splines (`cr`) and their cyclic counterparts.
+
+## Parsimony is key
+
+- There are few exceedances or extremes...
+- The support restriction translates into up to $n$ inequality constraints: difficult to optimize.
+
+
+Take home message: keep models simple!
+
+## Penalized regression
+
+Penalization to enforce sparsity or regularize estimation.
+
+- For generalized additive models (GAM), penalize square of second derivative to control the wiggliness of the function.
+- Smooth matrix $\mathbf{S}$ with entries $S_{ij} = \int b_i''(x) b_j''(x)\mathrm{d} x$, so the penalty is
+$\lambda \boldsymbol{\beta}^\top \mathbf{S}\boldsymbol{\beta}$ for $\lambda > 0$.
+- These correspond to improper (i.e., rank-deficient) Gaussian priors.
+
+## Tuning parameter
+
+-  Optimal value of $\lambda$ selected by maximizing the marginal likelihood.
+- With multiple spline smoothers, using Laplace's method for approximation [@Wood.Pya.Safken:2016].
+
+## Basis function illustration
+
+
+## A word of caution
+
+- With time-varying covariates, we need forecasts to compute risk measures in future.
+- Model often fitted only at specific covariate values (careful at extrapolation beyond range).
+- Rather than linear trend in time, use covariates that incorporate said trends but are more natural (e.g., climate model output).
+
+
+## Return levels under nonstationarity
+
+In nonstationary models, risk measures of interest are defined conditionally on the value of covariates
+
+For example, the $1-p$ conditional return level is [@Eastoe.Tawn:2009]
+\begin{align*}
+\Pr(Y_t  > y \mid \mathbf{X}_t =\boldsymbol{x}_t) = p
+\end{align*}
+
+## Unconditional return levels
+
+These can be obtained by averaging out over the distribution of covariates that are employed in the model.
+
+\begin{align*}
+\int_{\mathcal{X}} \Pr(Y_t  > y \mid \mathbf{X}_t =\boldsymbol{x}_t) \mathrm{d} P(\boldsymbol{x}_t),
+\end{align*}
+
+Return levels may be meaningless quantities.
+
+May require information about future distribution of covariates if these are time-varying.
+
+## Threshold stability
+
+The generalized Pareto model with varying scale and shape is not threshold-stable unless, for any $v>u$, 
+\begin{align*}
+\sigma_v(\boldsymbol{x}_t) = \sigma_u(\boldsymbol{x}_t) + (v-u) \xi(\boldsymbol{x}_t)
+\end{align*}
+
+Restrictive! For constant $\xi$, need $\sigma$ linear or constant (log scale) [@Eastoe.Tawn:2009].
+
+Using the inhomogeneous Poisson point process representation avoids these problems.
+
+For nonstationary threshold models $u(\mathbf{X})$, see Section 3.2.2 of @Northrop.Jonathan:2011.
+
+## Software
+
+The function `evgam` from the eponymous package [@evgam], building on the `mgcv` package of Simon Wood [@Wood:2017:mgcv].
+
+The setup is `evgam(formula, data, family, ...)`, where 
+
+- `family` is the character string for the extreme value distribution (`gev`, `gpd`, `rlarg` and `ald` for asymmetric Laplace, used in quantile regression),
+- `data` is a data frame,
+- `formula` is a list of formula for parameters (in the order location, scale, shape).
+
+## Example with `evgam`
+
+## References

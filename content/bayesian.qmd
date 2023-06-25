@@ -131,7 +131,7 @@ In the Bayesian paradigm, we compute the average loss over the posterior distrib
 \begin{align*}
  r(q_0) = \int_{\boldsymbol{\Theta}}L(q(\boldsymbol{\theta}), q_0) p (\boldsymbol{\theta}) \mathrm{d} \boldsymbol{\theta}
 \end{align*}
-and then we seek to minimize the risk $\mathrm{min}_{q_0 \in \mathbb{R}_{+}} r(q_0)$
+and then we seek to minimize the risk, $\mathrm{min}_{q_0 \in \mathbb{R}_{+}} r(q_0)$
 
 
 ```{r}

@@ -30,71 +30,6 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
-    /* CSS for syntax highlighting */
-    pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-    pre > code.sourceCode > span:empty { height: 1.2em; }
-    .sourceCode { overflow: visible; }
-    code.sourceCode > span { color: inherit; text-decoration: inherit; }
-    div.sourceCode { margin: 1em 0; }
-    pre.sourceCode { margin: 0; }
-    @media screen {
-    div.sourceCode { overflow: auto; }
-    }
-    @media print {
-    pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-    }
-    pre.numberSource code
-      { counter-reset: source-line 0; }
-    pre.numberSource code > span
-      { position: relative; left: -4em; counter-increment: source-line; }
-    pre.numberSource code > span > a:first-child::before
-      { content: counter(source-line);
-        position: relative; left: -1em; text-align: right; vertical-align: baseline;
-        border: none; display: inline-block;
-        -webkit-touch-callout: none; -webkit-user-select: none;
-        -khtml-user-select: none; -moz-user-select: none;
-        -ms-user-select: none; user-select: none;
-        padding: 0 4px; width: 4em;
-        color: #aaaaaa;
-      }
-    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-    div.sourceCode
-      { color: #003b4f; background-color: #f1f3f5; }
-    @media screen {
-    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-    }
-    code span { color: #003b4f; } /* Normal */
-    code span.al { color: #ad0000; } /* Alert */
-    code span.an { color: #5e5e5e; } /* Annotation */
-    code span.at { color: #657422; } /* Attribute */
-    code span.bn { color: #ad0000; } /* BaseN */
-    code span.bu { } /* BuiltIn */
-    code span.cf { color: #003b4f; } /* ControlFlow */
-    code span.ch { color: #20794d; } /* Char */
-    code span.cn { color: #8f5902; } /* Constant */
-    code span.co { color: #5e5e5e; } /* Comment */
-    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
-    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
-    code span.dt { color: #ad0000; } /* DataType */
-    code span.dv { color: #ad0000; } /* DecVal */
-    code span.er { color: #ad0000; } /* Error */
-    code span.ex { } /* Extension */
-    code span.fl { color: #ad0000; } /* Float */
-    code span.fu { color: #4758ab; } /* Function */
-    code span.im { color: #00769e; } /* Import */
-    code span.in { color: #5e5e5e; } /* Information */
-    code span.kw { color: #003b4f; } /* Keyword */
-    code span.op { color: #5e5e5e; } /* Operator */
-    code span.ot { color: #003b4f; } /* Other */
-    code span.pp { color: #ad0000; } /* Preprocessor */
-    code span.sc { color: #5e5e5e; } /* SpecialChar */
-    code span.ss { color: #20794d; } /* SpecialString */
-    code span.st { color: #20794d; } /* String */
-    code span.va { color: #111111; } /* Variable */
-    code span.vs { color: #20794d; } /* VerbatimString */
-    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     /* CSS for citations */
     div.csl-bib-body { }
     div.csl-entry {
@@ -411,7 +346,7 @@
 
 <section id="title-slide" data-background-color="#002855" class="quarto-title-block center">
   <h1 class="title">Tutorial on Statistical Computing for Extremes with <strong>R</strong></h1>
-  <p class="subtitle">Bayesian inference</p>
+  <p class="subtitle">Regression models for nonstationary extremes</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -423,320 +358,128 @@ Léo Belzile
 
   <p class="date">2023-06-30</p>
 </section>
-<section id="bayesian-inference" class="slide level2">
-<h2>Bayesian inference</h2>
+<section id="nonstationarity" class="slide level2">
+<h2>Nonstationarity</h2>
+<p>There are various forms of nonstationarity, including</p>
 <ul>
-<li>Combine likelihood with a prior: posterior.</li>
-</ul>
-<p><span id="eq-bayes"><span class="math display">\[
-p(\boldsymbol{\theta} \mid \boldsymbol{Y}) = \frac{p(\boldsymbol{Y} \mid \boldsymbol{\theta})p(\boldsymbol{\theta})}{ \int p(\boldsymbol{Y} \mid \boldsymbol{\theta})p(\boldsymbol{\theta})\mathrm{d}\boldsymbol{\theta}},
-\qquad(1)\]</span></span></p>
-<ul>
-<li>Posterior is proper (if likelihood times prior is integrable).</li>
-<li>Parameters asymptotically normal in large samples under general conditions.</li>
-<li>Need to evaluate integral in denominator (normalizing constant that does not depend on <span class="math inline">\(\boldsymbol{\theta}\)</span>).</li>
-</ul>
-</section>
-<section id="change-of-paradigm" class="slide level2">
-<h2>Change of paradigm</h2>
-<p>In the Bayesian world,</p>
-<ul>
-<li>inference is conditional on observations,</li>
-<li>parameters are treated as random variables
-<ul>
-<li>(reflecting uncertainty about their true value).</li>
-</ul></li>
-</ul>
-</section>
-<section id="inference" class="slide level2">
-<h2>Inference</h2>
-<ul>
-<li><p>In all scenarios, we will have samples from the posterior distribution for parameters <span class="math inline">\(\boldsymbol{\theta}\)</span>: any summary can be computed from these via Monte Carlo methods.</p></li>
-<li><p>e.g., we can report the posterior mean or median</p></li>
-<li><p>credible intervals (probability that parameter falls in) are simply quantiles of functionals</p></li>
-</ul>
-</section>
-<section id="prediction" class="slide level2">
-<h2>Prediction</h2>
-<p>We consider new realizations from <strong>posterior predictive</strong> <span class="math display">\[\begin{align*}
-p(Y_{\text{new}} \mid \boldsymbol{Y})
-\int_{\Theta} p(Y_{\text{new}}  \mid \boldsymbol{\theta}) p(\boldsymbol{\theta} \mid  \boldsymbol{Y}) \mathrm{d} \boldsymbol{\theta}
-\end{align*}\]</span></p>
-<ul>
-<li>For every posterior draw <span class="math inline">\(\boldsymbol{\theta}_b\)</span> <span class="math inline">\((b=1, \ldots, B)\)</span>, sample new realization from generative model.</li>
-<li>Marginalization means discarding <span class="math inline">\(\boldsymbol{\theta}_b\)</span>’s</li>
-</ul>
-</section>
-<section id="why-bother" class="slide level2">
-<h2>Why bother?</h2>
-<ul>
-<li>Priors can act as penalty
-<ul>
-<li>regularizing parameter estimates in small samples.</li>
-</ul></li>
-<li>Natural extensions via hierarchical modelling (e.g., random effects).</li>
-<li>Expert knowledge can be encoded through the priors.</li>
-</ul>
-</section>
-<section id="intractable-models" class="slide level2">
-<h2>Intractable models</h2>
-<p>Trade optimization for integration problem!</p>
-<p>The integral is intractable, so we need to resort to alternative schemes:</p>
-<ul>
-<li>Numerical integration via Laplace approximations (INLA)</li>
-<li>Monte Carlo methods to simulate (approximate) draws from the posterior</li>
-</ul>
-</section>
-<section id="monte-carlo-methods" class="slide level2">
-<h2>Monte Carlo methods</h2>
-<ul>
-<li>Most packages implement offer Markov chain Monte Carlo algorithms
-<ul>
-<li>gives approximate correlated draws</li>
-<li>requires tuning</li>
-<li>need to check convergence</li>
-</ul></li>
-</ul>
-<p>For models without covariates, <span class="citation" data-cites="revdbayes">Northrop (<a href="#/references" role="doc-biblioref" onclick="">2023</a>)</span> offers <em>exact</em> draws from posterior via the ratio-of-uniform algorithm.</p>
-</section>
-<section id="bayesian-dispute" class="slide level2">
-<h2>Bayesian dispute</h2>
-<p>One objection to Bayesian inference is arbitrary selection of priors</p>
-<ul>
-<li>Influence of the prior vanishes as sample size grows unless it imposes support constraints!</li>
-<li>Likelihood are also often used for convenience</li>
-<li>Same for lasso and ridge (<span class="math inline">\(L_1\)</span> and <span class="math inline">\(L_2\)</span>) penalties in regression.</li>
-</ul>
-</section>
-<section id="prior-selection" class="slide level2">
-<h2>Prior selection</h2>
-<ul>
-<li>Typically, parameters are assumed independent apriori (so prior factorizes), even if posterior doesn’t</li>
-<li>Choosing proper priors (density functions) ensure proper posteriors.</li>
-<li>Care is needed, especially for shape parameter</li>
-</ul>
-</section>
-<section id="priors-for-extreme-value-models-12" class="slide level2">
-<h2>Priors for extreme value models (1/2)</h2>
-<p>Popular choices include</p>
-<ul>
-<li>improper uniform priors</li>
-<li>vague or diffuse Gaussian priors, e.g., <span class="math inline">\(\xi \sim \mathsf{No}(0, 10)\)</span></li>
-<li>Jeffrey’s prior (invariant to reparametrization.
-<ul>
-<li>for generalized Pareto <span class="math display">\[\sigma^{-1}(1+\xi)^{-1}(1+2\xi)^{-1/2}\mathrm{I}_{\xi &gt; -1/2}\]</span></li>
-<li>invalid for the GEV regardless of sample size<span class="citation" data-cites="Northrop.Attalides:2016">(<a href="#/references" role="doc-biblioref" onclick="">Northrop &amp; Attalides, 2016</a>)</span>!</li>
-</ul></li>
-</ul>
-</section>
-<section id="priors-for-extreme-value-models-22" class="slide level2">
-<h2>Priors for extreme value models (2/2)</h2>
-<p>Better choices penalize the shape, including</p>
-<ul>
-<li><span class="citation" data-cites="Martins.Stedinger:2001">Martins &amp; Stedinger (<a href="#/references" role="doc-biblioref" onclick="">2001</a>)</span> prior <span class="math inline">\(\xi + 0.5 \sim \mathsf{Beta}(6, 9)\)</span></li>
-<li>Maximal data information (MDI): <span class="math inline">\(\sigma^{-1}\exp\{-a(1+\xi)\}\mathrm{I}_{\xi \geq -1}\)</span> <span class="citation" data-cites="Northrop.Attalides:2016">Northrop &amp; Attalides (<a href="#/references" role="doc-biblioref" onclick="">2016</a>)</span></li>
-<li>Prior on quantiles <span class="citation" data-cites="Coles.Tawn:1996">(<a href="#/references" role="doc-biblioref" onclick="">Coles &amp; Tawn, 1996</a>)</span>, back-transformed</li>
-</ul>
-</section>
-<section id="impact-of-priors" class="slide level2">
-<h2>Impact of priors</h2>
-
-<img data-src="EVA2023-Rsoftware-bayesian_files/figure-revealjs/fig-posteriorxi-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Figure&nbsp;1: Marginal posterior of GEV shape parameter for different prior distributions.</p></section>
-<section id="ratio-of-uniform-sampling" class="slide level2">
-<h2>Ratio-of-uniform sampling</h2>
-<p>The <code>revdbayes</code> <span class="citation" data-cites="revdbayes">(<a href="#/references" role="doc-biblioref" onclick="">Northrop, 2023</a>)</span> provides the state-of-the-art for stationary models (faster than MCMC, exact sampling).</p>
-<div class="cell" data-hash="EVA2023-Rsoftware-bayesian_cache/revealjs/unnamed-chunk-4_4a08beaeb5058465ec3d50fe5d32a6bf">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(revdbayes)</span>
-<span id="cb1-2"><a href="#cb1-2"></a>post <span class="ot">&lt;-</span> revdbayes<span class="sc">::</span><span class="fu">rpost_rcpp</span>(</span>
-<span id="cb1-3"><a href="#cb1-3"></a>  <span class="at">n =</span> <span class="fl">1e4</span>L, <span class="co"># number of posterior samples</span></span>
-<span id="cb1-4"><a href="#cb1-4"></a>  <span class="at">model =</span> <span class="st">"gev"</span>, <span class="co"># extreme value distribution</span></span>
-<span id="cb1-5"><a href="#cb1-5"></a>  <span class="at">data =</span> ymax, <span class="co"># vector of yearly maximum</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a>  <span class="at">prior =</span> <span class="fu">set_prior</span>(<span class="at">prior =</span> <span class="st">"mdi"</span>, <span class="at">model =</span> <span class="st">"gev"</span>),</span>
-<span id="cb1-7"><a href="#cb1-7"></a>  <span class="at">nrep =</span> <span class="dv">100</span>) <span class="co"># number of post. predictive samples</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="point-estimators-and-credible-intervals" class="slide level2">
-<h2>Point estimators and credible intervals</h2>
-<p>For each combination of posterior draw, compute the functional of interest (e.g., the median of the 50-year maximum) and/or quantiles.</p>
-<div class="cell" data-hash="EVA2023-Rsoftware-bayesian_cache/revealjs/unnamed-chunk-5_750819a29f250c80e2d7ac36a9b2e151">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>post_gev_Nmed <span class="ot">&lt;-</span> <span class="fu">apply</span>(post<span class="sc">$</span>sim_vals, <span class="dv">1</span>, <span class="cf">function</span>(x){</span>
-<span id="cb2-2"><a href="#cb2-2"></a>  revdbayes<span class="sc">::</span><span class="fu">qgev</span>(<span class="at">p =</span> <span class="fl">0.5</span>, <span class="at">loc =</span> x[<span class="dv">1</span>], <span class="at">scale =</span> x[<span class="dv">2</span>], </span>
-<span id="cb2-3"><a href="#cb2-3"></a>                  <span class="at">shape =</span> x[<span class="dv">3</span>], <span class="at">m =</span> <span class="dv">50</span>)</span>
-<span id="cb2-4"><a href="#cb2-4"></a>})</span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="co"># Posterior mean</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="fu">mean</span>(post_gev_Nmed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 54.15799</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># To get a 95% credible interval, simply compute quantiles</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="fu">quantile</span>(post_gev_Nmed, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>    2.5%    97.5% 
-47.98801 67.98414 </code></pre>
-</div>
-</div>
-</section>
-<section id="posterior-predictive-samples" class="slide level2">
-<h2>Posterior predictive samples</h2>
-<p>Here, using max-stability to get a new observation (maximum of 50 yearly max) for each draw <span class="math inline">\(\boldsymbol{\theta}\)</span>.</p>
-<div class="cell" data-hash="EVA2023-Rsoftware-bayesian_cache/revealjs/unnamed-chunk-6_f0f54be97c1f972daa70755ee9ac6935">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>postpred <span class="ot">&lt;-</span> revdbayes<span class="sc">::</span><span class="fu">rgev</span>(</span>
-<span id="cb6-2"><a href="#cb6-2"></a>  <span class="at">n =</span> <span class="fu">nrow</span>(post<span class="sc">$</span>sim_vals), </span>
-<span id="cb6-3"><a href="#cb6-3"></a>  <span class="at">loc =</span> post<span class="sc">$</span>sim_vals[,<span class="dv">1</span>],</span>
-<span id="cb6-4"><a href="#cb6-4"></a>  <span class="at">scale =</span> post<span class="sc">$</span>sim_vals[,<span class="dv">2</span>],</span>
-<span id="cb6-5"><a href="#cb6-5"></a>  <span class="at">shape =</span> post<span class="sc">$</span>sim_vals[,<span class="dv">3</span>],</span>
-<span id="cb6-6"><a href="#cb6-6"></a>  <span class="at">m =</span> <span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="posterior-predictive" class="slide level2">
-<h2>Posterior predictive</h2>
-
-<img data-src="EVA2023-Rsoftware-bayesian_files/figure-revealjs/fig-postpred-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Figure&nbsp;2: Density of posterior predictive (black) and posterior median (grey) of 50 year maximum.</p></section>
-<section id="diagnostics-for-bayesian-workflow" class="slide level2">
-<h2>Diagnostics for Bayesian workflow</h2>
-<p>Can model capture summaries of data?</p>
-<div class="cell" data-hash="EVA2023-Rsoftware-bayesian_cache/revealjs/unnamed-chunk-8_fd48883e78a9ba56cf338f0c60293ef0">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">pp_check</span>(post, <span class="at">stat =</span> median)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="EVA2023-Rsoftware-bayesian_files/figure-revealjs/unnamed-chunk-8-1.png" width="960" class="r-stretch"><p>See <code>bayesplot</code> and <code>loo</code> packages for more information and options about the Bayesian workflow <span class="citation" data-cites="Gabry:2019">(<a href="#/references" role="doc-biblioref" onclick="">Gabry et al., 2019</a>)</span>.</p>
-</section>
-<section id="regression-model" class="slide level2">
-<h2>Regression model</h2>
-<div class="cell" data-hash="EVA2023-Rsoftware-bayesian_cache/revealjs/unnamed-chunk-9_fa5f4118a130792c48cf6d6e19b9d922">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">library</span>(texmex)</span>
-<span id="cb8-2"><a href="#cb8-2"></a>post_reg <span class="ot">&lt;-</span> texmex<span class="sc">::</span><span class="fu">evm</span>(</span>
-<span id="cb8-3"><a href="#cb8-3"></a>  <span class="at">y =</span> ymax, </span>
-<span id="cb8-4"><a href="#cb8-4"></a>  <span class="at">data =</span> <span class="fu">data.frame</span>(</span>
-<span id="cb8-5"><a href="#cb8-5"></a>    <span class="at">syear =</span> <span class="fu">scale</span>(<span class="dv">1976</span><span class="sc">:</span><span class="dv">2023</span>), </span>
-<span id="cb8-6"><a href="#cb8-6"></a>    <span class="at">ymax =</span> ymax),</span>
-<span id="cb8-7"><a href="#cb8-7"></a>  <span class="at">family =</span> texmex<span class="sc">::</span>gev,</span>
-<span id="cb8-8"><a href="#cb8-8"></a>  <span class="at">method =</span> <span class="st">"simulate"</span>,</span>
-<span id="cb8-9"><a href="#cb8-9"></a>  <span class="at">burn =</span> 1000L,</span>
-<span id="cb8-10"><a href="#cb8-10"></a>  <span class="at">chains =</span> 4L,</span>
-<span id="cb8-11"><a href="#cb8-11"></a>  <span class="at">iter  =</span> <span class="fl">1.1e4</span>,</span>
-<span id="cb8-12"><a href="#cb8-12"></a>  <span class="at">proposal.dist =</span> <span class="st">"gaussian"</span>,</span>
-<span id="cb8-13"><a href="#cb8-13"></a>  <span class="at">mu =</span> <span class="sc">~</span> syear,</span>
-<span id="cb8-14"><a href="#cb8-14"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="posterior-estimates" class="slide level2">
-<h2>Posterior estimates</h2>
-<div class="cell" data-hash="EVA2023-Rsoftware-bayesian_cache/revealjs/unnamed-chunk-10_8be734ef78345de565ea665613e886e4">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">summary</span>(post_reg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Family:       GEV 
-
-Posterior summary:
-                 Posterior mean        SD
-mu: (Intercept)     36.30933484 0.7041629
-mu: syear           -0.66354673 0.7182214
-phi: (Intercept)     1.44282072 0.1293479
-xi: (Intercept)     -0.04462734 0.1352223</code></pre>
-</div>
-</div>
-<div class="cell" data-hash="EVA2023-Rsoftware-bayesian_cache/revealjs/unnamed-chunk-11_ccc5598212f22b61f06eec793b02603e">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="do">## Default 'plot' method for texmex objects:</span></span>
-<span id="cb11-2"><a href="#cb11-2"></a><span class="co"># density, traceplots and correlograms plots</span></span>
-<span id="cb11-3"><a href="#cb11-3"></a><span class="fu">library</span>(gridExtra)</span>
-<span id="cb11-4"><a href="#cb11-4"></a><span class="fu">ggplot</span>(post_reg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="monitoring-markov-chain-monte-carlo" class="slide level2">
-<h2>Monitoring Markov chain Monte Carlo</h2>
-<ul>
-<li>run multiple Markov chains from different starting values</li>
-<li>discard initial samples (burn-in)<br>
+<li>trends,</li>
+<li>time-varying variance,</li>
+<li>seasonality,<br>
 </li>
-<li>check convergence:
+<li>covariate effects.</li>
+</ul>
+<p>No general theory</p>
+</section>
+<section id="solution-1-preprocessing" class="slide level2">
+<h2>Solution 1: preprocessing</h2>
 <ul>
-<li>are all chains converging to the same region</li>
-<li>are chains stationary?</li>
+<li>detrend data to approximate stationary.
+<ul>
+<li>for financial time series, fit ARMA-GARCH model</li>
+<li>use Box-Cox transformation with regression model</li>
 </ul></li>
+<li>analyze residuals <span class="math inline">\(R_i = Y_i - \widehat{f}(\mathbf{X}_i)\)</span>, where the postulated model is such that <span class="math inline">\(\mathsf{E}(Y_i) = f(\mathbf{X}_i)\)</span>.</li>
 </ul>
+<p>Benefit: more data to estimate trend</p>
 </section>
-<section id="effective-sample-size" class="slide level2">
-<h2>Effective sample size</h2>
-<p>With multiple chains, it is easier to use output of <code>coda</code> package.</p>
-<p>For summaries to be reliable (e.g., quantiles of posterior), the approximate number of independent samples from the total simulated should be large enough.</p>
-<div class="cell" data-hash="EVA2023-Rsoftware-bayesian_cache/revealjs/unnamed-chunk-12_51b547e1dac3b80275819441fbcc6c40">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>chains <span class="ot">&lt;-</span> coda<span class="sc">::</span><span class="fu">as.mcmc.list</span>(</span>
-<span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">lapply</span>(post_reg<span class="sc">$</span>chains, coda<span class="sc">::</span>as.mcmc))</span>
-<span id="cb12-3"><a href="#cb12-3"></a><span class="co"># effective sample size is sufficient here</span></span>
-<span id="cb12-4"><a href="#cb12-4"></a>coda<span class="sc">::</span><span class="fu">effectiveSize</span>(chains)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>    var1     var2     var3     var4 
-2763.133 3121.967 3024.125 3093.349 </code></pre>
-</div>
-</div>
-<p>Can compare algorithms efficiency via effective sample size per second.</p>
+<section id="estimating-probability-of-rare-events" class="slide level2">
+<h2>Estimating probability of rare events</h2>
+<p><span class="math display">\[\begin{align*}
+&amp;\Pr(Y_i &gt; y \mid \mathbf{X}_i) \\\quad &amp;= \Pr\{R_i &gt; y - \widehat{f}(\mathbf{X}_i)\mid \mathbf{X}_i\}
+\\\quad &amp; = \Pr\{R_i &gt; y - \widehat{f}(\mathbf{X}_i)\mid \mathbf{X}_i, R_i &gt; u\}\Pr(R_i &gt; u) \\&amp; \qquad + \Pr\{u  \leq R_i &gt; y - \widehat{f}(\mathbf{X}_i)\mid \mathbf{X}_i\}\Pr(R_i \leq u)
+\end{align*}\]</span> where the first term of the last line can be estimated using a generalized Pareto and the latter empirically (typically zero if <span class="math inline">\(y\)</span> is sufficiently large).</p>
 </section>
-<section id="traceplots" class="slide level2">
-<h2>Traceplots</h2>
-<div class="cell" data-hash="EVA2023-Rsoftware-bayesian_cache/revealjs/unnamed-chunk-13_04bf18d715b6e0d646ec3775e2d173d4">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="do">## Default 'plot' method for texmex objects:</span></span>
-<span id="cb14-2"><a href="#cb14-2"></a><span class="co"># density, traceplots and correlograms plots</span></span>
-<span id="cb14-3"><a href="#cb14-3"></a><span class="fu">plot</span>(chains, <span class="at">density =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="EVA2023-Rsoftware-bayesian_files/figure-revealjs/unnamed-chunk-13-1.png" width="960" class="r-stretch"><p>Should look like fat hairy catterpilars.</p>
-</section>
-<section id="algorithm-efficiency" class="slide level2">
-<h2>Algorithm efficiency</h2>
-<p>While some MCMC algorithms are more costly, they yield samples that are less autocorrelated (so contain more information altogether).</p>
+<section id="solution-2-hierarchical-models" class="slide level2">
+<h2>Solution 2: hierarchical models</h2>
+<p>We can also incorporate parameters in the parameters of the extreme value distribution.</p>
 <ul>
-<li>Is autocorrelation reasonable?</li>
-<li>Related to acceptance rate (Goldilock principle)</li>
-<li>Ideally, algorithms sample parameters on unconstrained space</li>
-<li>Good proposals adapt to the local geometry and satisfy support constraints</li>
+<li>Model <span class="math inline">\(\mu=f_{\mu}(\mathbf{X}; \boldsymbol{\beta}_{\mu})\)</span>, <span class="math inline">\(\sigma(\mathbf{X})=f_{\sigma}(\mathbf{X}; \boldsymbol{\beta}_{\sigma})\)</span>, etc.</li>
+<li>Typically keep shape constant.</li>
 </ul>
+<p>For explanatories <span class="math inline">\(\mathbf{X}\)</span>, fit regression models of the form <span class="math display">\[\begin{align*}
+\mu(\mathbf{X}) = \beta_0 + \beta_1 \mathrm{X}_1 + \cdots \beta_p \mathrm{X}_p,
+\end{align*}\]</span> and estimate parameters by maximum likelihood.</p>
 </section>
-<section id="correlograms" class="slide level2">
-<h2>Correlograms</h2>
-<div class="cell" data-hash="EVA2023-Rsoftware-bayesian_cache/revealjs/unnamed-chunk-14_fb9c23283b0688ff03c5e8599a3f1524">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>coda<span class="sc">::</span><span class="fu">acfplot</span>(chains)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="EVA2023-Rsoftware-bayesian_files/figure-revealjs/unnamed-chunk-14-1.png" width="960" class="r-stretch"></section>
-<section id="summaries" class="slide level2">
-<h2>Summaries</h2>
-<p>We can get directly summaries (e.g., posterior sample mean)</p>
+<section id="generalized-additive-models" class="slide level2">
+<h2>Generalized additive models</h2>
+<p>Rather than linear effects or changepoints (if <span class="math inline">\(\mathrm{X}_j\)</span> is binary), we could consider smooths</p>
+<p><span class="math display">\[\begin{align*}
+f(\mathrm{X}_j) = \sum_{k=1}^K \beta_k b_k(\mathbf{X}_j)
+\end{align*}\]</span> where <span class="math inline">\(b_k\)</span> are basis functions, e.g., thin-plate splines (<code>tp</code>), cubic regression splines (<code>cr</code>) and their cyclic counterparts.</p>
+</section>
+<section id="parsimony-is-key" class="slide level2">
+<h2>Parsimony is key</h2>
 <ul>
-<li>standard errors for functionals is more complicated due to the autocorrelation</li>
+<li>There are few exceedances or extremes…</li>
+<li>The support restriction translates into up to <span class="math inline">\(n\)</span> inequality constraints: difficult to optimize.</li>
 </ul>
-<p>Due to autocorrelation, dedicated methods are employed to get standard errors.</p>
-<div class="cell" data-hash="EVA2023-Rsoftware-bayesian_cache/revealjs/unnamed-chunk-15_23df46439a689e70856bb52523270670">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">summary</span>(chains)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     Length Class Mode   
-[1,] 44000  mcmc  numeric
-[2,] 44000  mcmc  numeric
-[3,] 44000  mcmc  numeric
-[4,] 44000  mcmc  numeric</code></pre>
-</div>
-</div>
+<p>Take home message: keep models simple!</p>
 </section>
-<section id="loss-function" class="slide level2">
-<h2>Loss function</h2>
-<p>Custom loss function for the return levels <span class="math inline">\(q\)</span> from EVA data challenge <span class="math display">\[\begin{align*}
-L(q, \widehat{q}(\theta)) =
-\begin{cases}
-0.9(0.99q - \widehat{q}), &amp; 0.99q &gt; \widehat{q} \\
-0, &amp; |q - \widehat{q}| \leq 0.01 q\\
-0.1(\widehat{q} - 1.01q), &amp; 1.01q &lt; \widehat{q}.
-\end{cases}
+<section id="penalized-regression" class="slide level2">
+<h2>Penalized regression</h2>
+<p>Penalization to enforce sparsity or regularize estimation.</p>
+<ul>
+<li>For generalized additive models (GAM), penalize square of second derivative to control the wiggliness of the function.</li>
+<li>Smooth matrix <span class="math inline">\(\mathbf{S}\)</span> with entries <span class="math inline">\(S_{ij} = \int b_i''(x) b_j''(x)\mathrm{d} x\)</span>, so the penalty is <span class="math inline">\(\lambda \boldsymbol{\beta}^\top \mathbf{S}\boldsymbol{\beta}\)</span> for <span class="math inline">\(\lambda &gt; 0\)</span>.</li>
+<li>These correspond to improper (i.e., rank-deficient) Gaussian priors.</li>
+</ul>
+</section>
+<section id="tuning-parameter" class="slide level2">
+<h2>Tuning parameter</h2>
+<ul>
+<li>Optimal value of <span class="math inline">\(\lambda\)</span> selected by maximizing the marginal likelihood.</li>
+<li>With multiple spline smoothers, using Laplace’s method for approximation <span class="citation" data-cites="Wood.Pya.Safken:2016">(<a href="#/references" role="doc-biblioref" onclick="">Wood et al., 2016</a>)</span>.</li>
+</ul>
+</section>
+<section id="basis-function-illustration" class="slide level2">
+<h2>Basis function illustration</h2>
+</section>
+<section id="a-word-of-caution" class="slide level2">
+<h2>A word of caution</h2>
+<ul>
+<li>With time-varying covariates, we need forecasts to compute risk measures in future.</li>
+<li>Model often fitted only at specific covariate values (careful at extrapolation beyond range).</li>
+<li>Rather than linear trend in time, use covariates that incorporate said trends but are more natural (e.g., climate model output).</li>
+</ul>
+</section>
+<section id="return-levels-under-nonstationarity" class="slide level2">
+<h2>Return levels under nonstationarity</h2>
+<p>In nonstationary models, risk measures of interest are defined conditionally on the value of covariates</p>
+<p>For example, the <span class="math inline">\(1-p\)</span> conditional return level is <span class="citation" data-cites="Eastoe.Tawn:2009">(<a href="#/references" role="doc-biblioref" onclick="">Eastoe &amp; Tawn, 2009</a>)</span> <span class="math display">\[\begin{align*}
+\Pr(Y_t  &gt; y \mid \mathbf{X}_t =\boldsymbol{x}_t) = p
 \end{align*}\]</span></p>
 </section>
-<section id="bayesian-evaluation-of-loss-function" class="slide level2">
-<h2>Bayesian evaluation of loss function</h2>
-<p>For given value of the return level <span class="math inline">\(q_0\)</span>: <span class="math display">\[\begin{align*}
-r(q_0) = \int_{\boldsymbol{\Theta}}L(q(\boldsymbol{\theta}), q_0) p (\boldsymbol{\theta}) \mathrm{d} \boldsymbol{\theta}
-\end{align*}\]</span> and we seek to minimize the risk, <span class="math inline">\(\mathrm{min}_{q_0 \in \mathbb{R}_{+}} r(q_0)\)</span></p>
+<section id="unconditional-return-levels" class="slide level2">
+<h2>Unconditional return levels</h2>
+<p>These can be obtained by averaging out over the distribution of covariates that are employed in the model.</p>
+<p><span class="math display">\[\begin{align*}
+\int_{\mathcal{X}} \Pr(Y_t  &gt; y \mid \mathbf{X}_t =\boldsymbol{x}_t) \mathrm{d} P(\boldsymbol{x}_t),
+\end{align*}\]</span></p>
+<p>Return levels may be meaningless quantities.</p>
+<p>May require information about future distribution of covariates if these are time-varying.</p>
 </section>
-<section id="loss-function-1" class="slide level2">
-<h2>Loss function</h2>
-
-<img data-src="EVA2023-Rsoftware-bayesian_files/figure-revealjs/fig-lossfn-1.png" style="width:80.0%" class="r-stretch quarto-figure-center"><p class="caption">Figure&nbsp;3: Loss function for wind speed data, based on fitting a generalized extreme value distribution to annual maxima.</p></section>
+<section id="threshold-stability" class="slide level2">
+<h2>Threshold stability</h2>
+<p>The generalized Pareto model with varying scale and shape is not threshold-stable unless, for any <span class="math inline">\(v&gt;u\)</span>, <span class="math display">\[\begin{align*}
+\sigma_v(\boldsymbol{x}_t) = \sigma_u(\boldsymbol{x}_t) + (v-u) \xi(\boldsymbol{x}_t)
+\end{align*}\]</span></p>
+<p>Restrictive! For constant <span class="math inline">\(\xi\)</span>, need <span class="math inline">\(\sigma\)</span> linear or constant (log scale) <span class="citation" data-cites="Eastoe.Tawn:2009">(<a href="#/references" role="doc-biblioref" onclick="">Eastoe &amp; Tawn, 2009</a>)</span>.</p>
+<p>Using the inhomogeneous Poisson point process representation avoids these problems.</p>
+<p>For nonstationary threshold models <span class="math inline">\(u(\mathbf{X})\)</span>, see Section 3.2.2 of <span class="citation" data-cites="Northrop.Jonathan:2011">Northrop &amp; Jonathan (<a href="#/references" role="doc-biblioref" onclick="">2011</a>)</span>.</p>
+</section>
+<section id="software" class="slide level2">
+<h2>Software</h2>
+<p>The function <code>evgam</code> from the eponymous package <span class="citation" data-cites="evgam">(<a href="#/references" role="doc-biblioref" onclick=""><strong>evgam?</strong></a>)</span>, building on the <code>mgcv</code> package of Simon Wood <span class="citation" data-cites="Wood:2017:mgcv">(<a href="#/references" role="doc-biblioref" onclick="">Wood, 2017</a>)</span>.</p>
+<p>The setup is <code>evgam(formula, data, family, ...)</code>, where</p>
+<ul>
+<li><code>family</code> is the character string for the extreme value distribution (<code>gev</code>, <code>gpd</code>, <code>rlarg</code> and <code>ald</code> for asymmetric Laplace, used in quantile regression),</li>
+<li><code>data</code> is a data frame,</li>
+<li><code>formula</code> is a list of formula for parameters (in the order location, scale, shape).</li>
+</ul>
+</section>
+<section id="example-with-evgam" class="slide level2">
+<h2>Example with <code>evgam</code></h2>
+</section>
 <section id="references" class="slide level2 smaller scrollable">
 <h2>References</h2>
 
@@ -744,20 +487,17 @@ r(q_0) = \int_{\boldsymbol{\Theta}}L(q(\boldsymbol{\theta}), q_0) p (\boldsymbol
 
 </div>
 <div id="refs" class="references csl-bib-body hanging-indent" data-line-spacing="2" role="list">
-<div id="ref-Coles.Tawn:1996" class="csl-entry" role="listitem">
-Coles, S. G., &amp; Tawn, J. A. (1996). A <span>B</span>ayesian analysis of extreme rainfall data. <em>Journal of the Royal Statistical Society. Series C (Applied Statistics)</em>, <em>45</em>(4), 463–478. <a href="https://doi.org/10.2307/2986068">https://doi.org/10.2307/2986068</a>
+<div id="ref-Eastoe.Tawn:2009" class="csl-entry" role="listitem">
+Eastoe, E. F., &amp; Tawn, J. A. (2009). Modelling non-stationary extremes with application to surface level ozone. <em>Journal of the Royal Statistical Society: Series C (Applied Statistics)</em>, <em>58</em>(1), 25–45. <a href="https://doi.org/10.1111/j.1467-9876.2008.00638.x">https://doi.org/10.1111/j.1467-9876.2008.00638.x</a>
 </div>
-<div id="ref-Gabry:2019" class="csl-entry" role="listitem">
-Gabry, J., Simpson, D., Vehtari, A., Betancourt, M., &amp; Gelman, A. (2019). <span class="nocase">Visualization in <span>B</span>ayesian Workflow</span>. <em>Journal of the Royal Statistical Society Series A: Statistics in Society</em>, <em>182</em>(2), 389–402. <a href="https://doi.org/10.1111/rssa.12378">https://doi.org/10.1111/rssa.12378</a>
+<div id="ref-Northrop.Jonathan:2011" class="csl-entry" role="listitem">
+Northrop, P. J., &amp; Jonathan, P. (2011). Threshold modelling of spatially dependent non-stationary extremes with application to hurricane-induced wave heights. <em>Environmetrics</em>, <em>22</em>(7), 799–809. <a href="https://doi.org/10.1002/env.1106">https://doi.org/10.1002/env.1106</a>
 </div>
-<div id="ref-Martins.Stedinger:2001" class="csl-entry" role="listitem">
-Martins, E. S., &amp; Stedinger, J. R. (2001). Generalized maximum likelihood <span>P</span>areto-<span>P</span>oisson estimators for partial duration series. <em>Water Resources Research</em>, <em>37</em>(10), 2551–2557. <a href="https://doi.org/10.1029/2001WR000367">https://doi.org/10.1029/2001WR000367</a>
+<div id="ref-Wood:2017:mgcv" class="csl-entry" role="listitem">
+Wood, S. N. (2017). <em>Generalized additive models: An introduction with <strong>r</strong></em> (2nd ed.). Chapman; Hall/CRC.
 </div>
-<div id="ref-revdbayes" class="csl-entry" role="listitem">
-Northrop, P. J. (2023). <em><code>revdbayes</code>: Ratio-of-uniforms sampling for <span>B</span>ayesian extreme value analysis</em>.
-</div>
-<div id="ref-Northrop.Attalides:2016" class="csl-entry" role="listitem">
-Northrop, P. J., &amp; Attalides, N. (2016). Posterior propriety in <span>B</span>ayesian extreme value analyses using reference priors. <em>Statistica Sinica</em>, <em>26</em>(2), 721–743. <a href="https://doi.org/10.5705/ss.2014.034">https://doi.org/10.5705/ss.2014.034</a>
+<div id="ref-Wood.Pya.Safken:2016" class="csl-entry" role="listitem">
+Wood, S. N., Pya, N., &amp; Säfken, B. (2016). Smoothing parameter and model selection for general smooth models. <em>Journal of the American Statistical Association</em>, <em>111</em>(516), 1548–1563. <a href="https://doi.org/10.1080/01621459.2016.1180986">https://doi.org/10.1080/01621459.2016.1180986</a>
 </div>
 </div>
 </section>

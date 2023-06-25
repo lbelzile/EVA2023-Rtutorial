@@ -53,7 +53,7 @@
     "href": "content/regression.html",
     "title": "Regression models",
     "section": "",
-    "text": "Most data encountered in applications display various forms of nonstationarity, including trends, time-varying variance, seasonality and covariate effects. In environmental applications, these may be partly attributed to the presence of different weather patterns or regimes, to climate change, etc. Extreme value distributions cannot capture these phenomena without modification. There is no general theory for nonstationary extremes, and therefore there are multiple strategies that one can consider for modelling.\nThe first consists in fitting a regression for the whole data and perform extreme value analysis with the residuals, as before assuming stationarity (Eastoe & Tawn, 2009). The second, proposed by Davison & Smith (1990), tries to incorporate covariates in the parameters \\(\\mu\\), \\(\\sigma\\), etc. — fixing the shape parameters is often recommended as it is hard to estimate.\nGeneral linear modelling would consist in regression models, e.g., \\[\\begin{align*}\n\\mu(\\mathbf{X}) = \\beta_0 + \\beta_1 \\mathrm{X}_1 + \\cdots \\beta_p \\mathrm{X}_p,\n\\end{align*}\\] and estimate as before parameters by maximum likelihood. The difficulty now is that there are more parameters to estimate and the support restriction translates into up to \\(n\\) inequality constraints, as they must be supported for every combination of covariates found in the database. These two facts mean numerical optimization is more difficult.\nIn models with a relatively large number of parameters, it is useful to include additive penalty terms to the log likelihood: for example, generalized additive models for the parameters include smooth functions, typically splines, with a penalty that controls the wiggliness of the estimated predictor functions. The latter is typically evaluated using the second-order derivative of the basis functions.\nFor example, consider a function of covariates \\(f(x_j) = \\sum_{k=1}^K \\beta_k b_k(x_j)\\), where \\(b_k(\\cdot)\\) is a basis function, possibly with compact support. We then consider penalties that penalize the squared second derivative of the function \\(f(x)\\). Since the regression coefficients \\(\\beta\\)’s are constants, the penalty can be expressed in terms of the second derivative of the basis functions concatenated in a smooth matrix \\(\\mathbf{S}\\) with \\((i,j)\\)th entry \\(S_{ij} = \\int b_i''(x) b_j''(x)\\mathrm{d} x\\), so the penalty can be written \\(\\lambda \\boldsymbol{\\beta}^\\top \\mathbf{S}\\boldsymbol{\\beta}\\) for some tuning parameter \\(\\lambda \\geq 0\\) that controls the tuning. The penalty can be viewed in the Bayesian paradigm as an improper Gaussian prior. The optimal value of \\(\\lambda\\) for smoothing is selected by maximizing the marginal likelihood: in high-dimensional settings, or why we include interactions, optimization of this is far from trivial.\nThe mgcv package in R allows for estimation of generalized additive models using the methods described above. There are multiple choice of basis functions that can be used, including the default thin-plate spline tp, cubic splines cs and cubic cyclic splines cc for cyclic covariates such as period of year. While most software for generalized additive models will allow for The smooths consisting of linear combination of basis functions\nIn nonstationary models, risk measures of interest are defined conditionally on the value of covariates: for example, the \\(1-p\\) conditional return level is (Eastoe & Tawn, 2009) \\[\\begin{align*}\n\\Pr(Y_t  &gt; y \\mid \\mathbf{X}_t =\\boldsymbol{x}_t) = p\n\\end{align*}\\] and the corresponding unconditional return level, \\[\\begin{align*}\n\\int_{\\mathcal{X}} \\Pr(Y_t  &gt; y \\mid \\mathbf{X}_t =\\boldsymbol{x}_t) \\mathrm{d} P(\\boldsymbol{x}_t),\n\\end{align*}\\] is obtained by averaging out over the distribution of covariates that are employed in the model. For future quantities, this may or not be a sensible risk summary to compute1 and may prove tricky to obtain as it requires either knowledge about the future distribution of the covariates, or else a perhaps unrealistically strong stationary assumption.\nSome parametrizations are better suited than others for regression modelling: for the nonstationary case, the generalized Pareto model with varying scale and shape is not stationary unless, for any \\(v\\) greater than the original threshold \\(u\\), \\[\\begin{align*}\n\\sigma_v(\\boldsymbol{x}_t) = \\sigma_u(\\boldsymbol{x}_t) + (v-u) \\xi(\\boldsymbol{x}_t)\n\\end{align*}\\] which, even with constant shape \\(\\xi\\) must imply a linear or constant functional form for \\(\\sigma_u\\). Using the inhomogeneous Poisson point process representation avoids these problems."
+    "text": "Most data encountered in applications display various forms of nonstationarity, including trends, time-varying variance, seasonality and covariate effects. In environmental applications, these may be partly attributed to the presence of different weather patterns or regimes, to climate change, etc. Extreme value distributions cannot capture these phenomena without modification. There is no general theory for nonstationary extremes, and therefore there are multiple strategies that one can consider for modelling.\nThe first consists in fitting a regression for the whole data and perform extreme value analysis with the residuals, as before assuming stationarity (Eastoe & Tawn, 2009). The second, proposed by Davison & Smith (1990), tries to incorporate covariates in the parameters \\(\\mu\\), \\(\\sigma\\), etc. — fixing the shape parameters is often recommended as it is hard to estimate.\nGeneral linear modelling would consist in regression models, e.g., \\[\\begin{align*}\n\\mu(\\mathbf{X}) = \\beta_0 + \\beta_1 \\mathrm{X}_1 + \\cdots \\beta_p \\mathrm{X}_p,\n\\end{align*}\\] and estimate as before parameters by maximum likelihood. The difficulty now is that there are more parameters to estimate and the support restriction translates into up to \\(n\\) inequality constraints, as they must be supported for every combination of covariates found in the database. These two facts mean numerical optimization is more difficult.\nIn models with a relatively large number of parameters, it is useful to include additive penalty terms to the log likelihood: for example, generalized additive models for the parameters include smooth functions, typically splines, with a penalty that controls the wiggliness of the estimated predictor functions. The latter is typically evaluated using the second-order derivative of the basis functions.\nFor example, consider a function of covariates \\(f(x_j) = \\sum_{k=1}^K \\beta_k b_k(x_j)\\), where \\(b_k(\\cdot)\\) is a basis function, possibly with compact support. We typically penalize the squared second derivative of the function \\(f(x)\\) to control the wiggliness of the function. Since the regression coefficients \\(\\beta\\)’s are constants, the penalty can be expressed in terms of the second derivative of the basis functions concatenated in a smooth matrix \\(\\mathbf{S}\\) with \\((i,j)\\)th entry \\(S_{ij} = \\int b_i''(x) b_j''(x)\\mathrm{d} x\\), so the penalty can be written \\(\\lambda \\boldsymbol{\\beta}^\\top \\mathbf{S}\\boldsymbol{\\beta}\\) for some tuning parameter \\(\\lambda \\geq 0\\) that controls the tuning. The penalty can be viewed in the Bayesian paradigm as an improper Gaussian prior. The optimal value of \\(\\lambda\\) for smoothing is selected by maximizing the marginal likelihood: in high-dimensional settings, or when we include interactions through tensor products, etc., optimization of \\(\\boldsymbol{\\lambda}\\) is far from trivial.\nThe mgcv package in R allows for estimation of generalized additive models using the methods described above. There are multiple choice of basis functions that can be used, including the default thin-plate spline tp, cubic splines cs and cubic cyclic splines cc for cyclic covariates such as period of year. While most software for generalized additive models will allow for The smooths consisting of linear combination of basis functions\nIn nonstationary models, risk measures of interest are defined conditionally on the value of covariates: for example, the \\(1-p\\) conditional return level is (Eastoe & Tawn, 2009) \\[\\begin{align*}\n\\Pr(Y_t  &gt; y \\mid \\mathbf{X}_t =\\boldsymbol{x}_t) = p\n\\end{align*}\\] and the corresponding unconditional return level, \\[\\begin{align*}\n\\int_{\\mathcal{X}} \\Pr(Y_t  &gt; y \\mid \\mathbf{X}_t =\\boldsymbol{x}_t) \\mathrm{d} P(\\boldsymbol{x}_t),\n\\end{align*}\\] is obtained by averaging out over the distribution of covariates that are employed in the model. For future quantities, this may or not be a sensible risk summary to compute1 and may prove tricky to obtain as it requires either knowledge about the future distribution of the covariates, or else a perhaps unrealistically strong stationary assumption.\nSome parametrizations are better suited than others for regression modelling: for the nonstationary case, the generalized Pareto model with varying scale and shape is not stationary unless, for any \\(v\\) greater than the original threshold \\(u\\), \\[\\begin{align*}\n\\sigma_v(\\boldsymbol{x}_t) = \\sigma_u(\\boldsymbol{x}_t) + (v-u) \\xi(\\boldsymbol{x}_t)\n\\end{align*}\\] which, even with constant shape \\(\\xi\\) must imply a linear or constant functional form for \\(\\sigma_u\\). Using the inhomogeneous Poisson point process representation avoids these problems."
   },
   {
     "objectID": "content/regression.html#generalized-additive-models-for-extremes",
@@ -270,7 +270,7 @@
     "href": "slides/EVA2023-Rsoftware-bayesian.html#summaries",
     "title": "Tutorial on Statistical Computing for Extremes with R",
     "section": "Summaries",
-    "text": "Summaries\nWe can get directly summaries (e.g., posterior sample mean)\n\nstandard errors for functionals is more complicated due to the autocorrelation\n\nDue to autocorrelation, we need to use dedicated method to get standard errors.\n\nsummary(chains)\n\n     Length Class Mode   \n[1,] 44000  mcmc  numeric\n[2,] 44000  mcmc  numeric\n[3,] 44000  mcmc  numeric\n[4,] 44000  mcmc  numeric"
+    "text": "Summaries\nWe can get directly summaries (e.g., posterior sample mean)\n\nstandard errors for functionals is more complicated due to the autocorrelation\n\nDue to autocorrelation, dedicated methods are employed to get standard errors.\n\nsummary(chains)\n\n     Length Class Mode   \n[1,] 44000  mcmc  numeric\n[2,] 44000  mcmc  numeric\n[3,] 44000  mcmc  numeric\n[4,] 44000  mcmc  numeric"
   },
   {
     "objectID": "slides/EVA2023-Rsoftware-bayesian.html#references",
@@ -509,5 +509,166 @@
     "title": "Tutorial on Statistical Computing for Extremes with R",
     "section": "References",
     "text": "References\n\n\n\n\n\n\nGrimshaw, S. D. (1993). Computing maximum likelihood estimates for the generalized Pareto distribution. Technometrics, 35(2), 185–191. https://doi.org/10.1080/00401706.1993.10485040\n\n\nMoins, T., Arbel, J., Girard, S., & Dutfoy, A. (2023). Reparameterization of extreme value framework for improved Bayesian workflow. Computational Statistics & Data Analysis, to appear. https://doi.org/https://doi.org/10.1016/j.csda.2023.107807\n\n\nSmith, R. L. (1985). Maximum likelihood estimation in a class of nonregular cases. Biometrika, 72(1), 67–90. https://doi.org/10.1093/biomet/72.1.67"
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-bayesian.html#loss-function",
+    "href": "slides/EVA2023-Rsoftware-bayesian.html#loss-function",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Loss function",
+    "text": "Loss function\nCustom loss function for the return levels \\(q\\) from EVA data challenge \\[\\begin{align*}\nL(q, \\widehat{q}(\\theta)) =\n\\begin{cases}\n0.9(0.99q - \\widehat{q}), & 0.99q &gt; \\widehat{q} \\\\\n0, & |q - \\widehat{q}| \\leq 0.01 q\\\\\n0.1(\\widehat{q} - 1.01q), & 1.01q &lt; \\widehat{q}.\n\\end{cases}\n\\end{align*}\\]"
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-bayesian.html#bayesian-loss-function",
+    "href": "slides/EVA2023-Rsoftware-bayesian.html#bayesian-loss-function",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Bayesian loss function",
+    "text": "Bayesian loss function\nFor given value of the return level \\(q_0\\): \\[\\begin{align*}\nr(q_0) = \\int_{\\boldsymbol{\\Theta}}L(q(\\boldsymbol{\\theta}), q_0) p (\\boldsymbol{\\theta}) \\mathrm{d} \\boldsymbol{\\theta}\n\\end{align*}\\] and we seek to minimize the risk, \\(\\mathrm{min}_{q_0 \\in \\mathbb{R}_{+}} r(q_0)\\)"
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-bayesian.html#loss-function-1",
+    "href": "slides/EVA2023-Rsoftware-bayesian.html#loss-function-1",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Loss function",
+    "text": "Loss function\n\nFigure 3: Loss function for wind speed data, based on fitting a generalized extreme value distribution to annual maxima."
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-bayesian.html#bayesian-evaluation-of-loss-function",
+    "href": "slides/EVA2023-Rsoftware-bayesian.html#bayesian-evaluation-of-loss-function",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Bayesian evaluation of loss function",
+    "text": "Bayesian evaluation of loss function\nFor given value of the return level \\(q_0\\): \\[\\begin{align*}\nr(q_0) = \\int_{\\boldsymbol{\\Theta}}L(q(\\boldsymbol{\\theta}), q_0) p (\\boldsymbol{\\theta}) \\mathrm{d} \\boldsymbol{\\theta}\n\\end{align*}\\] and we seek to minimize the risk, \\(\\mathrm{min}_{q_0 \\in \\mathbb{R}_{+}} r(q_0)\\)"
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#nonstationarity",
+    "href": "slides/EVA2023-Rsoftware-regression.html#nonstationarity",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Nonstationarity",
+    "text": "Nonstationarity\nThere are various forms of nonstationarity, including\n\ntrends,\ntime-varying variance,\nseasonality,\n\ncovariate effects.\n\nNo general theory"
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#solution-1-preprocessing",
+    "href": "slides/EVA2023-Rsoftware-regression.html#solution-1-preprocessing",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Solution 1: preprocessing",
+    "text": "Solution 1: preprocessing\n\ndetrend data to approximate stationary.\n\nfor financial time series, fit ARMA-GARCH model\nuse Box-Cox transformation with regression model\n\nanalyze residuals \\(R_i = Y_i - \\widehat{f}(\\mathbf{X}_i)\\), where the postulated model is such that \\(\\mathsf{E}(Y_i) = f(\\mathbf{X}_i)\\).\n\nBenefit: more data to estimate trend"
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#section",
+    "href": "slides/EVA2023-Rsoftware-regression.html#section",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "",
+    "text": "For \\(y\\) sufficiently large, \\[\\begin{align*}\n\\Pr(Y_i &gt; y \\mid \\mathbf{X}_i) &= \\Pr\\{R_i &gt; y - \\widehat{f}(\\mathbf{X}_i)\\mid \\mathbf{X}_i\\}\n\\\\& = \\Pr\\{R_i &gt; y - \\widehat{f}(\\mathbf{X}_i)\\mid \\mathbf{X}_i, R_i &gt; u\\}\\Pr(R_i &gt; u) + \\Pr\\{u  \\leq R_i &gt; y - \\widehat{f}(\\mathbf{X}_i)\\mid \\mathbf{X}_i\\}\\Pr(R_i \\leq u)\n\\end{align*}\\] where the first term of the last line can be estimated using a generalized Pareto and the latter empirically. ## References"
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#references",
+    "href": "slides/EVA2023-Rsoftware-regression.html#references",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "References",
+    "text": "References\n\n\n\n\n\n\nEastoe, E. F., & Tawn, J. A. (2009). Modelling non-stationary extremes with application to surface level ozone. Journal of the Royal Statistical Society: Series C (Applied Statistics), 58(1), 25–45. https://doi.org/10.1111/j.1467-9876.2008.00638.x\n\n\nNorthrop, P. J., & Jonathan, P. (2011). Threshold modelling of spatially dependent non-stationary extremes with application to hurricane-induced wave heights. Environmetrics, 22(7), 799–809. https://doi.org/10.1002/env.1106\n\n\nWood, S. N. (2017). Generalized additive models: An introduction with r (2nd ed.). Chapman; Hall/CRC.\n\n\nWood, S. N., Pya, N., & Säfken, B. (2016). Smoothing parameter and model selection for general smooth models. Journal of the American Statistical Association, 111(516), 1548–1563. https://doi.org/10.1080/01621459.2016.1180986"
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#estimating-probability-of-rare-events",
+    "href": "slides/EVA2023-Rsoftware-regression.html#estimating-probability-of-rare-events",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Estimating probability of rare events",
+    "text": "Estimating probability of rare events\n\\[\\begin{align*}\n&\\Pr(Y_i &gt; y \\mid \\mathbf{X}_i) \\\\\\quad &= \\Pr\\{R_i &gt; y - \\widehat{f}(\\mathbf{X}_i)\\mid \\mathbf{X}_i\\}\n\\\\\\quad & = \\Pr\\{R_i &gt; y - \\widehat{f}(\\mathbf{X}_i)\\mid \\mathbf{X}_i, R_i &gt; u\\}\\Pr(R_i &gt; u) \\\\& \\qquad + \\Pr\\{u  \\leq R_i &gt; y - \\widehat{f}(\\mathbf{X}_i)\\mid \\mathbf{X}_i\\}\\Pr(R_i \\leq u)\n\\end{align*}\\] where the first term of the last line can be estimated using a generalized Pareto and the latter empirically (typically zero if \\(y\\) is sufficiently large)."
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#solution-2-hierarchical-models",
+    "href": "slides/EVA2023-Rsoftware-regression.html#solution-2-hierarchical-models",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Solution 2: hierarchical models",
+    "text": "Solution 2: hierarchical models\nWe can also incorporate parameters in the parameters of the extreme value distribution.\n\nModel \\(\\mu=f_{\\mu}(\\mathbf{X}; \\boldsymbol{\\beta}_{\\mu})\\), \\(\\sigma(\\mathbf{X})=f_{\\sigma}(\\mathbf{X}; \\boldsymbol{\\beta}_{\\sigma})\\), etc.\nTypically keep shape constant.\n\nFor explanatories \\(\\mathbf{X}\\), fit regression models of the form \\[\\begin{align*}\n\\mu(\\mathbf{X}) = \\beta_0 + \\beta_1 \\mathrm{X}_1 + \\cdots \\beta_p \\mathrm{X}_p,\n\\end{align*}\\] and estimate parameters by maximum likelihood."
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#regression-models",
+    "href": "slides/EVA2023-Rsoftware-regression.html#regression-models",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Regression models",
+    "text": "Regression models\nFor explanatories \\(\\mathbf{X}\\), fit models of the form \\[\\begin{align*}\n\\mu(\\mathbf{X}) = \\beta_0 + \\beta_1 \\mathrm{X}_1 + \\cdots \\beta_p \\mathrm{X}_p,\n\\end{align*}\\] and estimate as before parameters by maximum likelihood."
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#parsimony-is-key",
+    "href": "slides/EVA2023-Rsoftware-regression.html#parsimony-is-key",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Parsimony is key",
+    "text": "Parsimony is key\n\nThere are few exceedances or extremes…\nThe support restriction translates into up to \\(n\\) inequality constraints: difficult to optimize.\n\nTake home message: keep models simple!"
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#a-word-of-caution",
+    "href": "slides/EVA2023-Rsoftware-regression.html#a-word-of-caution",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "A word of caution",
+    "text": "A word of caution\n\nWith time-varying covariates, we need forecasts to compute risk measures in future.\nModel often fitted only at specific covariate values (careful at extrapolation beyond range).\nRather than linear trend in time, use covariates that incorporate said trends but are more natural (e.g., climate model output)."
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#return-levels-under-nonstationarity",
+    "href": "slides/EVA2023-Rsoftware-regression.html#return-levels-under-nonstationarity",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Return levels under nonstationarity",
+    "text": "Return levels under nonstationarity\nIn nonstationary models, risk measures of interest are defined conditionally on the value of covariates\nFor example, the \\(1-p\\) conditional return level is (Eastoe & Tawn, 2009) \\[\\begin{align*}\n\\Pr(Y_t  &gt; y \\mid \\mathbf{X}_t =\\boldsymbol{x}_t) = p\n\\end{align*}\\]"
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#unconditional-return-levels",
+    "href": "slides/EVA2023-Rsoftware-regression.html#unconditional-return-levels",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Unconditional return levels",
+    "text": "Unconditional return levels\nThese can be obtained by averaging out over the distribution of covariates that are employed in the model.\n\\[\\begin{align*}\n\\int_{\\mathcal{X}} \\Pr(Y_t  &gt; y \\mid \\mathbf{X}_t =\\boldsymbol{x}_t) \\mathrm{d} P(\\boldsymbol{x}_t),\n\\end{align*}\\]\nReturn levels may be meaningless quantities.\nMay require information about future distribution of covariates if these are time-varying."
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#penalized-regression",
+    "href": "slides/EVA2023-Rsoftware-regression.html#penalized-regression",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Penalized regression",
+    "text": "Penalized regression\nPenalization to enforce sparsity or regularize estimation.\n\nFor generalized additive models (GAM), penalize square of second derivative to control the wiggliness of the function.\nSmooth matrix \\(\\mathbf{S}\\) with entries \\(S_{ij} = \\int b_i''(x) b_j''(x)\\mathrm{d} x\\), so the penalty is \\(\\lambda \\boldsymbol{\\beta}^\\top \\mathbf{S}\\boldsymbol{\\beta}\\) for \\(\\lambda &gt; 0\\).\nThese correspond to improper (i.e., rank-deficient) Gaussian priors."
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#threshold-stability",
+    "href": "slides/EVA2023-Rsoftware-regression.html#threshold-stability",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Threshold stability",
+    "text": "Threshold stability\nThe generalized Pareto model with varying scale and shape is not threshold-stable unless, for any \\(v&gt;u\\), \\[\\begin{align*}\n\\sigma_v(\\boldsymbol{x}_t) = \\sigma_u(\\boldsymbol{x}_t) + (v-u) \\xi(\\boldsymbol{x}_t)\n\\end{align*}\\]\nRestrictive! For constant \\(\\xi\\), need \\(\\sigma\\) linear or constant (log scale) (Eastoe & Tawn, 2009).\nUsing the inhomogeneous Poisson point process representation avoids these problems.\nFor nonstationary threshold models \\(u(\\mathbf{X})\\), see Section 3.2.2 of Northrop & Jonathan (2011)."
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#nonstationary-threshold",
+    "href": "slides/EVA2023-Rsoftware-regression.html#nonstationary-threshold",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Nonstationary threshold",
+    "text": "Nonstationary threshold\nIntricate details related to the parametrization; for nonstationary threshold models \\(u(\\mathbf{X})\\), see Section 3.2.2 of Northrop & Jonathan (2011)."
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#generalized-additive-models",
+    "href": "slides/EVA2023-Rsoftware-regression.html#generalized-additive-models",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Generalized additive models",
+    "text": "Generalized additive models\nRather than linear effects or changepoints (if \\(\\mathrm{X}_j\\) is binary), we could consider smooths\n\\[\\begin{align*}\nf(\\mathrm{X}_j) = \\sum_{k=1}^K \\beta_k b_k(\\mathbf{X}_j)\n\\end{align*}\\] where \\(b_k\\) are basis functions, e.g., thin-plate splines (tp), cubic regression splines (cr) and their cyclic counterparts."
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#basis-function-illustration",
+    "href": "slides/EVA2023-Rsoftware-regression.html#basis-function-illustration",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Basis function illustration",
+    "text": "Basis function illustration"
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#tuning-parameter",
+    "href": "slides/EVA2023-Rsoftware-regression.html#tuning-parameter",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Tuning parameter",
+    "text": "Tuning parameter\n\nOptimal value of \\(\\lambda\\) selected by maximizing the marginal likelihood.\nWith multiple spline smoothers, using Laplace’s method for approximation (Wood et al., 2016)."
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#software",
+    "href": "slides/EVA2023-Rsoftware-regression.html#software",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Software",
+    "text": "Software\nThe function evgam from the eponymous package (evgam?), building on the mgcv package of Simon Wood (Wood, 2017).\nThe setup is evgam(formula, data, family, ...), where\n\nfamily is the character string for the extreme value distribution (gev, gpd, rlarg and ald for asymmetric Laplace, used in quantile regression),\ndata is a data frame,\nformula is a list of formula for parameters (in the order location, scale, shape)."
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#example-with-evgam",
+    "href": "slides/EVA2023-Rsoftware-regression.html#example-with-evgam",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Example with evgam",
+    "text": "Example with evgam"
   }
 ]

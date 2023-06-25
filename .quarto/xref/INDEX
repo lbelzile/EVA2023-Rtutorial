@@ -31,5 +31,8 @@
   },
   "slides/EVA2023-Rsoftware-bayesian.qmd": {
     "EVA2023-Rsoftware-bayesian.html": "97d7cee4"
+  },
+  "slides/EVA2023-Rsoftware-regression.qmd": {
+    "EVA2023-Rsoftware-regression.html": "8ad473b9"
   }
 }

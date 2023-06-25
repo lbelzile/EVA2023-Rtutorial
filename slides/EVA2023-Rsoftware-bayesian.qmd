@@ -362,10 +362,80 @@ We can get directly summaries (e.g., posterior sample mean)
 
 - standard errors for functionals is more complicated due to the autocorrelation
 
-Due to autocorrelation, we need to use dedicated method to get standard errors.
+Due to autocorrelation, dedicated methods are employed to get standard errors.
 
 ```{r}
 summary(chains)
+```
+
+## Loss function
+
+Custom loss function for the return levels $q$ from EVA data challenge
+\begin{align*}
+L(q, \widehat{q}(\theta)) = 
+\begin{cases}
+0.9(0.99q - \widehat{q}), & 0.99q > \widehat{q} \\
+0, & |q - \widehat{q}| \leq 0.01 q\\
+0.1(\widehat{q} - 1.01q), & 1.01q < \widehat{q}.
+\end{cases}
+\end{align*}
+
+## Bayesian evaluation of loss function
+
+For given value of the return level $q_0$:
+\begin{align*}
+ r(q_0) = \int_{\boldsymbol{\Theta}}L(q(\boldsymbol{\theta}), q_0) p (\boldsymbol{\theta}) \mathrm{d} \boldsymbol{\theta}
+\end{align*}
+and we seek to minimize the risk, $\mathrm{min}_{q_0 \in \mathbb{R}_{+}} r(q_0)$
+
+## Loss function
+
+```{r}
+#| label: fig-lossfn
+#| out-width: '80%'
+#| eval: true
+#| echo: false
+#| fig-align: 'center'
+#| fig-cap: "Loss function for wind speed data, based on fitting a generalized extreme value distribution to annual maxima."
+gev_retlev <- function(par, N, p = 0.368){
+  # Map parameters via GEV max-stability
+  mu <- par[1] + par[2]*(N^par[3]-1)/par[3]
+  sigma <- par[2]*N^par[3]; 
+  xi <- par[3]
+  # quantile of N-block maximum
+  mev::qgev(p = p, loc = mu, scale = sigma, shape = xi)
+}
+
+# Loss function
+loss <- function(qhat, q){
+    mean(ifelse(0.99*q > qhat,
+           0.99*(0.99*q-qhat),
+           ifelse(1.01*q < qhat,
+                  0.1*(qhat-1.01*q),
+                  0)))
+}
+# Compute the posterior of the return levels
+retlev_post <- apply(post_samp1, 1, gev_retlev, N = 50)
+# Create a grid of values over which to estimate the risk
+retlev_psi <- seq(
+  from = quantile(retlev_post, 0.2),
+  to = quantile(retlev_post, 0.99), 
+  length.out = 101)
+# Create a container to store results
+risk <- numeric(length = length(retlev_psi))
+for(i in seq_along(risk)){
+  # Compute integral (Monte Carlo average over draws)
+ risk[i] <- loss(q = retlev_post, qhat = retlev_psi[i])
+}
+# Plot loss function
+ggplot(data = data.frame(
+  loss = risk, 
+  retlev = retlev_psi), 
+  mapping = aes(x = retlev, y = loss)) +
+  geom_line() +
+  geom_vline(xintercept = mean(retlev_post)) +
+  labs(x = "return level") +
+  theme_minimal()
 ```
 
 ## References

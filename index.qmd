@@ -17,7 +17,7 @@ Univariate extremes:
 - Threshold selection for peaks over threshold
 - Semiparametric methods
 - [Bayesian inference](slides/EVA2023-Rsoftware-bayesian.html)
-- Nonstationary extremes
+- [Nonstationary extremes](slides/EVA2023-Rsoftware-regression.html)
 
 Multivariate extremes and time series:
 
