@@ -270,13 +270,13 @@ p(\boldsymbol{\theta} \mid \boldsymbol{Y}) = \frac{p(\boldsymbol{Y} \mid \boldsy
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(post_gev_mean, <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     25%      50%      75% 
-59.40767 67.36369 82.03166 </code></pre>
+59.03586 67.00225 81.80513 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># To get a 95% credible interval, simply compute quantiles</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(post_gev_mean, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     2.5%     97.5% 
- 52.05179 161.48407 </code></pre>
+ 51.99822 160.21021 </code></pre>
 </div>
 </div>
 <p>We can see that the credible intervals are quite asymmetric.</p>
@@ -291,7 +291,7 @@ p(\boldsymbol{\theta} \mid \boldsymbol{Y}) = \frac{p(\boldsymbol{Y} \mid \boldsy
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(post_pred_samp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  41.46   49.60   52.73   55.46   57.70  396.32 </code></pre>
+  42.04   49.61   52.72   55.53   57.68 1153.59 </code></pre>
 </div>
 </div>
 <p>As part of the Bayesian workflow <span class="citation" data-cites="Gabry:2019">(<a href="#ref-Gabry:2019" role="doc-biblioref">Gabry et al., 2019</a>)</span>, we can also check if our model is in line with expectations by computing a summary statistic on simulate datasets from the posterior predictive, and comparing it with that of the original data. If the value for the original sample lies far into the tails of the distribution of simulated samples, this provides evidence of model misspecification.</p>
