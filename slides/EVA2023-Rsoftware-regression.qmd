@@ -112,8 +112,6 @@ $\lambda \boldsymbol{\beta}^\top \mathbf{S}\boldsymbol{\beta}$ for $\lambda > 0$
 -  Optimal value of $\lambda$ selected by maximizing the marginal likelihood.
 - With multiple spline smoothers, using Laplace's method for approximation [@Wood.Pya.Safken:2016].
 
-## Basis function illustration
-
 
 ## A word of caution
 
@@ -158,14 +156,66 @@ For nonstationary threshold models $u(\mathbf{X})$, see Section 3.2.2 of @Northr
 
 ## Software
 
-The function `evgam` from the eponymous package [@evgam], building on the `mgcv` package of Simon Wood [@Wood:2017:mgcv].
+Function `evgam` from the eponymous package [@Youngman:2022] builds on the `mgcv` package [@Wood:2017:mgcv].
 
 The setup is `evgam(formula, data, family, ...)`, where 
 
 - `family` is the character string for the extreme value distribution (`gev`, `gpd`, `rlarg` and `ald` for asymmetric Laplace, used in quantile regression),
-- `data` is a data frame,
 - `formula` is a list of formula for parameters (in the order location, scale, shape).
 
+## Data setup
+```{r}
+#| label: evgam-setup
+library(evgam)
+data(frwind, package = "mev")
+lyon <- with(frwind,
+             xts::xts(x = S2, order.by = date))
+ymax <- xts::apply.yearly(lyon, max)
+years <- unique(lubridate::year(lyon))
+```
+
+
 ## Example with `evgam`
+
+
+```{r}
+opt_gev_spl <- evgam::evgam(
+  data = data.frame(
+    syear = scale(years),
+    ymax = ymax),
+  formula = list(ymax ~ s(syear, k = 15, bs = "cr"),
+                 ~ 1, 
+                 ~ 1),
+  family = "gev")
+```
+
+# `evgam` output
+
+```{r}
+## Summary with coefficients
+summary(opt_gev_spl)
+```
+
+## Fitted splines 
+
+```{r}
+#| label: fig-splines
+#| fig-cap: "Fitted spline for location parameter of GEV."
+#| out-width: '60%'
+plot(opt_gev_spl)
+```
+
+## Estimated quantiles
+
+For given $p$, solve nonlinear equation $$\prod_{i=1}^n F^N(z; \boldsymbol{\theta}_i, \mathbf{X}_i) = p$$ using `qev` to give unconditional quantile.
+
+```{r}
+#| eval: false
+#| echo: false
+
+evgam::qev(p = 0.368,
+           m = 50, 
+           loc = 0.9, c(1, 2), c(1, 1.1), .1, family="gev")
+```
 
 ## References

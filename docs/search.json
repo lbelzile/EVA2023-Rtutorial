@@ -11,14 +11,14 @@
     "href": "content/bayesian.html#prior-specification-for-extremes",
     "title": "Bayesian modelling",
     "section": "Prior specification for extremes",
-    "text": "Prior specification for extremes\nWe first consider priors for the model parameters of extreme value distributions. These should reflect the range of plausible values and can sometimes interpreted be interpreted as penalties: for example, normal parameters in mixed models shrink values towards the overall mean or slope vectors. The more concentrated the prior mode is, the more influence the prior has. Bernstein-von Mises theorem however guarantees that, as the sample size grows, the influence of the prior is washed away unless the prior imposes restrictions on the support \\(\\Theta\\). For example, if we take a Beta prior \\(\\xi \\sim \\mathsf{Be}(a,b)\\) prior on \\([-0.5, 0.5]\\), then the posterior for \\(\\xi\\) will be restricted to this range and shrunk towards the prior mean.\nSuppose we fit a generalized extreme value distribution as before. The revdbayes package specifies a range of prior functions, see ?revdbayes::set_prior. It is possible to set priors for, e.g., the quantile spacing, and then map them back to the GEV parameters \\(\\mu, \\sigma, \\xi\\).\n\nlibrary(revdbayes)\nlibrary(ggplot2)\ndata(\"frwind\", package = \"mev\")\nlyon &lt;- with(frwind,\n             xts::xts(x = S2, order.by = date))\n# Create series of yearly maximum\nymax &lt;- as.numeric(xts::apply.yearly(lyon, max))\n# Fit a model with a trivariate normal prior for mu, log(sigma), xi\nprior1 &lt;- set_prior(prior = \"mdi\", model = \"gev\")\nprior2 &lt;- set_prior(prior = \"beta\", model = \"gev\")\nprior3 &lt;- set_prior(prior = \"norm\", \n                model = \"gev\", \n                mean = c(mean(ymax), log(sd(ymax)), 0), \n                cov = diag(c(1000, 1000, 1)))\n\nHaving specified our prior distributions, we can use software to obtain draws from the posterior. Here, we use revdbayes (Northrop, 2023) to get exact samples using the ratio-of-uniform algorithm (Wakefield et al., 1991). To see what impact priors have, we plot the marginal posterior, obtaining simply by dropping the columns for the other model parameters.\n\npost_1 &lt;- revdbayes::rpost_rcpp(\n  n = 1e4L, \n  model = \"gev\",\n  data = ymax,\n  prior = prior1,\n  nrep = 100)\npost_samp1 &lt;- post_1$sim_vals\npost_samp2 &lt;- revdbayes::rpost_rcpp(\n  n = 1e4L, \n  model = \"gev\",\n  data = ymax,\n  prior = prior2)$sim_vals\n# Compute marginal posterior for shape\nggplot(data = data.frame(\n  shape = c(post_samp1[,'xi'],\n            post_samp2[,'xi']),\n  prior = rep(c(\"mdi\", \"beta\"), \n              each = nrow(post_samp1))),\n  mapping = aes(x = shape,\n                col = prior, \n                group = prior)) +\n  geom_density() +\n  theme_minimal()\n\n\n\n\nFigure 1: Marginal posterior of GEV shape parameter for different prior distributions.\n\n\n\n\nWe are not restricted to the default parametrization: appealing to invariance of the log likelihood, and thanks to max-stability we can directly compute the marginal posterior of the expectation of the 50 year maximum.\n\ngev_Nmean &lt;- function(par, N){\n  # Map parameters via GEV max-stability\n  mu &lt;- par[1] + par[2]*(N^par[3]-1)/par[3]\n  sigma &lt;- par[2]*N^par[3]; \n  xi &lt;- par[3]\n  # then use formula for GEV expectation\n  ifelse(xi &gt; 1, \n         Inf, \n  mu - sigma/xi * (1 - N^xi * gamma(1 - xi)))\n}\n# For each combination of posterior draw\n# compute functional of interest\n\n# This years the posterior distribution of 50 year mean\npost_gev_mean &lt;- apply(post_samp1, 1, gev_Nmean, N = 50)\n# Posterior quartiles\nquantile(post_gev_mean, c(0.25, 0.5, 0.75))\n\n     25%      50%      75% \n59.28627 67.37551 81.73817 \n\n# To get a 95% credible interval, simply compute quantiles\nquantile(post_gev_mean, c(0.025, 0.975))\n\n     2.5%     97.5% \n 52.14962 156.97264 \n\n\nWe can see that the credible intervals are quite asymmetric.\nMore generally, we may be interested in prediction, which in the Bayesian paradigm arises from the posterior predictive distribution. For each posterior draw \\(\\boldsymbol{\\theta}_b\\), we simulate new observations from the generative model, here GEV.\n\npost_pred_samp &lt;- revdbayes::rgev(\n  n = nrow(post_samp1),\n  loc = post_samp1[,'mu'], \n  scale = post_samp1[,'sigma'],\n  shape = post_samp1[,'xi'],\n  m = 50L) # 50 year parameters\nsummary(post_pred_samp)\n\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n  41.84   49.60   52.79   55.42   57.82  389.39 \n\n\nAs part of the Bayesian workflow (Gabry et al., 2019), we can also check if our model is in line with expectations by computing a summary statistic on simulate datasets from the posterior predictive, and comparing it with that of the original data. If the value for the original sample lies far into the tails of the distribution of simulated samples, this provides evidence of model misspecification.\n\npp_check(post_1, stat = median)\n\n`stat_bin()` using `bins = 30`. Pick better value with `binwidth`."
+    "text": "Prior specification for extremes\nWe first consider priors for the model parameters of extreme value distributions. These should reflect the range of plausible values and can sometimes interpreted be interpreted as penalties: for example, normal parameters in mixed models shrink values towards the overall mean or slope vectors. The more concentrated the prior mode is, the more influence the prior has. Bernstein-von Mises theorem however guarantees that, as the sample size grows, the influence of the prior is washed away unless the prior imposes restrictions on the support \\(\\Theta\\). For example, if we take a Beta prior \\(\\xi \\sim \\mathsf{Be}(a,b)\\) prior on \\([-0.5, 0.5]\\), then the posterior for \\(\\xi\\) will be restricted to this range and shrunk towards the prior mean.\nSuppose we fit a generalized extreme value distribution as before. The revdbayes package specifies a range of prior functions, see ?revdbayes::set_prior. It is possible to set priors for, e.g., the quantile spacing, and then map them back to the GEV parameters \\(\\mu, \\sigma, \\xi\\).\n\nlibrary(revdbayes)\nlibrary(ggplot2)\ndata(\"frwind\", package = \"mev\")\nlyon &lt;- with(frwind,\n             xts::xts(x = S2, order.by = date))\n# Create series of yearly maximum\nymax &lt;- as.numeric(xts::apply.yearly(lyon, max))\n# Fit a model with a trivariate normal prior for mu, log(sigma), xi\nprior1 &lt;- set_prior(prior = \"mdi\", model = \"gev\")\nprior2 &lt;- set_prior(prior = \"beta\", model = \"gev\")\nprior3 &lt;- set_prior(prior = \"norm\", \n                model = \"gev\", \n                mean = c(mean(ymax), log(sd(ymax)), 0), \n                cov = diag(c(1000, 1000, 1)))\n\nHaving specified our prior distributions, we can use software to obtain draws from the posterior. Here, we use revdbayes (Northrop, 2023) to get exact samples using the ratio-of-uniform algorithm (Wakefield et al., 1991). To see what impact priors have, we plot the marginal posterior, obtaining simply by dropping the columns for the other model parameters.\n\npost_1 &lt;- revdbayes::rpost_rcpp(\n  n = 1e4L, \n  model = \"gev\",\n  data = ymax,\n  prior = prior1,\n  nrep = 100)\npost_samp1 &lt;- post_1$sim_vals\npost_samp2 &lt;- revdbayes::rpost_rcpp(\n  n = 1e4L, \n  model = \"gev\",\n  data = ymax,\n  prior = prior2)$sim_vals\n# Compute marginal posterior for shape\nggplot(data = data.frame(\n  shape = c(post_samp1[,'xi'],\n            post_samp2[,'xi']),\n  prior = rep(c(\"mdi\", \"beta\"), \n              each = nrow(post_samp1))),\n  mapping = aes(x = shape,\n                col = prior, \n                group = prior)) +\n  geom_density() +\n  theme_minimal()\n\n\n\n\nFigure 1: Marginal posterior of GEV shape parameter for different prior distributions.\n\n\n\n\nWe are not restricted to the default parametrization: appealing to invariance of the log likelihood, and thanks to max-stability we can directly compute the marginal posterior of the expectation of the 50 year maximum.\n\ngev_Nmean &lt;- function(par, N){\n  # Map parameters via GEV max-stability\n  mu &lt;- par[1] + par[2]*(N^par[3]-1)/par[3]\n  sigma &lt;- par[2]*N^par[3]; \n  xi &lt;- par[3]\n  # then use formula for GEV expectation\n  ifelse(xi &gt; 1, \n         Inf, \n  mu - sigma/xi * (1 - N^xi * gamma(1 - xi)))\n}\n# For each combination of posterior draw\n# compute functional of interest\n\n# This years the posterior distribution of 50 year mean\npost_gev_mean &lt;- apply(post_samp1, 1, gev_Nmean, N = 50)\n# Posterior quartiles\nquantile(post_gev_mean, c(0.25, 0.5, 0.75))\n\n     25%      50%      75% \n59.33544 67.23619 81.93521 \n\n# To get a 95% credible interval, simply compute quantiles\nquantile(post_gev_mean, c(0.025, 0.975))\n\n     2.5%     97.5% \n 52.01491 164.00468 \n\n\nWe can see that the credible intervals are quite asymmetric.\nMore generally, we may be interested in prediction, which in the Bayesian paradigm arises from the posterior predictive distribution. For each posterior draw \\(\\boldsymbol{\\theta}_b\\), we simulate new observations from the generative model, here GEV.\n\npost_pred_samp &lt;- revdbayes::rgev(\n  n = nrow(post_samp1),\n  loc = post_samp1[,'mu'], \n  scale = post_samp1[,'sigma'],\n  shape = post_samp1[,'xi'],\n  m = 50L) # 50 year parameters\nsummary(post_pred_samp)\n\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n  41.74   49.62   52.75   55.52   57.78  579.66 \n\n\nAs part of the Bayesian workflow (Gabry et al., 2019), we can also check if our model is in line with expectations by computing a summary statistic on simulate datasets from the posterior predictive, and comparing it with that of the original data. If the value for the original sample lies far into the tails of the distribution of simulated samples, this provides evidence of model misspecification.\n\npp_check(post_1, stat = median)\n\n`stat_bin()` using `bins = 30`. Pick better value with `binwidth`."
   },
   {
     "objectID": "content/bayesian.html#loss-function",
     "href": "content/bayesian.html#loss-function",
     "title": "Bayesian modelling",
     "section": "Loss function",
-    "text": "Loss function\nIn the EVA 2023 data challenge, a custom loss function for the return levels \\(q\\) was provided, of the form \\[\\begin{align*}\nL(q, \\widehat{q}(\\theta)) =\n\\begin{cases}\n0.9(0.99q - \\widehat{q}), & 0.99q &gt; \\widehat{q} \\\\\n0, & |q - \\widehat{q}| \\leq 0.01 q\\\\\n0.1(\\widehat{q} - 1.01q), & 1.01q &lt; \\widehat{q}.\n\\end{cases}\n\\end{align*}\\] In the Bayesian paradigm, we compute the average loss over the posterior distribution of the parameters, for given value of the return level \\(q_0\\): \\[\\begin{align*}\nr(q_0) = \\int_{\\boldsymbol{\\Theta}}L(q(\\boldsymbol{\\theta}), q_0) p (\\boldsymbol{\\theta}) \\mathrm{d} \\boldsymbol{\\theta}\n\\end{align*}\\] and then we seek to minimize the risk \\(\\mathrm{min}_{q_0 \\in \\mathbb{R}_{+}} r(q_0)\\)\n\ngev_retlev &lt;- function(par, N, p = 0.368){\n  # Map parameters via GEV max-stability\n  mu &lt;- par[1] + par[2]*(N^par[3]-1)/par[3]\n  sigma &lt;- par[2]*N^par[3]; \n  xi &lt;- par[3]\n  # quantile of N-block maximum\n  mev::qgev(p = p, loc = mu, scale = sigma, shape = xi)\n}\n\n# Loss function\nloss &lt;- function(qhat, q){\n    mean(ifelse(0.99*q &gt; qhat,\n           0.99*(0.99*q-qhat),\n           ifelse(1.01*q &lt; qhat,\n                  0.1*(qhat-1.01*q),\n                  0)))\n}\n# Compute the posterior of the return levels\nretlev_post &lt;- apply(post_samp1, 1, gev_retlev, N = 50)\n# Create a grid of values over which to estimate the risk\nretlev_psi &lt;- seq(\n  from = quantile(retlev_post, 0.2),\n  to = quantile(retlev_post, 0.99), \n  length.out = 101)\n# Create a container to store results\nrisk &lt;- numeric(length = length(retlev_psi))\nfor(i in seq_along(risk)){\n  # Compute integral (Monte Carlo average over draws)\n risk[i] &lt;- loss(q = retlev_post, qhat = retlev_psi[i])\n}\n# Plot loss function\nggplot(data = data.frame(\n  loss = risk, \n  retlev = retlev_psi), \n  mapping = aes(x = retlev, y = loss)) +\n  geom_line() +\n  geom_vline(xintercept = mean(retlev_post)) +\n  labs(x = \"return level\") +\n  theme_minimal()\n\n\n\n\nThe minimum of the loss function is returned for return levels values that are much higher than the posterior mean."
+    "text": "Loss function\nIn the EVA 2023 data challenge, a custom loss function for the return levels \\(q\\) was provided, of the form \\[\\begin{align*}\nL(q, \\widehat{q}(\\theta)) =\n\\begin{cases}\n0.9(0.99q - \\widehat{q}), & 0.99q &gt; \\widehat{q} \\\\\n0, & |q - \\widehat{q}| \\leq 0.01 q\\\\\n0.1(\\widehat{q} - 1.01q), & 1.01q &lt; \\widehat{q}.\n\\end{cases}\n\\end{align*}\\] In the Bayesian paradigm, we compute the average loss over the posterior distribution of the parameters, for given value of the return level \\(q_0\\): \\[\\begin{align*}\nr(q_0) = \\int_{\\boldsymbol{\\Theta}}L(q(\\boldsymbol{\\theta}), q_0) p (\\boldsymbol{\\theta}) \\mathrm{d} \\boldsymbol{\\theta}\n\\end{align*}\\] and then we seek to minimize the risk, \\(\\mathrm{min}_{q_0 \\in \\mathbb{R}_{+}} r(q_0)\\)\n\ngev_retlev &lt;- function(par, N, p = 0.368){\n  # Map parameters via GEV max-stability\n  mu &lt;- par[1] + par[2]*(N^par[3]-1)/par[3]\n  sigma &lt;- par[2]*N^par[3]; \n  xi &lt;- par[3]\n  # quantile of N-block maximum\n  mev::qgev(p = p, loc = mu, scale = sigma, shape = xi)\n}\n\n# Loss function\nloss &lt;- function(qhat, q){\n    mean(ifelse(0.99*q &gt; qhat,\n           0.99*(0.99*q-qhat),\n           ifelse(1.01*q &lt; qhat,\n                  0.1*(qhat-1.01*q),\n                  0)))\n}\n# Compute the posterior of the return levels\nretlev_post &lt;- apply(post_samp1, 1, gev_retlev, N = 50)\n# Create a grid of values over which to estimate the risk\nretlev_psi &lt;- seq(\n  from = quantile(retlev_post, 0.2),\n  to = quantile(retlev_post, 0.99), \n  length.out = 101)\n# Create a container to store results\nrisk &lt;- numeric(length = length(retlev_psi))\nfor(i in seq_along(risk)){\n  # Compute integral (Monte Carlo average over draws)\n risk[i] &lt;- loss(q = retlev_post, qhat = retlev_psi[i])\n}\n# Plot loss function\nggplot(data = data.frame(\n  loss = risk, \n  retlev = retlev_psi), \n  mapping = aes(x = retlev, y = loss)) +\n  geom_line() +\n  geom_vline(xintercept = mean(retlev_post)) +\n  labs(x = \"return level\") +\n  theme_minimal()\n\n\n\n\nThe minimum of the loss function is returned for return levels values that are much higher than the posterior mean."
   },
   {
     "objectID": "content/likelihood.html",
@@ -273,6 +273,27 @@
     "text": "Summaries\nWe can get directly summaries (e.g., posterior sample mean)\n\nstandard errors for functionals is more complicated due to the autocorrelation\n\nDue to autocorrelation, dedicated methods are employed to get standard errors.\n\nsummary(chains)\n\n     Length Class Mode   \n[1,] 44000  mcmc  numeric\n[2,] 44000  mcmc  numeric\n[3,] 44000  mcmc  numeric\n[4,] 44000  mcmc  numeric"
   },
   {
+    "objectID": "slides/EVA2023-Rsoftware-bayesian.html#loss-function",
+    "href": "slides/EVA2023-Rsoftware-bayesian.html#loss-function",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Loss function",
+    "text": "Loss function\nCustom loss function for the return levels \\(q\\) from EVA data challenge \\[\\begin{align*}\nL(q, \\widehat{q}(\\theta)) =\n\\begin{cases}\n0.9(0.99q - \\widehat{q}), & 0.99q &gt; \\widehat{q} \\\\\n0, & |q - \\widehat{q}| \\leq 0.01 q\\\\\n0.1(\\widehat{q} - 1.01q), & 1.01q &lt; \\widehat{q}.\n\\end{cases}\n\\end{align*}\\]"
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-bayesian.html#bayesian-evaluation-of-loss-function",
+    "href": "slides/EVA2023-Rsoftware-bayesian.html#bayesian-evaluation-of-loss-function",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Bayesian evaluation of loss function",
+    "text": "Bayesian evaluation of loss function\nFor given value of the return level \\(q_0\\): \\[\\begin{align*}\nr(q_0) = \\int_{\\boldsymbol{\\Theta}}L(q(\\boldsymbol{\\theta}), q_0) p (\\boldsymbol{\\theta}) \\mathrm{d} \\boldsymbol{\\theta}\n\\end{align*}\\] and we seek to minimize the risk, \\(\\mathrm{min}_{q_0 \\in \\mathbb{R}_{+}} r(q_0)\\)"
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-bayesian.html#loss-function-1",
+    "href": "slides/EVA2023-Rsoftware-bayesian.html#loss-function-1",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Loss function",
+    "text": "Loss function\n\nFigure 3: Loss function for wind speed data, based on fitting a generalized extreme value distribution to annual maxima."
+  },
+  {
     "objectID": "slides/EVA2023-Rsoftware-bayesian.html#references",
     "href": "slides/EVA2023-Rsoftware-bayesian.html#references",
     "title": "Tutorial on Statistical Computing for Extremes with R",
@@ -511,34 +532,6 @@
     "text": "References\n\n\n\n\n\n\nGrimshaw, S. D. (1993). Computing maximum likelihood estimates for the generalized Pareto distribution. Technometrics, 35(2), 185–191. https://doi.org/10.1080/00401706.1993.10485040\n\n\nMoins, T., Arbel, J., Girard, S., & Dutfoy, A. (2023). Reparameterization of extreme value framework for improved Bayesian workflow. Computational Statistics & Data Analysis, to appear. https://doi.org/https://doi.org/10.1016/j.csda.2023.107807\n\n\nSmith, R. L. (1985). Maximum likelihood estimation in a class of nonregular cases. Biometrika, 72(1), 67–90. https://doi.org/10.1093/biomet/72.1.67"
   },
   {
-    "objectID": "slides/EVA2023-Rsoftware-bayesian.html#loss-function",
-    "href": "slides/EVA2023-Rsoftware-bayesian.html#loss-function",
-    "title": "Tutorial on Statistical Computing for Extremes with R",
-    "section": "Loss function",
-    "text": "Loss function\nCustom loss function for the return levels \\(q\\) from EVA data challenge \\[\\begin{align*}\nL(q, \\widehat{q}(\\theta)) =\n\\begin{cases}\n0.9(0.99q - \\widehat{q}), & 0.99q &gt; \\widehat{q} \\\\\n0, & |q - \\widehat{q}| \\leq 0.01 q\\\\\n0.1(\\widehat{q} - 1.01q), & 1.01q &lt; \\widehat{q}.\n\\end{cases}\n\\end{align*}\\]"
-  },
-  {
-    "objectID": "slides/EVA2023-Rsoftware-bayesian.html#bayesian-loss-function",
-    "href": "slides/EVA2023-Rsoftware-bayesian.html#bayesian-loss-function",
-    "title": "Tutorial on Statistical Computing for Extremes with R",
-    "section": "Bayesian loss function",
-    "text": "Bayesian loss function\nFor given value of the return level \\(q_0\\): \\[\\begin{align*}\nr(q_0) = \\int_{\\boldsymbol{\\Theta}}L(q(\\boldsymbol{\\theta}), q_0) p (\\boldsymbol{\\theta}) \\mathrm{d} \\boldsymbol{\\theta}\n\\end{align*}\\] and we seek to minimize the risk, \\(\\mathrm{min}_{q_0 \\in \\mathbb{R}_{+}} r(q_0)\\)"
-  },
-  {
-    "objectID": "slides/EVA2023-Rsoftware-bayesian.html#loss-function-1",
-    "href": "slides/EVA2023-Rsoftware-bayesian.html#loss-function-1",
-    "title": "Tutorial on Statistical Computing for Extremes with R",
-    "section": "Loss function",
-    "text": "Loss function\n\nFigure 3: Loss function for wind speed data, based on fitting a generalized extreme value distribution to annual maxima."
-  },
-  {
-    "objectID": "slides/EVA2023-Rsoftware-bayesian.html#bayesian-evaluation-of-loss-function",
-    "href": "slides/EVA2023-Rsoftware-bayesian.html#bayesian-evaluation-of-loss-function",
-    "title": "Tutorial on Statistical Computing for Extremes with R",
-    "section": "Bayesian evaluation of loss function",
-    "text": "Bayesian evaluation of loss function\nFor given value of the return level \\(q_0\\): \\[\\begin{align*}\nr(q_0) = \\int_{\\boldsymbol{\\Theta}}L(q(\\boldsymbol{\\theta}), q_0) p (\\boldsymbol{\\theta}) \\mathrm{d} \\boldsymbol{\\theta}\n\\end{align*}\\] and we seek to minimize the risk, \\(\\mathrm{min}_{q_0 \\in \\mathbb{R}_{+}} r(q_0)\\)"
-  },
-  {
     "objectID": "slides/EVA2023-Rsoftware-regression.html#nonstationarity",
     "href": "slides/EVA2023-Rsoftware-regression.html#nonstationarity",
     "title": "Tutorial on Statistical Computing for Extremes with R",
@@ -551,20 +544,6 @@
     "title": "Tutorial on Statistical Computing for Extremes with R",
     "section": "Solution 1: preprocessing",
     "text": "Solution 1: preprocessing\n\ndetrend data to approximate stationary.\n\nfor financial time series, fit ARMA-GARCH model\nuse Box-Cox transformation with regression model\n\nanalyze residuals \\(R_i = Y_i - \\widehat{f}(\\mathbf{X}_i)\\), where the postulated model is such that \\(\\mathsf{E}(Y_i) = f(\\mathbf{X}_i)\\).\n\nBenefit: more data to estimate trend"
-  },
-  {
-    "objectID": "slides/EVA2023-Rsoftware-regression.html#section",
-    "href": "slides/EVA2023-Rsoftware-regression.html#section",
-    "title": "Tutorial on Statistical Computing for Extremes with R",
-    "section": "",
-    "text": "For \\(y\\) sufficiently large, \\[\\begin{align*}\n\\Pr(Y_i &gt; y \\mid \\mathbf{X}_i) &= \\Pr\\{R_i &gt; y - \\widehat{f}(\\mathbf{X}_i)\\mid \\mathbf{X}_i\\}\n\\\\& = \\Pr\\{R_i &gt; y - \\widehat{f}(\\mathbf{X}_i)\\mid \\mathbf{X}_i, R_i &gt; u\\}\\Pr(R_i &gt; u) + \\Pr\\{u  \\leq R_i &gt; y - \\widehat{f}(\\mathbf{X}_i)\\mid \\mathbf{X}_i\\}\\Pr(R_i \\leq u)\n\\end{align*}\\] where the first term of the last line can be estimated using a generalized Pareto and the latter empirically. ## References"
-  },
-  {
-    "objectID": "slides/EVA2023-Rsoftware-regression.html#references",
-    "href": "slides/EVA2023-Rsoftware-regression.html#references",
-    "title": "Tutorial on Statistical Computing for Extremes with R",
-    "section": "References",
-    "text": "References\n\n\n\n\n\n\nEastoe, E. F., & Tawn, J. A. (2009). Modelling non-stationary extremes with application to surface level ozone. Journal of the Royal Statistical Society: Series C (Applied Statistics), 58(1), 25–45. https://doi.org/10.1111/j.1467-9876.2008.00638.x\n\n\nNorthrop, P. J., & Jonathan, P. (2011). Threshold modelling of spatially dependent non-stationary extremes with application to hurricane-induced wave heights. Environmetrics, 22(7), 799–809. https://doi.org/10.1002/env.1106\n\n\nWood, S. N. (2017). Generalized additive models: An introduction with r (2nd ed.). Chapman; Hall/CRC.\n\n\nWood, S. N., Pya, N., & Säfken, B. (2016). Smoothing parameter and model selection for general smooth models. Journal of the American Statistical Association, 111(516), 1548–1563. https://doi.org/10.1080/01621459.2016.1180986"
   },
   {
     "objectID": "slides/EVA2023-Rsoftware-regression.html#estimating-probability-of-rare-events",
@@ -581,11 +560,11 @@
     "text": "Solution 2: hierarchical models\nWe can also incorporate parameters in the parameters of the extreme value distribution.\n\nModel \\(\\mu=f_{\\mu}(\\mathbf{X}; \\boldsymbol{\\beta}_{\\mu})\\), \\(\\sigma(\\mathbf{X})=f_{\\sigma}(\\mathbf{X}; \\boldsymbol{\\beta}_{\\sigma})\\), etc.\nTypically keep shape constant.\n\nFor explanatories \\(\\mathbf{X}\\), fit regression models of the form \\[\\begin{align*}\n\\mu(\\mathbf{X}) = \\beta_0 + \\beta_1 \\mathrm{X}_1 + \\cdots \\beta_p \\mathrm{X}_p,\n\\end{align*}\\] and estimate parameters by maximum likelihood."
   },
   {
-    "objectID": "slides/EVA2023-Rsoftware-regression.html#regression-models",
-    "href": "slides/EVA2023-Rsoftware-regression.html#regression-models",
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#generalized-additive-models",
+    "href": "slides/EVA2023-Rsoftware-regression.html#generalized-additive-models",
     "title": "Tutorial on Statistical Computing for Extremes with R",
-    "section": "Regression models",
-    "text": "Regression models\nFor explanatories \\(\\mathbf{X}\\), fit models of the form \\[\\begin{align*}\n\\mu(\\mathbf{X}) = \\beta_0 + \\beta_1 \\mathrm{X}_1 + \\cdots \\beta_p \\mathrm{X}_p,\n\\end{align*}\\] and estimate as before parameters by maximum likelihood."
+    "section": "Generalized additive models",
+    "text": "Generalized additive models\nRather than linear effects or changepoints (if \\(\\mathrm{X}_j\\) is binary), we could consider smooths\n\\[\\begin{align*}\nf(\\mathrm{X}_j) = \\sum_{k=1}^K \\beta_k b_k(\\mathbf{X}_j)\n\\end{align*}\\] where \\(b_k\\) are basis functions, e.g., thin-plate splines (tp), cubic regression splines (cr) and their cyclic counterparts."
   },
   {
     "objectID": "slides/EVA2023-Rsoftware-regression.html#parsimony-is-key",
@@ -593,6 +572,20 @@
     "title": "Tutorial on Statistical Computing for Extremes with R",
     "section": "Parsimony is key",
     "text": "Parsimony is key\n\nThere are few exceedances or extremes…\nThe support restriction translates into up to \\(n\\) inequality constraints: difficult to optimize.\n\nTake home message: keep models simple!"
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#penalized-regression",
+    "href": "slides/EVA2023-Rsoftware-regression.html#penalized-regression",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Penalized regression",
+    "text": "Penalized regression\nPenalization to enforce sparsity or regularize estimation.\n\nFor generalized additive models (GAM), penalize square of second derivative to control the wiggliness of the function.\nSmooth matrix \\(\\mathbf{S}\\) with entries \\(S_{ij} = \\int b_i''(x) b_j''(x)\\mathrm{d} x\\), so the penalty is \\(\\lambda \\boldsymbol{\\beta}^\\top \\mathbf{S}\\boldsymbol{\\beta}\\) for \\(\\lambda &gt; 0\\).\nThese correspond to improper (i.e., rank-deficient) Gaussian priors."
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#tuning-parameter",
+    "href": "slides/EVA2023-Rsoftware-regression.html#tuning-parameter",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Tuning parameter",
+    "text": "Tuning parameter\n\nOptimal value of \\(\\lambda\\) selected by maximizing the marginal likelihood.\nWith multiple spline smoothers, using Laplace’s method for approximation (Wood et al., 2016)."
   },
   {
     "objectID": "slides/EVA2023-Rsoftware-regression.html#a-word-of-caution",
@@ -616,13 +609,6 @@
     "text": "Unconditional return levels\nThese can be obtained by averaging out over the distribution of covariates that are employed in the model.\n\\[\\begin{align*}\n\\int_{\\mathcal{X}} \\Pr(Y_t  &gt; y \\mid \\mathbf{X}_t =\\boldsymbol{x}_t) \\mathrm{d} P(\\boldsymbol{x}_t),\n\\end{align*}\\]\nReturn levels may be meaningless quantities.\nMay require information about future distribution of covariates if these are time-varying."
   },
   {
-    "objectID": "slides/EVA2023-Rsoftware-regression.html#penalized-regression",
-    "href": "slides/EVA2023-Rsoftware-regression.html#penalized-regression",
-    "title": "Tutorial on Statistical Computing for Extremes with R",
-    "section": "Penalized regression",
-    "text": "Penalized regression\nPenalization to enforce sparsity or regularize estimation.\n\nFor generalized additive models (GAM), penalize square of second derivative to control the wiggliness of the function.\nSmooth matrix \\(\\mathbf{S}\\) with entries \\(S_{ij} = \\int b_i''(x) b_j''(x)\\mathrm{d} x\\), so the penalty is \\(\\lambda \\boldsymbol{\\beta}^\\top \\mathbf{S}\\boldsymbol{\\beta}\\) for \\(\\lambda &gt; 0\\).\nThese correspond to improper (i.e., rank-deficient) Gaussian priors."
-  },
-  {
     "objectID": "slides/EVA2023-Rsoftware-regression.html#threshold-stability",
     "href": "slides/EVA2023-Rsoftware-regression.html#threshold-stability",
     "title": "Tutorial on Statistical Computing for Extremes with R",
@@ -630,45 +616,45 @@
     "text": "Threshold stability\nThe generalized Pareto model with varying scale and shape is not threshold-stable unless, for any \\(v&gt;u\\), \\[\\begin{align*}\n\\sigma_v(\\boldsymbol{x}_t) = \\sigma_u(\\boldsymbol{x}_t) + (v-u) \\xi(\\boldsymbol{x}_t)\n\\end{align*}\\]\nRestrictive! For constant \\(\\xi\\), need \\(\\sigma\\) linear or constant (log scale) (Eastoe & Tawn, 2009).\nUsing the inhomogeneous Poisson point process representation avoids these problems.\nFor nonstationary threshold models \\(u(\\mathbf{X})\\), see Section 3.2.2 of Northrop & Jonathan (2011)."
   },
   {
-    "objectID": "slides/EVA2023-Rsoftware-regression.html#nonstationary-threshold",
-    "href": "slides/EVA2023-Rsoftware-regression.html#nonstationary-threshold",
-    "title": "Tutorial on Statistical Computing for Extremes with R",
-    "section": "Nonstationary threshold",
-    "text": "Nonstationary threshold\nIntricate details related to the parametrization; for nonstationary threshold models \\(u(\\mathbf{X})\\), see Section 3.2.2 of Northrop & Jonathan (2011)."
-  },
-  {
-    "objectID": "slides/EVA2023-Rsoftware-regression.html#generalized-additive-models",
-    "href": "slides/EVA2023-Rsoftware-regression.html#generalized-additive-models",
-    "title": "Tutorial on Statistical Computing for Extremes with R",
-    "section": "Generalized additive models",
-    "text": "Generalized additive models\nRather than linear effects or changepoints (if \\(\\mathrm{X}_j\\) is binary), we could consider smooths\n\\[\\begin{align*}\nf(\\mathrm{X}_j) = \\sum_{k=1}^K \\beta_k b_k(\\mathbf{X}_j)\n\\end{align*}\\] where \\(b_k\\) are basis functions, e.g., thin-plate splines (tp), cubic regression splines (cr) and their cyclic counterparts."
-  },
-  {
-    "objectID": "slides/EVA2023-Rsoftware-regression.html#basis-function-illustration",
-    "href": "slides/EVA2023-Rsoftware-regression.html#basis-function-illustration",
-    "title": "Tutorial on Statistical Computing for Extremes with R",
-    "section": "Basis function illustration",
-    "text": "Basis function illustration"
-  },
-  {
-    "objectID": "slides/EVA2023-Rsoftware-regression.html#tuning-parameter",
-    "href": "slides/EVA2023-Rsoftware-regression.html#tuning-parameter",
-    "title": "Tutorial on Statistical Computing for Extremes with R",
-    "section": "Tuning parameter",
-    "text": "Tuning parameter\n\nOptimal value of \\(\\lambda\\) selected by maximizing the marginal likelihood.\nWith multiple spline smoothers, using Laplace’s method for approximation (Wood et al., 2016)."
-  },
-  {
     "objectID": "slides/EVA2023-Rsoftware-regression.html#software",
     "href": "slides/EVA2023-Rsoftware-regression.html#software",
     "title": "Tutorial on Statistical Computing for Extremes with R",
     "section": "Software",
-    "text": "Software\nThe function evgam from the eponymous package (evgam?), building on the mgcv package of Simon Wood (Wood, 2017).\nThe setup is evgam(formula, data, family, ...), where\n\nfamily is the character string for the extreme value distribution (gev, gpd, rlarg and ald for asymmetric Laplace, used in quantile regression),\ndata is a data frame,\nformula is a list of formula for parameters (in the order location, scale, shape)."
+    "text": "Software\nFunction evgam from the eponymous package (Youngman, 2022) builds on the mgcv package (Wood, 2017).\nThe setup is evgam(formula, data, family, ...), where\n\nfamily is the character string for the extreme value distribution (gev, gpd, rlarg and ald for asymmetric Laplace, used in quantile regression),\nformula is a list of formula for parameters (in the order location, scale, shape)."
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#data-setup",
+    "href": "slides/EVA2023-Rsoftware-regression.html#data-setup",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Data setup",
+    "text": "Data setup\n\nlibrary(evgam)\ndata(frwind, package = \"mev\")\nlyon &lt;- with(frwind,\n             xts::xts(x = S2, order.by = date))\nymax &lt;- xts::apply.yearly(lyon, max)\nyears &lt;- unique(lubridate::year(lyon))"
   },
   {
     "objectID": "slides/EVA2023-Rsoftware-regression.html#example-with-evgam",
     "href": "slides/EVA2023-Rsoftware-regression.html#example-with-evgam",
     "title": "Tutorial on Statistical Computing for Extremes with R",
     "section": "Example with evgam",
-    "text": "Example with evgam"
+    "text": "Example with evgam\n\nopt_gev_spl &lt;- evgam::evgam(\n  data = data.frame(\n    syear = scale(years),\n    ymax = ymax),\n  formula = list(ymax ~ s(syear, k = 15, bs = \"cr\"),\n                 ~ 1, \n                 ~ 1),\n  family = \"gev\")"
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#fitted-splines",
+    "href": "slides/EVA2023-Rsoftware-regression.html#fitted-splines",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Fitted splines",
+    "text": "Fitted splines\n\nplot(opt_gev_spl)\n\n\nFigure 1: Fitted spline for location parameter of GEV."
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#estimated-quantiles",
+    "href": "slides/EVA2023-Rsoftware-regression.html#estimated-quantiles",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "Estimated quantiles",
+    "text": "Estimated quantiles\nFor given \\(p\\), solve nonlinear equation \\[\\prod_{i=1}^n F^N(z; \\boldsymbol{\\theta}_i, \\mathbf{X}_i) = p\\] using qev to give unconditional quantile."
+  },
+  {
+    "objectID": "slides/EVA2023-Rsoftware-regression.html#references",
+    "href": "slides/EVA2023-Rsoftware-regression.html#references",
+    "title": "Tutorial on Statistical Computing for Extremes with R",
+    "section": "References",
+    "text": "References\n\n\n\n\n\n\nEastoe, E. F., & Tawn, J. A. (2009). Modelling non-stationary extremes with application to surface level ozone. Journal of the Royal Statistical Society: Series C (Applied Statistics), 58(1), 25–45. https://doi.org/10.1111/j.1467-9876.2008.00638.x\n\n\nNorthrop, P. J., & Jonathan, P. (2011). Threshold modelling of spatially dependent non-stationary extremes with application to hurricane-induced wave heights. Environmetrics, 22(7), 799–809. https://doi.org/10.1002/env.1106\n\n\nWood, S. N. (2017). Generalized additive models: An introduction with r (2nd ed.). Chapman; Hall/CRC.\n\n\nWood, S. N., Pya, N., & Säfken, B. (2016). Smoothing parameter and model selection for general smooth models. Journal of the American Statistical Association, 111(516), 1548–1563. https://doi.org/10.1080/01621459.2016.1180986\n\n\nYoungman, B. D. (2022). evgam: An R package for generalized additive extreme value models. Journal of Statistical Software, 103(1), 1–26. https://doi.org/10.18637/jss.v103.i03"
   }
 ]

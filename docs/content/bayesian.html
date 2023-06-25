@@ -270,13 +270,13 @@ p(\boldsymbol{\theta} \mid \boldsymbol{Y}) = \frac{p(\boldsymbol{Y} \mid \boldsy
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(post_gev_mean, <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     25%      50%      75% 
-59.28627 67.37551 81.73817 </code></pre>
+59.33544 67.23619 81.93521 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># To get a 95% credible interval, simply compute quantiles</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(post_gev_mean, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     2.5%     97.5% 
- 52.14962 156.97264 </code></pre>
+ 52.01491 164.00468 </code></pre>
 </div>
 </div>
 <p>We can see that the credible intervals are quite asymmetric.</p>
@@ -291,7 +291,7 @@ p(\boldsymbol{\theta} \mid \boldsymbol{Y}) = \frac{p(\boldsymbol{Y} \mid \boldsy
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(post_pred_samp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  41.84   49.60   52.79   55.42   57.82  389.39 </code></pre>
+  41.74   49.62   52.75   55.52   57.78  579.66 </code></pre>
 </div>
 </div>
 <p>As part of the Bayesian workflow <span class="citation" data-cites="Gabry:2019">(<a href="#ref-Gabry:2019" role="doc-biblioref">Gabry et al., 2019</a>)</span>, we can also check if our model is in line with expectations by computing a summary statistic on simulate datasets from the posterior predictive, and comparing it with that of the original data. If the value for the original sample lies far into the tails of the distribution of simulated samples, this provides evidence of model misspecification.</p>
@@ -316,7 +316,7 @@ L(q, \widehat{q}(\theta)) =
 \end{cases}
 \end{align*}\]</span> In the Bayesian paradigm, we compute the average loss over the posterior distribution of the parameters, for given value of the return level <span class="math inline">\(q_0\)</span>: <span class="math display">\[\begin{align*}
 r(q_0) = \int_{\boldsymbol{\Theta}}L(q(\boldsymbol{\theta}), q_0) p (\boldsymbol{\theta}) \mathrm{d} \boldsymbol{\theta}
-\end{align*}\]</span> and then we seek to minimize the risk <span class="math inline">\(\mathrm{min}_{q_0 \in \mathbb{R}_{+}} r(q_0)\)</span></p>
+\end{align*}\]</span> and then we seek to minimize the risk, <span class="math inline">\(\mathrm{min}_{q_0 \in \mathbb{R}_{+}} r(q_0)\)</span></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>gev_retlev <span class="ot">&lt;-</span> <span class="cf">function</span>(par, N, <span class="at">p =</span> <span class="fl">0.368</span>){</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Map parameters via GEV max-stability</span></span>
