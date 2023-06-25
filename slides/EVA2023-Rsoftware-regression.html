@@ -531,11 +531,10 @@ f(\mathrm{X}_j) = \sum_{k=1}^K \beta_k b_k(\mathbf{X}_j)
 </section>
 <section id="software" class="slide level2">
 <h2>Software</h2>
-<p>The function <code>evgam</code> from the eponymous package <span class="citation" data-cites="Youngman:2022">(<a href="#/references" role="doc-biblioref" onclick=""><strong>Youngman:2022?</strong></a>)</span>, building on the <code>mgcv</code> package <span class="citation" data-cites="Wood:2017:mgcv">(<a href="#/references" role="doc-biblioref" onclick="">Wood, 2017</a>)</span>.</p>
+<p>Function <code>evgam</code> from the eponymous package <span class="citation" data-cites="Youngman:2022">(<a href="#/references" role="doc-biblioref" onclick="">Youngman, 2022</a>)</span> builds on the <code>mgcv</code> package <span class="citation" data-cites="Wood:2017:mgcv">(<a href="#/references" role="doc-biblioref" onclick="">Wood, 2017</a>)</span>.</p>
 <p>The setup is <code>evgam(formula, data, family, ...)</code>, where</p>
 <ul>
 <li><code>family</code> is the character string for the extreme value distribution (<code>gev</code>, <code>gpd</code>, <code>rlarg</code> and <code>ald</code> for asymmetric Laplace, used in quantile regression),</li>
-<li><code>data</code> is a data frame,</li>
 <li><code>formula</code> is a list of formula for parameters (in the order location, scale, shape).</li>
 </ul>
 </section>
@@ -552,12 +551,12 @@ f(\mathrm{X}_j) = \sum_{k=1}^K \beta_k b_k(\mathbf{X}_j)
 </section>
 <section id="example-with-evgam" class="slide level2">
 <h2>Example with <code>evgam</code></h2>
-<div class="cell" data-hash="EVA2023-Rsoftware-regression_cache/revealjs/unnamed-chunk-3_ccca168396befc3f6ff7c1440caef862">
+<div class="cell" data-hash="EVA2023-Rsoftware-regression_cache/revealjs/unnamed-chunk-3_08d6ac38d7cceab9d572f26f7c907aed">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>opt_gev_spl <span class="ot">&lt;-</span> evgam<span class="sc">::</span><span class="fu">evgam</span>(</span>
 <span id="cb2-2"><a href="#cb2-2"></a>  <span class="at">data =</span> <span class="fu">data.frame</span>(</span>
 <span id="cb2-3"><a href="#cb2-3"></a>    <span class="at">syear =</span> <span class="fu">scale</span>(years),</span>
 <span id="cb2-4"><a href="#cb2-4"></a>    <span class="at">ymax =</span> ymax),</span>
-<span id="cb2-5"><a href="#cb2-5"></a>  <span class="at">formula =</span> <span class="fu">list</span>(ymax <span class="sc">~</span> <span class="fu">s</span>(syear, <span class="at">k =</span> <span class="dv">5</span>, <span class="at">bs =</span> <span class="st">"cr"</span>),</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  <span class="at">formula =</span> <span class="fu">list</span>(ymax <span class="sc">~</span> <span class="fu">s</span>(syear, <span class="at">k =</span> <span class="dv">15</span>, <span class="at">bs =</span> <span class="st">"cr"</span>),</span>
 <span id="cb2-6"><a href="#cb2-6"></a>                 <span class="sc">~</span> <span class="dv">1</span>, </span>
 <span id="cb2-7"><a href="#cb2-7"></a>                 <span class="sc">~</span> <span class="dv">1</span>),</span>
 <span id="cb2-8"><a href="#cb2-8"></a>  <span class="at">family =</span> <span class="st">"gev"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -566,7 +565,7 @@ f(\mathrm{X}_j) = \sum_{k=1}^K \beta_k b_k(\mathbf{X}_j)
 <section>
 <section id="evgam-output" class="title-slide slide level1 center">
 <h1><code>evgam</code> output</h1>
-<div class="cell" data-hash="EVA2023-Rsoftware-regression_cache/revealjs/unnamed-chunk-4_97373a5b000ec2f409409d9f7e71bd0d">
+<div class="cell" data-hash="EVA2023-Rsoftware-regression_cache/revealjs/unnamed-chunk-4_69a2c2ef040fad54e528c79db3df0302">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="do">## Summary with coefficients</span></span>
 <span id="cb3-2"><a href="#cb3-2"></a><span class="fu">summary</span>(opt_gev_spl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -591,13 +590,19 @@ location
           edf max.df Chi.sq Pr(&gt;|t|)
 s(syear) 2.25      4   5.62   0.0776</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="do">## Plot splines (if any)</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a><span class="fu">plot</span>(opt_gev_spl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="do">## Fitted value, depend on covariates</span></span>
-<span id="cb6-2"><a href="#cb6-2"></a><span class="co"># predict(opt_gev_spl)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<img data-src="EVA2023-Rsoftware-regression_files/figure-revealjs/unnamed-chunk-4-1.png" width="960" class="r-stretch"></section>
+</section>
+<section id="fitted-splines" class="slide level2">
+<h2>Fitted splines</h2>
+<div class="cell" data-hash="EVA2023-Rsoftware-regression_cache/revealjs/fig-splines_72bfd8cb28f5e444be46540a399ddd43">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">plot</span>(opt_gev_spl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="EVA2023-Rsoftware-regression_files/figure-revealjs/fig-splines-1.png" style="width:60.0%" class="r-stretch quarto-figure-center"><p class="caption">Figure&nbsp;1: Fitted spline for location parameter of GEV.</p></section>
+<section id="estimated-quantiles" class="slide level2">
+<h2>Estimated quantiles</h2>
+<p>For given <span class="math inline">\(p\)</span>, solve nonlinear equation <span class="math display">\[\prod_{i=1}^n F^N(z; \boldsymbol{\theta}_i, \mathbf{X}_i) = p\]</span> using <code>qev</code> to give unconditional quantile.</p>
+</section>
 <section id="references" class="slide level2 smaller scrollable">
 <h2>References</h2>
 
@@ -616,6 +621,9 @@ Wood, S. N. (2017). <em>Generalized additive models: An introduction with <stron
 </div>
 <div id="ref-Wood.Pya.Safken:2016" class="csl-entry" role="listitem">
 Wood, S. N., Pya, N., &amp; Säfken, B. (2016). Smoothing parameter and model selection for general smooth models. <em>Journal of the American Statistical Association</em>, <em>111</em>(516), 1548–1563. <a href="https://doi.org/10.1080/01621459.2016.1180986">https://doi.org/10.1080/01621459.2016.1180986</a>
+</div>
+<div id="ref-Youngman:2022" class="csl-entry" role="listitem">
+Youngman, B. D. (2022). <code>evgam</code>: An <span>R</span> package for generalized additive extreme value models. <em>Journal of Statistical Software</em>, <em>103</em>(1), 1–26. <a href="https://doi.org/10.18637/jss.v103.i03">https://doi.org/10.18637/jss.v103.i03</a>
 </div>
 </div>
 </section></section>
