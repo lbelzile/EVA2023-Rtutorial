@@ -7,17 +7,16 @@ title-block-banner: false
 
 This satellite workshop will review **R** implementations of a variety of techniques for statistical analysis of extreme values. The focus of the first part of the workshop will be on univariate extremes, including likelihood-based, Bayesian and nonparametric methods for both peaks-over-threshold and block maxima approaches, with a foray into nonstationary extremes. The second part of the workshop will concentrate on conditional extremes and time series.
 
-The tutorial takes place Friday, June 30th, 2023, from 14:00 until 18:15. 
+The tutorial takes place Friday, June 30th, 2023, from 14:00 until 18:15 in room Aula Info AS04. 
 
 # Course content
 
 Univariate extremes: 
 
-- [Likelihood-based modelling](slides/EVA2023-Rsoftware-likelihood.html)
-- Threshold selection for peaks over threshold
-- Semiparametric methods
-- [Bayesian inference](slides/EVA2023-Rsoftware-bayesian.html)
-- [Nonstationary extremes](slides/EVA2023-Rsoftware-regression.html)
+- Likelihood-based modelling: [slides](slides/EVA2023-Rsoftware-likelihood.html), [notes](content/likelihood.qmd), [code](code/EVA2023-Rsoftware-likelihood.R)
+- Semiparametric methods: [notes](content/semiparametric.qmd), [code]()
+- Bayesian inference: [slides](slides/EVA2023-Rsoftware-bayesian.html), [notes](content/bayesian.qmd), [code](code/EVA2023-Rsoftware-bayesian.R)
+- Nonstationary extremes: [slides](slides/EVA2023-Rsoftware-regression.html), [notes](content/regression.qmd), [code](code/EVA2023-Rsoftware-regression.R)
 
 Multivariate extremes and time series:
 
@@ -26,7 +25,7 @@ Multivariate extremes and time series:
 
 # Exercices
 
-- [Exercise sheet 1](exercices/EVA2023-Rsoftware-exercices.pdf)
+- [Exercise sheet](exercices/EVA2023-Rsoftware-exercices.pdf)
 
 # Instructions
 
@@ -38,9 +37,11 @@ If you plan on using your own laptop, download and install [**R** (current versi
 #| eval: false
 #| echo: true
 devpkgs <- c("lbelzile/mev", "lbelzile/rbm")
-cranpkgs <- c("lite", "revdbayes", "texmex",
+cranpkgs <- c("lite", "revdbayes", "texmex", "POT", 
+              "coda", "gridExtra", "patchwork",
+              "GGally", "extRemes", "evd", "extremogram", 
               "threshr", "tea", "evt0", "remotes",
-              "xts", "lubridate", "ggplot2")
+              "xts", "lubridate", "ggplot2", "exdex")
 install.packages(cranpkgs)
 remotes::install_github(devpkgs)
 ```

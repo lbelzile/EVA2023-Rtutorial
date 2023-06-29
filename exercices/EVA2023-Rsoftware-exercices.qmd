@@ -17,7 +17,7 @@ format: pdf
 Consider the data for station Montélimar from `frwind` (series `S4`). 
 
 1. Extract the three largest observations per year
-2. it a generalized extreme value distribution to annual maxima.
+2. Fit a generalized extreme value distribution to annual maxima.
 3. Compare the parameter estimates with the fit of the $r$-largest order statistic, via `fit.rlarg`.
 4. Compute a score test statistic for the hypothesis $\xi=0$ with the GEV. To do so,
    - fit in addition the restricted model via `fit.gev` with fixed parameter `fpar = list(shape=0)`

@@ -72,7 +72,7 @@ In the Bayesian world,
 
 We consider new realizations from **posterior predictive**
 \begin{align*}
-p(Y_{\text{new}} \mid \boldsymbol{Y})
+p(Y_{\text{new}} \mid \boldsymbol{Y}) =
 \int_{\Theta} p(Y_{\text{new}}  \mid \boldsymbol{\theta}) p(\boldsymbol{\theta} \mid  \boldsymbol{Y}) \mathrm{d} \boldsymbol{\theta}
 \end{align*}
 
@@ -365,7 +365,7 @@ We can get directly summaries (e.g., posterior sample mean)
 Due to autocorrelation, dedicated methods are employed to get standard errors.
 
 ```{r}
-summary(chains)
+summary(chains[[1]])
 ```
 
 ## Loss function

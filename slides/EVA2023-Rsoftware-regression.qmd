@@ -14,6 +14,7 @@ format:
     title-slide-attributes:
       data-background-color: "#002855"
 bibliography: EVA2023-software.bib
+biblio-title: "References"
 ---
 
 
@@ -58,26 +59,28 @@ No general theory
    - use Box-Cox transformation with regression model
 - analyze residuals $R_i = Y_i - \widehat{f}(\mathbf{X}_i)$, where the postulated model is such that $\mathsf{E}(Y_i) = f(\mathbf{X}_i)$.
 
-Benefit: more data to estimate trend
+Benefit: more data are available to estimate trends.
 
 ## Estimating probability of rare events
 
 \begin{align*}
 &\Pr(Y_i > y \mid \mathbf{X}_i) \\\quad &= \Pr\{R_i > y - \widehat{f}(\mathbf{X}_i)\mid \mathbf{X}_i\}
-\\\quad & = \Pr\{R_i > y - \widehat{f}(\mathbf{X}_i)\mid \mathbf{X}_i, R_i > u\}\Pr(R_i > u) \\& \qquad + \Pr\{u  \leq R_i > y - \widehat{f}(\mathbf{X}_i)\mid \mathbf{X}_i\}\Pr(R_i \leq u)
+\\\quad & = \Pr\{R_i > y - \widehat{f}(\mathbf{X}_i)\mid \mathbf{X}_i, R_i > u\}\Pr(R_i > u) \\& \qquad + \Pr\{R_i > y - \widehat{f}(\mathbf{X}_i)\mid \mathbf{X}_i, R_i\leq u\}\Pr(R_i \leq u)
 \end{align*}
-where the first term of the last line can be estimated using a generalized Pareto and the latter empirically (typically zero if $y$ is sufficiently large).
+where the first term of the last line can be estimated using a generalized Pareto and the latter empirically.
 
 ## Solution 2: hierarchical models
 
 We can also incorporate parameters in the parameters of the extreme value distribution.
 
-- Model $\mu=f_{\mu}(\mathbf{X}; \boldsymbol{\beta}_{\mu})$, $\sigma(\mathbf{X})=f_{\sigma}(\mathbf{X}; \boldsymbol{\beta}_{\sigma})$, etc.
+
+- Model $g_{\mu}(\mu; \mathbf{X})=f_{\mu}(\mathbf{X}; \boldsymbol{\beta}_{\mu})$, $g_{\sigma}(\sigma; \mathbf{X})=f_{\sigma}(\mathbf{X}; \boldsymbol{\beta}_{\sigma})$
+- Link functions $g$, functions of covariates $f$
 - Typically keep shape constant.
 
 For explanatories $\mathbf{X}$, fit regression models of the form
 \begin{align*}
-\mu(\mathbf{X}) = \beta_0 + \beta_1 \mathrm{X}_1 + \cdots \beta_p \mathrm{X}_p,
+f(\mathbf{X}) = \beta_0 + \beta_1 \mathrm{X}_1 + \cdots \beta_p \mathrm{X}_p,
 \end{align*}
 and estimate parameters by maximum likelihood.
 
@@ -86,10 +89,11 @@ and estimate parameters by maximum likelihood.
 Rather than linear effects or changepoints (if $\mathrm{X}_j$ is binary), we could consider smooths
 
 \begin{align*}
-f(\mathrm{X}_j) = \sum_{k=1}^K \beta_k b_k(\mathbf{X}_j)
+f(\mathrm{X}_j) = \sum_{k=1}^K \beta_k b_k(\mathrm{X}_j)
 \end{align*}
-where $b_k$ are basis functions, e.g., thin-plate splines (`tp`), cubic regression splines (`cr`) and their cyclic counterparts.
+where $b_k$ are (compactly-supported) basis functions.
 
+Scale input first! More numerically stable.
 ## Parsimony is key
 
 - There are few exceedances or extremes...
@@ -111,11 +115,11 @@ $\lambda \boldsymbol{\beta}^\top \mathbf{S}\boldsymbol{\beta}$ for $\lambda > 0$
 
 Maximization over
 \begin{align*}
-\max_{\lambda  \in \mathbb{R}_K^{+}} \max_{\boldsymbol{\beta}} \ell_{\boldsymbol{\lambda}}(\boldsymbol{\beta}) - \frac{1}{2} \boldsymbol{\beta}^\top\mathbf{S}_{\boldsymbol{\lambda}}\boldsymbol{\beta}
-)
+\max_{\lambda  \in \mathbb{R}_K^{+}} \max_{\boldsymbol{\beta}} \left\{\ell_{\boldsymbol{\lambda}}(\boldsymbol{\beta}) - \frac{1}{2} \boldsymbol{\beta}^\top\mathbf{S}_{\boldsymbol{\lambda}}\boldsymbol{\beta}\right\}
 \end{align*}
-where $\mathbf{S}_{\boldsymbol{\lambda}} = \sum_{k=1}^K \lambda_k \mathbf{S}_k$
--  Optimal value of $\boldsymbol{\lambda}$ from maximizing the marginal likelihood, obtained by integrating out $\boldsymbol{\beta}$ using Laplace's method [@Wood.Pya.Safken:2016].
+where $\mathbf{S}_{\boldsymbol{\lambda}} = \sum_{k=1}^K \lambda_k \mathbf{S}_k$.
+
+-  Optimal value of $\boldsymbol{\lambda}$ obtained by maximizing the marginal likelihood, integrating out $\boldsymbol{\beta}$ using Laplace's method [@Wood.Pya.Safken:2016].
 
 
 ## A word of caution
@@ -139,12 +143,14 @@ For example, the $1-p$ conditional return level is [@Eastoe.Tawn:2009]
 These can be obtained by averaging out over the distribution of covariates that are employed in the model.
 
 \begin{align*}
-\int_{\mathcal{X}} \Pr(Y_t  > y \mid \mathbf{X}_t =\boldsymbol{x}_t) \mathrm{d} P(\boldsymbol{x}_t),
+\Pr(Y_t  > y)=\int_{\mathcal{X}} \Pr(Y_t  > y \mid \mathbf{X}_t =\boldsymbol{x}_t) \mathrm{d} P(\boldsymbol{x}_t)=p.
 \end{align*}
 
-Return levels may be meaningless quantities.
 
 May require information about future distribution of covariates if these are time-varying.
+
+As such, return levels may be meaningless quantities.
+
 
 ## Threshold stability
 
@@ -170,15 +176,13 @@ The setup is `evgam(formula, data, family, ...)`, where
 
 ## Formulas and smooth
 
-Scale input first
-
-Use `s` for smooths with arguments
+Use `s` for smooths and `te` for tensor products of smooths (interactions)
 
 - `k` controls the number of breakpoints
-- `bs` controls the basis function
+- `bs` controls the basis function, e.g., thin-plate splines (`tp`), cubic regression splines (`cr`), cyclic cubic spline (`cc`).
 - `fx`: control whether fixed degrees of freedom for regression spline or else penalized regression spline (default, `FALSE`)
 
-and `te` for tensor products of smooths (interactions)
+
 
 ## Data setup
 ```{r}
@@ -210,6 +214,7 @@ opt_gev <- evgam::evgam(
 # `evgam` output
 
 ```{r}
+#| cache: false
 ## Summary with coefficients
 summary(opt_gev)
 ```
@@ -262,11 +267,11 @@ These return levels are meaningless, since time increases (but would lead to ext
 
 ## Quantile regression
 
-We can work the asymmetric Laplace distribution to build a working likelihood for quantile regression.
+We can work the asymmetric Laplace distribution to build a working likelihood for quantile regression at probability level $\tau$.
 
 The latter has density function
 \begin{align*}
-\frac{\tau(1-\tau)}{\sigma} \exp\left\{-\rho_\tau \left(\frac{y-u}{\sigma}\right)\right\},
+f(y; \mu, \sigma) = \frac{\tau(1-\tau)}{\sigma} \exp\left\{-\rho_\tau \left(\frac{y-\mu}{\sigma}\right)\right\},
 \end{align*}
 where $\rho_\tau(y) = y(\tau-\mathrm{I}_{y <0})$ is the check function.
 

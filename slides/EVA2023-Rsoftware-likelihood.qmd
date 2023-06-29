@@ -38,32 +38,6 @@ knitr::opts_chunk$set(fig.retina = 3, collapse = TRUE)
 options(digits = 3, width = 75)
 ```
 
-<!--
-## Plan for today {background-color="`r pcols['bleu']`" .white}
-
-:::: {.columns}
-
-::: {.column width="40%"}
-
-- Univariate extremes
-  - Maximum likelihood
-  - Bayesian
-  - Semiparametric methods
-- Regression models
-
-:::
-
-::: {.column width="40%"}
-
-- Conditional extremes
-- Models for time series
-
-:::
-
-::::
-
--->
-
 ## Extremal type theorem
 
 Consider $Y_i$ $(i=1,2,\ldots)$ i.i.d. with distribution $F$. 
@@ -163,7 +137,7 @@ plot(opt_gev)
 ## Why use maximum likelihood?
 
 - Easy to generalize to complex settings (nonstationarity, regression models, censoring, rounding, etc.)
-- Known to be asymptotically most efficient (Cramér-Rao bound), even if they can be biased.
+- Known to be asymptotically most efficient (Cramér--Rao bound), even if they can be biased in small samples.
 - Point estimators, etc. are invariant to reparametrization.
 
 ## Invariance property of maximum likelihood
@@ -375,15 +349,23 @@ tstab.gpd(windlyon,
           thresh = useq)
 ```
 
----
+## Threshold stability for shape
 
 ```{r}
 #| eval: true
 #| echo: false
+#| label: fig-tstab
+#| fig-cap: "Threshold stability plot for Lyon mean wind speed"
+#| out-width: '80%'
+#| fig-width: 8
+#| fig-height: 6
 useq <- quantile(windlyon, seq(0.9, 0.99, by = 0.01))
 tstab.gpd(windlyon, 
           method = "profile",
-          thresh = useq)
+          thresh = useq,
+          which = 2, 
+          main = "", 
+          sub = "")
 ```
 
 ## Inhomogeneous point process

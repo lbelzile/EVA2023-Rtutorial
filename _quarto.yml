@@ -25,8 +25,8 @@ website:
           file: content/semiparametric.qmd
         - text: "4: Nonstationary regression models"
           file: content/regression.qmd
-        #- text: "5: Conditional extremes"
-        #  file: content/conditional.qmd  
+        - text: "5: Conditional extremes"
+          url: "https://lbelzile.github.io/texmexIntro/"
         #- text: "6: Models for time series"
         #  file: content/timeseries.qmd  
   search: 
