@@ -11,17 +11,13 @@ The tutorial takes place Friday, June 30th, 2023, from 14:00 until 18:15 in room
 
 # Course content
 
-Univariate extremes: 
-
 - Likelihood-based modelling: [slides](slides/EVA2023-Rsoftware-likelihood.html), [notes](content/likelihood.qmd), [code](code/EVA2023-Rsoftware-likelihood.R)
 - Semiparametric methods: [notes](content/semiparametric.qmd), [code]()
 - Bayesian inference: [slides](slides/EVA2023-Rsoftware-bayesian.html), [notes](content/bayesian.qmd), [code](code/EVA2023-Rsoftware-bayesian.R)
 - Nonstationary extremes: [slides](slides/EVA2023-Rsoftware-regression.html), [notes](content/regression.qmd), [code](code/EVA2023-Rsoftware-regression.R)
+- Time series: [slides](slides/EVA2023-Rsoftware-timeseries.pdf), [notes](content/timeseries.qmd) , [code](code/EVA2023-Rsoftware-timeseries.R)
+- Conditional extremes model: [slides](slides/EVA2023-Rsoftware-conditionalextremes.pdf), [notes](content/conditionalextremes.qmd) , [code](code/EVA2023-Rsoftware-conditionalextremes.R)
 
-Multivariate extremes and time series:
-
-- Conditional extremes model
-- Time series
 
 # Exercices
 

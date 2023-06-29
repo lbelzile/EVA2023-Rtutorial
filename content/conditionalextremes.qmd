@@ -1,0 +1,198 @@
+---
+title: "Conditional extremes"
+page-layout: full
+title-block-banner: false
+cache: true
+---
+
+
+## Exploratory analyses
+
+We begin by loading data and packages.
+
+```{r}
+library(texmex)
+library(gridExtra)
+library(GGally) #for exploratory plots
+data(frwind, package = "mev")
+#?frwind
+```
+
+We will work with the standard implementation in the `texmex` package, which also comes with nice ggplot-graphics. Package information with vignettes for various modeling contexts can be found [here]( https://cran.r-project.org/web/packages/texmex/index.html).
+
+First, for exploration of data, we show bivariate scatter plots and linear correlation coefficients for the wind speed data.
+
+```{r}
+ggpairs(frwind, columns = 2:ncol(frwind))
+```
+
+Let us check chi and chi-bar coefficients to see if there is asymptotic dependence. We give an example for stations $S_2$ and $S_3$.
+
+```{r}
+chi23 = chi(frwind[, c("S2", "S3")]) 
+ggplot(chi23, 
+       main = c("Chi"="Chi: S2 and S3", 
+              "ChiBar"="Chi-bar: S2 and S3"))
+```
+
+The behavior of both curves suggest that there is asymptotic independence. We can also plot multivariate conditional Spearman's correlation coefficients across a sliding window of values of the variables. Executing the following requires more time.
+
+```{r}
+bootmcs23 = bootMCS(
+  X = frwind[, c("S2", "S3")], 
+  p = seq(0.5, 0.99, by = 0.01), 
+  R = 25, # nb of bootstrap replicates
+  trace = 1000) 
+ggplot(bootmcs23, main = "MCS: S2 and S3")
+```
+
+The behavior looks quite stable across different threshold levels.
+
+## Modeling conditional extremes
+
+Now, we fit the multivariate conditional extremes model using mex. We here condition on the component $j=2$. The `mex` function handles both marginal and dependence fits. We keep only those columns of `frwind` corresponding to wind speeds. Here, we use the same quantile (at level `mqu`) for marginal fits and dependence fits.
+
+```{r}
+mex2 = mex(frwind[, paste0("S", 1:4)], 
+           mqu = .95, # marginal quantile of cond.
+           penalty = "none", # penalized marginal estimation?
+           which = "S2") # conditioning variable
+mex2
+summary(mex2)
+```
+
+Here are some diagnostic plots of the fitted model.
+
+```{r}
+ggplot(mex2)
+```
+
+As assumed by the model, we do not see any notable dependence of residuals (\$\\mathbf{Z}\$) on the level of the conditioning variable.
+
+Note: to estimate only marginal parameters, we can use `migpd`; to estimate only the dependence with prespecified marginal estimates, we can use \`mexDependence\`. Here is an example of explicit two-step estimation.
+
+```{r}
+marg = migpd(
+  data = frwind[,paste0("S", 1:4)], 
+  mqu = 0.95, 
+  penalty = "none") 
+mex2_twostep = mexDependence(marg, which = "S2")
+mex2_twostep
+```
+
+In the end, the result of `mex2_twostep` is exactly the same as that of `mex2`.
+
+Various diagnostics can be used to explore or validate tuning parameters such as the threshold. For example: do we have an appropriate marginal threshold? We can check this using parameter stability plots and mean-excess plots.
+
+```{r}
+ggplot(
+  gpdRangeFit(frwind$S2, 
+              umin = quantile(frwind$S2, .90), 
+              umax = quantile(frwind$S2, .995), 
+              nint = 21)) 
+ggplot(mrl(frwind$S2, 
+           umin = quantile(frwind$S2, .90), 
+           umax = quantile(frwind$S2, .995), 
+           nint = 21))
+```
+
+The tail index estimates looks relatively stable across different thresholds, and the mean excess plots show a relatively nice linear slope, which correspond to the tail index.
+
+Moreover, we can explore if the estimated dependence model is sensible to the choice of the threshold. Note that running this analysis can be very time-consuming. Here, to avoid very long computations, we use a very small number of quantiles and a very low number `R` of bootstrap replicates, but for a serious application you should of course use larger numbers.
+
+```{r}
+mrf = mexRangeFit(
+  x = marg, 
+  which = "S2", 
+  quantiles = c(0.95, 0.96, 0.97), 
+  R = 3) 
+ggplot(mrf)
+```
+
+For the chosen quantiles, and given the uncertainty in the bootstrap estimates, we do not see any strong dependence of parameters on the threshold level.
+
+## Simulation and prediction
+
+We can simulate from the fitted model but for a higher conditioning threshold than the one used during estimation.
+
+```{r}
+set.seed(1)
+nsim = 100
+pred2 = predict(mex2, pqu=.99, nsim = nsim)
+summary(pred2)
+ggplot(pred2)
+```
+
+There are also commands to estimate all four conditional extremes models (for $j=1, \ldots, 4$ here), and to conduct simulation from the estimated models.
+
+```{r}
+mAll = mexAll(frwind[,paste0("S", 1:4)], mqu=0.95, dqu=rep(0.95,4))
+mAll
+pred_sim =  mexMonteCarlo(nsim, mAll)
+pairs(pred_sim$MCsample)
+```
+
+We can use the conditional extremes models to provide model-based joint exceedance curves (for a given probability) at very high levels. Let's first plot empirical joint exceedance curves at relatively high observed levels. We here consider the two variables at $S_2$ and $S_3$.
+
+```{r}
+wind23 = frwind[, c("S2", "S3")]
+j1 = JointExceedanceCurve(wind23, 0.1) 
+j2 = JointExceedanceCurve(wind23, 0.05) 
+j3 = JointExceedanceCurve(wind23, 0.025) 
+ggplot(wind23, aes(S2,S3)) + 
+      geom_point(colour="dark blue",alpha=0.5) + 
+      geom_jointExcCurve(j1,colour="orange") + 
+      geom_jointExcCurve(j2,colour="orange") + 
+      geom_jointExcCurve(j3,colour="orange")
+```
+
+Finally, we estimate joint exceedance curves at much higher levels by combining Monte-Carlo simulations of the different conditional-extremes models. We here use a relatively small number of simulations (100) for reasons of computation time, but results can be made more precise by using a larger number of simulations. Joint exceedance curves are implemented for two variables.
+
+```{r}
+pred_sim =  mexMonteCarlo(
+    nSample = 500, 
+    mexList = mAll)
+j1 = JointExceedanceCurve(
+  Sample = pred_sim, 
+  ExceedanceProb = 0.05, 
+  which = c("S2","S3"))
+j2 = JointExceedanceCurve(
+  pred_sim, 
+  0.025, 
+  which = c("S2","S3"))
+j3 = JointExceedanceCurve(
+  pred_sim, 
+  0.01, 
+  which = c("S2","S3")) 
+ggplot(
+  data = as.data.frame(
+    pred_sim$MCsample[,c("S2","S3")]), 
+  mapping = aes(S2, S3)) +
+      geom_point(col="light blue", alpha = 0.5) + 
+      geom_jointExcCurve(j1, aes(S2,S3), col="orange") + 
+      geom_jointExcCurve(j2, aes(S2,S3), col="orange") + 
+      geom_jointExcCurve(j3, aes(S2,S3), col="orange")
+```
+
+To extrapolate joint exceedance curves towards very high levels using simulation at higher conditioning thresholds in $S_2$, we can use the predict function. Simulated values in blue correspond to those where the conditioning component is largest, otherwise the color is orange. The orange line indicates where we have the same marginal quantile levels in the two variables.
+
+```{r}
+pred2 = predict(mex2, nsim = 5000, pqu = 0.995)
+gg = ggplot(pred2, plot. = FALSE)
+j1 = JointExceedanceCurve(
+    Sample = pred2, 
+    ExceedanceProb = 0.002, 
+    which = c("S2","S3"))
+j2 = JointExceedanceCurve(
+  pred2, 
+  0.001, 
+  which = c("S2","S3"))
+j3 = JointExceedanceCurve(
+  pred2, 
+  0.0005, 
+  which = c("S2","S3"))
+gg[[1]] + 
+  geom_jointExcCurve(j1, aes(S2, S3), col = "purple") + 
+  geom_jointExcCurve(j2, aes(S2, S3), col = "purple") + 
+  geom_jointExcCurve(j3, aes(S2, S3), col = "purple")
+```

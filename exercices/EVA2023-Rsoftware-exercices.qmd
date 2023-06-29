@@ -1,6 +1,7 @@
 ---
 title: "Exercice sheet"
 format: pdf
+fontsize: '11pt'
 ---
 
 # Maximum likelihood estimation
@@ -26,21 +27,31 @@ Consider the data for station Montélimar from `frwind` (series `S4`).
    - compare with the likelihood ratio statistic, obtained by comparing models using the `anova` method.
 5. Compute the 50-year return level using the generalized extreme value model and provide a 50% confidence interval for the latter.
 
-<!--
-## Peaks over threshold model
 
-We could alternatively fit a model using the generalized Pareto distribution
 
--->
+## Bayesian and nonstationary models
 
-## Nonstationary models
-
-1. Using `evgam`, fit a binomial - generalized Pareto model to all four stations 
+2. Using `evgam`, fit a binomial - generalized Pareto model to all four stations 
   - set thresholds at the site-wise 98% empirical percentile.
   - consider site-specific scale 
   - and a common shape for all four stations. 
 To this effect, create a new data frame by concatenating exceedances, with a factor (dummy) for the station identifier.
-2. Use a likelihood ratio test to compare the models with different shape parameters for each station. Are there evidence of different shapes?
+3. Use a likelihood ratio test to compare the models with different shape parameters for each station. Are there evidence of different shapes?
 3. Based on the estimated coefficients, which model will yield the highest 50-year return level? Rank the stations from smallest to largest.
-4. Using `revdbayes` and a binomial-generalized Pareto model with a Beta/maximal data information prior, obtain 50% credible interval for the model fitted to each station separately.
+4. Using `revdbayes` and a binomial/generalized Pareto model with a Beta/maximal data information prior, obtain 50% credible interval for the model fitted to each station separately.
 5. Compare these with approximate 50% credible interval obtained using the Gaussian approximation to the posterior from `evgam`.
+
+## Time series
+
+1. Consider the temporal structure of the time series for Lyon Saint-Exupéry by plotting an extremogram: is there evidence of serial correlation in the extremes?
+2. Using the `lite` package, estimate the extremal index and adjust return levels. Compare the estimates with the model that ignores clustering.
+
+## Conditional extremes
+
+We could also consider a conditional model by taking as covariates humidity (`H2`) and mean temperature (`T2`). Fit the Heffernan--Tawn conditional extremes model to the trivariate data (`S2`, `H2`, `T2`), given that humidity is above 80%
+
+1. preprocess the data to ensure approximate stationarity by keeping only data for the summer months (June, July and August)
+2. are there evidence of asymptotic dependent variables?
+3. produce threshold stability plots for the dependence parameters
+4. estimate the probability that the temperature exceed it's 95% marginal summer quantile, given that humidity is above the 80% and wind speed is lower than the 50%.
+
