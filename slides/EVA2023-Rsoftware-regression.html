@@ -445,35 +445,34 @@ Léo Belzile
 </ul></li>
 <li>analyze residuals <span class="math inline">\(R_i = Y_i - \widehat{f}(\mathbf{X}_i)\)</span>, where the postulated model is such that <span class="math inline">\(\mathsf{E}(Y_i) = f(\mathbf{X}_i)\)</span>.</li>
 </ul>
-<p>Benefit: more data to estimate trend</p>
+<p>Benefit: more data are available to estimate trends.</p>
 </section>
 <section id="estimating-probability-of-rare-events" class="slide level2">
 <h2>Estimating probability of rare events</h2>
 <p><span class="math display">\[\begin{align*}
 &amp;\Pr(Y_i &gt; y \mid \mathbf{X}_i) \\\quad &amp;= \Pr\{R_i &gt; y - \widehat{f}(\mathbf{X}_i)\mid \mathbf{X}_i\}
-\\\quad &amp; = \Pr\{R_i &gt; y - \widehat{f}(\mathbf{X}_i)\mid \mathbf{X}_i, R_i &gt; u\}\Pr(R_i &gt; u) \\&amp; \qquad + \Pr\{u  \leq R_i &gt; y - \widehat{f}(\mathbf{X}_i)\mid \mathbf{X}_i\}\Pr(R_i \leq u)
-\end{align*}\]</span> where the first term of the last line can be estimated using a generalized Pareto and the latter empirically (typically zero if <span class="math inline">\(y\)</span> is sufficiently large).</p>
+\\\quad &amp; = \Pr\{R_i &gt; y - \widehat{f}(\mathbf{X}_i)\mid \mathbf{X}_i, R_i &gt; u\}\Pr(R_i &gt; u) \\&amp; \qquad + \Pr\{R_i &gt; y - \widehat{f}(\mathbf{X}_i)\mid \mathbf{X}_i, R_i\leq u\}\Pr(R_i \leq u)
+\end{align*}\]</span> where the first term of the last line can be estimated using a generalized Pareto and the latter empirically.</p>
 </section>
 <section id="solution-2-hierarchical-models" class="slide level2">
 <h2>Solution 2: hierarchical models</h2>
 <p>We can also incorporate parameters in the parameters of the extreme value distribution.</p>
 <ul>
-<li>Model <span class="math inline">\(\mu=f_{\mu}(\mathbf{X}; \boldsymbol{\beta}_{\mu})\)</span>, <span class="math inline">\(\sigma(\mathbf{X})=f_{\sigma}(\mathbf{X}; \boldsymbol{\beta}_{\sigma})\)</span>, etc.</li>
+<li>Model <span class="math inline">\(g_{\mu}(\mu; \mathbf{X})=f_{\mu}(\mathbf{X}; \boldsymbol{\beta}_{\mu})\)</span>, <span class="math inline">\(g_{\sigma}(\sigma; \mathbf{X})=f_{\sigma}(\mathbf{X}; \boldsymbol{\beta}_{\sigma})\)</span></li>
+<li>Link functions <span class="math inline">\(g\)</span>, functions of covariates <span class="math inline">\(f\)</span></li>
 <li>Typically keep shape constant.</li>
 </ul>
 <p>For explanatories <span class="math inline">\(\mathbf{X}\)</span>, fit regression models of the form <span class="math display">\[\begin{align*}
-\mu(\mathbf{X}) = \beta_0 + \beta_1 \mathrm{X}_1 + \cdots \beta_p \mathrm{X}_p,
+f(\mathbf{X}) = \beta_0 + \beta_1 \mathrm{X}_1 + \cdots \beta_p \mathrm{X}_p,
 \end{align*}\]</span> and estimate parameters by maximum likelihood.</p>
 </section>
 <section id="generalized-additive-models" class="slide level2">
 <h2>Generalized additive models</h2>
 <p>Rather than linear effects or changepoints (if <span class="math inline">\(\mathrm{X}_j\)</span> is binary), we could consider smooths</p>
 <p><span class="math display">\[\begin{align*}
-f(\mathrm{X}_j) = \sum_{k=1}^K \beta_k b_k(\mathbf{X}_j)
-\end{align*}\]</span> where <span class="math inline">\(b_k\)</span> are basis functions, e.g., thin-plate splines (<code>tp</code>), cubic regression splines (<code>cr</code>) and their cyclic counterparts.</p>
-</section>
-<section id="parsimony-is-key" class="slide level2">
-<h2>Parsimony is key</h2>
+f(\mathrm{X}_j) = \sum_{k=1}^K \beta_k b_k(\mathrm{X}_j)
+\end{align*}\]</span> where <span class="math inline">\(b_k\)</span> are (compactly-supported) basis functions.</p>
+<p>Scale input first! More numerically stable. ## Parsimony is key</p>
 <ul>
 <li>There are few exceedances or extremes…</li>
 <li>The support restriction translates into up to <span class="math inline">\(n\)</span> inequality constraints: difficult to optimize.</li>
@@ -492,9 +491,11 @@ f(\mathrm{X}_j) = \sum_{k=1}^K \beta_k b_k(\mathbf{X}_j)
 <section id="tuning-parameter" class="slide level2">
 <h2>Tuning parameter</h2>
 <p>Maximization over <span class="math display">\[\begin{align*}
-\max_{\lambda  \in \mathbb{R}_K^{+}} \max_{\boldsymbol{\beta}} \ell_{\boldsymbol{\lambda}}(\boldsymbol{\beta}) - \frac{1}{2} \boldsymbol{\beta}^\top\mathbf{S}_{\boldsymbol{\lambda}}\boldsymbol{\beta}
-)
-\end{align*}\]</span> where <span class="math inline">\(\mathbf{S}_{\boldsymbol{\lambda}} = \sum_{k=1}^K \lambda_k \mathbf{S}_k\)</span> - Optimal value of <span class="math inline">\(\boldsymbol{\lambda}\)</span> from maximizing the marginal likelihood, obtained by integrating out <span class="math inline">\(\boldsymbol{\beta}\)</span> using Laplace’s method <span class="citation" data-cites="Wood.Pya.Safken:2016">(<a href="#/references" role="doc-biblioref" onclick="">Wood et al., 2016</a>)</span>.</p>
+\max_{\lambda  \in \mathbb{R}_K^{+}} \max_{\boldsymbol{\beta}} \left\{\ell_{\boldsymbol{\lambda}}(\boldsymbol{\beta}) - \frac{1}{2} \boldsymbol{\beta}^\top\mathbf{S}_{\boldsymbol{\lambda}}\boldsymbol{\beta}\right\}
+\end{align*}\]</span> where <span class="math inline">\(\mathbf{S}_{\boldsymbol{\lambda}} = \sum_{k=1}^K \lambda_k \mathbf{S}_k\)</span>.</p>
+<ul>
+<li>Optimal value of <span class="math inline">\(\boldsymbol{\lambda}\)</span> obtained by maximizing the marginal likelihood, integrating out <span class="math inline">\(\boldsymbol{\beta}\)</span> using Laplace’s method <span class="citation" data-cites="Wood.Pya.Safken:2016">(<a href="#/references" role="doc-biblioref" onclick="">Wood et al., 2016</a>)</span>.</li>
+</ul>
 </section>
 <section id="a-word-of-caution" class="slide level2">
 <h2>A word of caution</h2>
@@ -515,10 +516,10 @@ f(\mathrm{X}_j) = \sum_{k=1}^K \beta_k b_k(\mathbf{X}_j)
 <h2>Unconditional return levels</h2>
 <p>These can be obtained by averaging out over the distribution of covariates that are employed in the model.</p>
 <p><span class="math display">\[\begin{align*}
-\int_{\mathcal{X}} \Pr(Y_t  &gt; y \mid \mathbf{X}_t =\boldsymbol{x}_t) \mathrm{d} P(\boldsymbol{x}_t),
+\Pr(Y_t  &gt; y)=\int_{\mathcal{X}} \Pr(Y_t  &gt; y \mid \mathbf{X}_t =\boldsymbol{x}_t) \mathrm{d} P(\boldsymbol{x}_t)=p.
 \end{align*}\]</span></p>
-<p>Return levels may be meaningless quantities.</p>
 <p>May require information about future distribution of covariates if these are time-varying.</p>
+<p>As such, return levels may be meaningless quantities.</p>
 </section>
 <section id="threshold-stability" class="slide level2">
 <h2>Threshold stability</h2>
@@ -540,14 +541,12 @@ f(\mathrm{X}_j) = \sum_{k=1}^K \beta_k b_k(\mathbf{X}_j)
 </section>
 <section id="formulas-and-smooth" class="slide level2">
 <h2>Formulas and smooth</h2>
-<p>Scale input first</p>
-<p>Use <code>s</code> for smooths with arguments</p>
+<p>Use <code>s</code> for smooths and <code>te</code> for tensor products of smooths (interactions)</p>
 <ul>
 <li><code>k</code> controls the number of breakpoints</li>
-<li><code>bs</code> controls the basis function</li>
+<li><code>bs</code> controls the basis function, e.g., thin-plate splines (<code>tp</code>), cubic regression splines (<code>cr</code>), cyclic cubic spline (<code>cc</code>).</li>
 <li><code>fx</code>: control whether fixed degrees of freedom for regression spline or else penalized regression spline (default, <code>FALSE</code>)</li>
 </ul>
-<p>and <code>te</code> for tensor products of smooths (interactions)</p>
 </section>
 <section id="data-setup" class="slide level2">
 <h2>Data setup</h2>
@@ -577,7 +576,7 @@ f(\mathrm{X}_j) = \sum_{k=1}^K \beta_k b_k(\mathbf{X}_j)
 <section>
 <section id="evgam-output" class="title-slide slide level1 center">
 <h1><code>evgam</code> output</h1>
-<div class="cell" data-hash="EVA2023-Rsoftware-regression_cache/revealjs/unnamed-chunk-4_86a60522f037223a6b7f794526844036">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="do">## Summary with coefficients</span></span>
 <span id="cb3-2"><a href="#cb3-2"></a><span class="fu">summary</span>(opt_gev)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -586,21 +585,21 @@ f(\mathrm{X}_j) = \sum_{k=1}^K \beta_k b_k(\mathbf{X}_j)
 
 location
             Estimate Std. Error t value Pr(&gt;|t|)
-(Intercept)    36.13       0.65   55.39   &lt;2e-16
+(Intercept)    36.55       0.67   54.63   &lt;2e-16
 
 logscale
             Estimate Std. Error t value Pr(&gt;|t|)
-(Intercept)     1.34       0.13    10.4   &lt;2e-16
+(Intercept)     1.36       0.12   10.96   &lt;2e-16
 
 shape
             Estimate Std. Error t value Pr(&gt;|t|)
-(Intercept)     0.01       0.14    0.09    0.465
+(Intercept)    -0.12       0.14   -0.88     0.19
 
 ** Smooth terms **
 
 location
          edf max.df Chi.sq Pr(&gt;|t|)
-s(tday) 0.74      8   0.77    0.382</code></pre>
+s(year) 2.34      9   5.22    0.101</code></pre>
 </div>
 </div>
 </section>
@@ -626,16 +625,16 @@ s(tday) 0.74      8   0.77    0.382</code></pre>
 <span id="cb6-4"><a href="#cb6-4"></a>              <span class="at">type =</span> <span class="st">"quantile"</span>, </span>
 <span id="cb6-5"><a href="#cb6-5"></a>              <span class="at">probs =</span> <span class="dv">1-1</span><span class="sc">/</span><span class="dv">50</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 52.17204</code></pre>
+<pre><code>[1] 49.14449</code></pre>
 </div>
 </div>
 <p>These return levels are meaningless, since time increases (but would lead to extrapolate beyond range of observed time)…</p>
 </section>
 <section id="quantile-regression" class="slide level2">
 <h2>Quantile regression</h2>
-<p>We can work the asymmetric Laplace distribution to build a working likelihood for quantile regression.</p>
+<p>We can work the asymmetric Laplace distribution to build a working likelihood for quantile regression at probability level <span class="math inline">\(\tau\)</span>.</p>
 <p>The latter has density function <span class="math display">\[\begin{align*}
-\frac{\tau(1-\tau)}{\sigma} \exp\left\{-\rho_\tau \left(\frac{y-u}{\sigma}\right)\right\},
+f(y; \mu, \sigma) = \frac{\tau(1-\tau)}{\sigma} \exp\left\{-\rho_\tau \left(\frac{y-\mu}{\sigma}\right)\right\},
 \end{align*}\]</span> where <span class="math inline">\(\rho_\tau(y) = y(\tau-\mathrm{I}_{y &lt;0})\)</span> is the check function.</p>
 </section>
 <section id="time-varying-threshold-with-quantile-regression" class="slide level2">
@@ -692,7 +691,7 @@ s(tday) 0.74      8   0.77    0.382</code></pre>
 <span id="cb12-9"><a href="#cb12-9"></a>  <span class="at">family =</span> <span class="st">"gpd"</span>)</span>
 <span id="cb12-10"><a href="#cb12-10"></a><span class="fu">mean</span>(retlev_gpd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 49.04261</code></pre>
+<pre><code>[1] 49.0457</code></pre>
 </div>
 </div>
 <!-- allow breaks over multiple slides -->

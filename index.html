@@ -134,6 +134,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="./content/regression.html" rel="" target="">
  <span class="dropdown-text">4: Nonstationary regression models</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="https://lbelzile.github.io/texmexIntro/" rel="" target="">
+ <span class="dropdown-text">5: Conditional extremes</span></a>
+  </li>  
     </ul>
   </li>
 </ul>
@@ -156,17 +160,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="description" class="level1">
 <h1>Description</h1>
 <p>This satellite workshop will review <strong>R</strong> implementations of a variety of techniques for statistical analysis of extreme values. The focus of the first part of the workshop will be on univariate extremes, including likelihood-based, Bayesian and nonparametric methods for both peaks-over-threshold and block maxima approaches, with a foray into nonstationary extremes. The second part of the workshop will concentrate on conditional extremes and time series.</p>
-<p>The tutorial takes place Friday, June 30th, 2023, from 14:00 until 18:15.</p>
+<p>The tutorial takes place Friday, June 30th, 2023, from 14:00 until 18:15 in room Aula Info AS04.</p>
 </section>
 <section id="course-content" class="level1">
 <h1>Course content</h1>
 <p>Univariate extremes:</p>
 <ul>
-<li><a href="slides/EVA2023-Rsoftware-likelihood.html">Likelihood-based modelling</a></li>
-<li>Threshold selection for peaks over threshold</li>
-<li>Semiparametric methods</li>
-<li><a href="slides/EVA2023-Rsoftware-bayesian.html">Bayesian inference</a></li>
-<li><a href="slides/EVA2023-Rsoftware-regression.html">Nonstationary extremes</a></li>
+<li>Likelihood-based modelling: <a href="slides/EVA2023-Rsoftware-likelihood.html">slides</a>, <a href="./content/likelihood.html">notes</a>, <a href="code/EVA2023-Rsoftware-likelihood.R">code</a></li>
+<li>Semiparametric methods: <a href="./content/semiparametric.html">notes</a>, <a href="">code</a></li>
+<li>Bayesian inference: <a href="slides/EVA2023-Rsoftware-bayesian.html">slides</a>, <a href="./content/bayesian.html">notes</a>, <a href="code/EVA2023-Rsoftware-bayesian.R">code</a></li>
+<li>Nonstationary extremes: <a href="slides/EVA2023-Rsoftware-regression.html">slides</a>, <a href="./content/regression.html">notes</a>, <a href="code/EVA2023-Rsoftware-regression.R">code</a></li>
 </ul>
 <p>Multivariate extremes and time series:</p>
 <ul>
@@ -177,7 +180,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="exercices" class="level1">
 <h1>Exercices</h1>
 <ul>
-<li><a href="exercices/EVA2023-Rsoftware-exercices.pdf">Exercise sheet 1</a></li>
+<li><a href="exercices/EVA2023-Rsoftware-exercices.pdf">Exercise sheet</a></li>
 </ul>
 </section>
 <section id="instructions" class="level1">
@@ -186,11 +189,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>If you plan on using your own laptop, download and install <a href="https://cran.r-project.org/"><strong>R</strong> (current version 4.3.0, nicknamed “Already Tomorrow”)</a> and an integrated development environment such as <a href="https://www.rstudio.com/products/rstudio/download/#download"><strong>RStudio</strong></a>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>devpkgs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"lbelzile/mev"</span>, <span class="st">"lbelzile/rbm"</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>cranpkgs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"lite"</span>, <span class="st">"revdbayes"</span>, <span class="st">"texmex"</span>,</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>              <span class="st">"threshr"</span>, <span class="st">"tea"</span>, <span class="st">"evt0"</span>, <span class="st">"remotes"</span>,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>              <span class="st">"xts"</span>, <span class="st">"lubridate"</span>, <span class="st">"ggplot2"</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(cranpkgs)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(devpkgs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>cranpkgs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"lite"</span>, <span class="st">"revdbayes"</span>, <span class="st">"texmex"</span>, <span class="st">"POT"</span>, </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>              <span class="st">"coda"</span>, <span class="st">"gridExtra"</span>, <span class="st">"patchwork"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>              <span class="st">"GGally"</span>, <span class="st">"extRemes"</span>, <span class="st">"evd"</span>, <span class="st">"extremogram"</span>, </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>              <span class="st">"threshr"</span>, <span class="st">"tea"</span>, <span class="st">"evt0"</span>, <span class="st">"remotes"</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>              <span class="st">"xts"</span>, <span class="st">"lubridate"</span>, <span class="st">"ggplot2"</span>, <span class="st">"exdex"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(cranpkgs)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(devpkgs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="instructors" class="level1">

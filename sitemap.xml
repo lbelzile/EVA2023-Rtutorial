@@ -2,42 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://lbelzile.github.io/EVA2023-Rtutorial/content/bayesian.html</loc>
-    <lastmod>2023-06-25T20:09:39.182Z</lastmod>
+    <lastmod>2023-06-29T09:56:47.238Z</lastmod>
   </url>
   <url>
     <loc>https://lbelzile.github.io/EVA2023-Rtutorial/content/likelihood.html</loc>
-    <lastmod>2023-06-25T20:09:40.778Z</lastmod>
+    <lastmod>2023-06-29T09:56:48.766Z</lastmod>
   </url>
   <url>
     <loc>https://lbelzile.github.io/EVA2023-Rtutorial/content/regression.html</loc>
-    <lastmod>2023-06-25T20:09:41.954Z</lastmod>
+    <lastmod>2023-06-29T09:56:49.886Z</lastmod>
   </url>
   <url>
     <loc>https://lbelzile.github.io/EVA2023-Rtutorial/content/semiparametric.html</loc>
-    <lastmod>2023-06-25T20:09:43.082Z</lastmod>
-  </url>
-  <url>
-    <loc>https://lbelzile.github.io/EVA2023-Rtutorial/content/threshold.html</loc>
-    <lastmod>2023-06-25T20:09:43.346Z</lastmod>
+    <lastmod>2023-06-29T09:56:50.958Z</lastmod>
   </url>
   <url>
     <loc>https://lbelzile.github.io/EVA2023-Rtutorial/content/timeseries.html</loc>
-    <lastmod>2023-06-25T20:09:43.614Z</lastmod>
+    <lastmod>2023-06-29T09:56:51.202Z</lastmod>
   </url>
   <url>
     <loc>https://lbelzile.github.io/EVA2023-Rtutorial/index.html</loc>
-    <lastmod>2023-06-25T20:09:48.390Z</lastmod>
+    <lastmod>2023-06-29T09:56:55.842Z</lastmod>
   </url>
   <url>
     <loc>https://lbelzile.github.io/EVA2023-Rtutorial/slides/EVA2023-Rsoftware-bayesian.html</loc>
-    <lastmod>2023-06-25T20:09:49.966Z</lastmod>
+    <lastmod>2023-06-29T09:56:57.086Z</lastmod>
   </url>
   <url>
     <loc>https://lbelzile.github.io/EVA2023-Rtutorial/slides/EVA2023-Rsoftware-likelihood.html</loc>
-    <lastmod>2023-06-25T20:09:54.486Z</lastmod>
+    <lastmod>2023-06-29T09:57:00.838Z</lastmod>
   </url>
   <url>
     <loc>https://lbelzile.github.io/EVA2023-Rtutorial/slides/EVA2023-Rsoftware-regression.html</loc>
-    <lastmod>2023-06-25T20:09:56.054Z</lastmod>
+    <lastmod>2023-06-29T09:57:02.430Z</lastmod>
   </url>
 </urlset>

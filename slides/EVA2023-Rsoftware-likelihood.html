@@ -423,34 +423,6 @@ Léo Belzile
 
   <p class="date">2023-06-30</p>
 </section>
-<section class="slide level2">
-
-<!--
-## Plan for today {background-color="#92c1e9" .white}
-
-:::: {.columns}
-
-::: {.column width="40%"}
-
-- Univariate extremes
-  - Maximum likelihood
-  - Bayesian
-  - Semiparametric methods
-- Regression models
-
-:::
-
-::: {.column width="40%"}
-
-- Conditional extremes
-- Models for time series
-
-:::
-
-::::
-
--->
-</section>
 <section id="extremal-type-theorem" class="slide level2">
 <h2>Extremal type theorem</h2>
 <p>Consider <span class="math inline">\(Y_i\)</span> <span class="math inline">\((i=1,2,\ldots)\)</span> i.i.d. with distribution <span class="math inline">\(F\)</span>.</p>
@@ -557,7 +529,7 @@ G(x) =\begin{cases}
 <h2>Why use maximum likelihood?</h2>
 <ul>
 <li>Easy to generalize to complex settings (nonstationarity, regression models, censoring, rounding, etc.)</li>
-<li>Known to be asymptotically most efficient (Cramér-Rao bound), even if they can be biased.</li>
+<li>Known to be asymptotically most efficient (Cramér–Rao bound), even if they can be biased in small samples.</li>
 <li>Point estimators, etc. are invariant to reparametrization.</li>
 </ul>
 </section>
@@ -759,10 +731,10 @@ Y-v \mid Y&gt;v \sim \mathsf{GP}\{\tau + \xi (u-v), \xi\},
 <span id="cb11-4"><a href="#cb11-4"></a>          <span class="at">thresh =</span> useq)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section class="slide level2">
+<section id="threshold-stability-for-shape" class="slide level2">
+<h2>Threshold stability for shape</h2>
 
-
-<img data-src="EVA2023-Rsoftware-likelihood_files/figure-revealjs/unnamed-chunk-13-1.png" width="960" class="r-stretch"></section>
+<img data-src="EVA2023-Rsoftware-likelihood_files/figure-revealjs/fig-tstab-1.png" style="width:80.0%" class="r-stretch quarto-figure-center"><p class="caption">Figure&nbsp;1: Threshold stability plot for Lyon mean wind speed</p></section>
 <section id="inhomogeneous-point-process" class="slide level2">
 <h2>Inhomogeneous point process</h2>
 <p>Let <span class="math inline">\(Y_i\)</span> i.i.d. from <span class="math inline">\(F\)</span> with lower endpoint <span class="math inline">\(x^*\)</span>.</p>

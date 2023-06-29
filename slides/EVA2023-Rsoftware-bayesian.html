@@ -459,7 +459,7 @@ p(\boldsymbol{\theta} \mid \boldsymbol{Y}) = \frac{p(\boldsymbol{Y} \mid \boldsy
 <section id="prediction" class="slide level2">
 <h2>Prediction</h2>
 <p>We consider new realizations from <strong>posterior predictive</strong> <span class="math display">\[\begin{align*}
-p(Y_{\text{new}} \mid \boldsymbol{Y})
+p(Y_{\text{new}} \mid \boldsymbol{Y}) =
 \int_{\Theta} p(Y_{\text{new}}  \mid \boldsymbol{\theta}) p(\boldsymbol{\theta} \mid  \boldsymbol{Y}) \mathrm{d} \boldsymbol{\theta}
 \end{align*}\]</span></p>
 <ul>
@@ -705,14 +705,16 @@ xi: (Intercept)     -0.04462734 0.1352223</code></pre>
 <li>standard errors for functionals is more complicated due to the autocorrelation</li>
 </ul>
 <p>Due to autocorrelation, dedicated methods are employed to get standard errors.</p>
-<div class="cell" data-hash="EVA2023-Rsoftware-bayesian_cache/revealjs/unnamed-chunk-15_23df46439a689e70856bb52523270670">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">summary</span>(chains)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="EVA2023-Rsoftware-bayesian_cache/revealjs/unnamed-chunk-15_1e118458b549a59584da9891160f5d80">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">summary</span>(chains[[<span class="dv">1</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>     Length Class Mode   
-[1,] 44000  mcmc  numeric
-[2,] 44000  mcmc  numeric
-[3,] 44000  mcmc  numeric
-[4,] 44000  mcmc  numeric</code></pre>
+<pre><code>       V1              V2                V3              V4          
+ Min.   :33.91   Min.   :-3.1841   Min.   :1.064   Min.   :-0.46361  
+ 1st Qu.:35.81   1st Qu.:-1.1247   1st Qu.:1.352   1st Qu.:-0.13404  
+ Median :36.30   Median :-0.6561   Median :1.436   Median :-0.05592  
+ Mean   :36.31   Mean   :-0.6523   Mean   :1.441   Mean   :-0.04522  
+ 3rd Qu.:36.78   3rd Qu.:-0.1614   3rd Qu.:1.525   3rd Qu.: 0.04187  
+ Max.   :38.73   Max.   : 1.7285   Max.   :1.910   Max.   : 0.41994  </code></pre>
 </div>
 </div>
 </section>
@@ -748,7 +750,7 @@ r(q_0) = \int_{\boldsymbol{\Theta}}L(q(\boldsymbol{\theta}), q_0) p (\boldsymbol
 Coles, S. G., &amp; Tawn, J. A. (1996). A <span>B</span>ayesian analysis of extreme rainfall data. <em>Journal of the Royal Statistical Society. Series C (Applied Statistics)</em>, <em>45</em>(4), 463–478. <a href="https://doi.org/10.2307/2986068">https://doi.org/10.2307/2986068</a>
 </div>
 <div id="ref-Gabry:2019" class="csl-entry" role="listitem">
-Gabry, J., Simpson, D., Vehtari, A., Betancourt, M., &amp; Gelman, A. (2019). <span class="nocase">Visualization in <span>B</span>ayesian Workflow</span>. <em>Journal of the Royal Statistical Society Series A: Statistics in Society</em>, <em>182</em>(2), 389–402. <a href="https://doi.org/10.1111/rssa.12378">https://doi.org/10.1111/rssa.12378</a>
+Gabry, J., Simpson, D., Vehtari, A., Betancourt, M., &amp; Gelman, A. (2019). Visualization in <span>B</span>ayesian workflow. <em>Journal of the Royal Statistical Society Series A: Statistics in Society</em>, <em>182</em>(2), 389–402. <a href="https://doi.org/10.1111/rssa.12378">https://doi.org/10.1111/rssa.12378</a>
 </div>
 <div id="ref-Martins.Stedinger:2001" class="csl-entry" role="listitem">
 Martins, E. S., &amp; Stedinger, J. R. (2001). Generalized maximum likelihood <span>P</span>areto-<span>P</span>oisson estimators for partial duration series. <em>Water Resources Research</em>, <em>37</em>(10), 2551–2557. <a href="https://doi.org/10.1029/2001WR000367">https://doi.org/10.1029/2001WR000367</a>
