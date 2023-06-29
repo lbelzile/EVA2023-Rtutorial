@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Tutorial on Statistical Computing on Extremes with R – timeseries</title>
+<title>Tutorial on Statistical Computing on Extremes with R - Time series</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -59,10 +93,12 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
 
-<body class="nav-fixed fullcontent">
+<body class="nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -114,17 +150,523 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content column-page" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Time series</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="getting-ready" class="level1">
+<h1>Getting ready</h1>
+<p>To begin, we load the <strong>R</strong> packages that we will use. Remember: to view the help page for a command in R, just type <code>?command</code> with command replaced by the name of the function.</p>
+<p>Let’s first load the wind speed data from the <code>mev</code> package.</p>
+<div class="cell" data-hash="timeseries_cache/html/unnamed-chunk-2_e113237f00c914cf187a4909efc34061">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(frwind, <span class="at">package =</span> <span class="st">"mev"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#?frwind</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="time-series-extremes" class="level1">
+<h1>Time-series extremes</h1>
+<p>We here consider the wind speed observations from the first station. We show the time series data for the first year of observation:</p>
+<div class="cell" data-hash="timeseries_cache/html/unnamed-chunk-3_b94285b088d94017bd13a459e05c7a7a">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">=</span> frwind<span class="sc">$</span>S1</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(obs[<span class="dv">1</span><span class="sc">:</span><span class="dv">365</span>], </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">type =</span> <span class="st">"h"</span>, </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Day"</span>, </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">"Observation"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<section id="exploratory-analyses" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-analyses">Exploratory analyses</h2>
+<p>Next, we explore the extremogram (also called auto tail dependence function), as implemented in the package <code>extRemes</code>. We set a probability level for the threshold corresponding to correspond to approximately one exceedance per month.</p>
+<div class="cell" data-hash="timeseries_cache/html/unnamed-chunk-4_8e327fd13fb4a12f50d40cf7ca3b4ff2">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>prob <span class="ot">=</span> <span class="dv">1-1</span><span class="sc">/</span><span class="dv">30</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>maxlag <span class="ot">=</span> <span class="dv">7</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">atdf</span>(obs, <span class="at">u =</span> prob, <span class="at">lag.max =</span> maxlag)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Clearly, extremal dependance decays quite fast, and the chi-bar coefficient (here called <code>rhobar</code>) points towards asymptotic independence for all positive time lags. Nevertheless, using the standard methods assuming asymptotic dependence can still be useful but may overestimate the strength of extremal correlation at very high quantile levels.</p>
+<p>We can also perform a <span class="math inline">\(\overline{\chi}\)</span>-based analysis using <code>tsdep.plot</code> in the POT package. If necessary, we can reset graphics device with <code>graphics.off()</code>.</p>
+<div class="cell" data-hash="timeseries_cache/html/unnamed-chunk-5_07d37be23d08c8a82135e95120b59e10">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>u <span class="ot">=</span> <span class="fu">quantile</span>(obs, prob)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tsdep.plot</span>(obs, <span class="at">u =</span> u, <span class="at">lag.max =</span> <span class="dv">7</span>) <span class="co"># POT package</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The confidence bounds are relatively large but they tend to be bounded away from 1 (implying asymptotic independence).</p>
+<p>A similar analysis can be done with the <code>extremogram</code> package. We here estimate the upper-tail extremogram. We first produce an extremogram plot. Confidence bounds can also be obtained.</p>
+<div class="cell" data-hash="timeseries_cache/html/unnamed-chunk-6_5bff7b1e3d18d9796eda95f038672400">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>ext <span class="ot">=</span> <span class="fu">extremogram1</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    obs, </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">quant =</span> prob, </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="dv">1</span>, </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">maxlag =</span> maxlag)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bootconf1</span>(obs, </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">R =</span> <span class="dv">100</span>, </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">l =</span> <span class="dv">30</span>, </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">maxlag =</span> maxlag,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">quant =</span> prob, </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">type =</span> <span class="dv">1</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">par =</span> <span class="dv">1</span>, </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">alpha =</span> <span class="fl">0.05</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span>(maxlag<span class="dv">-1</span>), </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> ext[<span class="sc">-</span><span class="dv">1</span>], </span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="dv">19</span>, </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="st">"blue"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We note that there is still room for improvement of the output of these functions.</p>
+<p>It is also possible to calculate cross-extremogram between two measurement stations, and corresponding confidence bounds.</p>
+<div class="cell" data-hash="timeseries_cache/html/unnamed-chunk-7_ed59f53e8c361fbac547de64c44e630e">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>obs1 <span class="ot">=</span> frwind<span class="sc">$</span>S2</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>obs2 <span class="ot">=</span> frwind<span class="sc">$</span>S3</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>ext_cross <span class="ot">=</span> <span class="fu">extremogram2</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(obs1, obs2), </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">quant1 =</span> prob, </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">quant2 =</span> prob, </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="dv">1</span>, </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">maxlag =</span> maxlag)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bootconf2</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(obs1, obs2), </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">R =</span> <span class="dv">100</span>, </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">l =</span> <span class="dv">30</span>, </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">maxlag =</span> maxlag, </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">quant1 =</span> prob, </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">quant2 =</span> prob, </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="dv">1</span>, </span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">par =</span> <span class="dv">1</span>, </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha =</span> <span class="fl">0.05</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span>(maxlag<span class="dv">-1</span>),</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> ext_cross[<span class="sc">-</span><span class="dv">1</span>], </span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="dv">19</span>, </span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="st">"blue"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-7-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We find that the extremal dependence across the two series is very weak here.</p>
+</section>
+<section id="estimation-of-the-extremal-index" class="level2">
+<h2 class="anchored" data-anchor-id="estimation-of-the-extremal-index">Estimation of the extremal index</h2>
+<p>A large number of estimation approaches are available in the <code>exdex</code> package (type <code>?exdex</code>” for the help package); see also the <a href="https://cran.r-project.org/web/packages/exdex/vignettes/exdex-vignette.html">package vignette</a>for more detailed information.</p>
+<p>We first explore estimation based on maxima for sliding blocks. Here, we use block sizes of approximately one month. We further obtain and visualize symmetric confidence intervals.</p>
+<div class="cell" data-hash="timeseries_cache/html/unnamed-chunk-8_c31ac1541960d0f5ac2360e58d1a25e7">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>theta <span class="ot">=</span> <span class="fu">spm</span>(obs, <span class="dv">30</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(theta)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+spm(data = obs, b = 30)
+
+                  Estimate Std. Error Bias adj.
+N2015, sliding      0.6755    0.02495  0.002101
+BB2018, sliding     0.7158    0.02356  0.002026
+BB2018b, sliding    0.6825    0.02356  0.035360
+N2015, disjoint     0.6830    0.02857  0.002387
+BB2018, disjoint    0.7233    0.02779  0.002331
+BB2018b, disjoint   0.6900    0.02779  0.035660</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>conf <span class="ot">=</span> <span class="fu">confint</span>(theta)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>conf <span class="ot">=</span> <span class="fu">confint</span>(theta, <span class="at">interval_type =</span> <span class="st">"lik"</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(conf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The estimation of the extremal index can be sensitive to the block size. We check this for longer and shorter blocks.</p>
+<div class="cell" data-hash="timeseries_cache/html/unnamed-chunk-9_d1d93a04d1eca38b59ef9c74f1f780eb">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>theta2 <span class="ot">=</span> <span class="fu">spm</span>(obs, <span class="dv">14</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>theta3 <span class="ot">=</span> <span class="fu">spm</span>(obs, <span class="dv">60</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cbind</span>(theta2<span class="sc">$</span>theta_sl, </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>      theta<span class="sc">$</span>theta_sl, </span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>      theta3<span class="sc">$</span>theta_sl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             [,1]      [,2]      [,3]
+N2015   0.6335512 0.6754860 0.6845424
+BB2018  0.7187804 0.7158157 0.7038313
+BB2018b 0.6473518 0.6824824 0.6871646</code></pre>
+</div>
+</div>
+<p>There is some moderate variability in the estimates.</p>
+<p>Moreover, there is a tool to help choosing an optimal block size. The execution of the following command can take more than one minute. Here, we explore block sizes between one and ten weeks. Note that certain small b-values may be too small for the sampling variance of the sliding blocks estimator to be estimated.</p>
+<div class="cell" data-hash="timeseries_cache/html/unnamed-chunk-10_42dac0ae10ef187c4ad8f0eeb6f846c4">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>b_vals <span class="ot">=</span> <span class="dv">7</span><span class="sc">*</span><span class="dv">1</span><span class="sc">:</span><span class="dv">10</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>res <span class="ot">=</span> <span class="fu">choose_b</span>(obs, b_vals)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(res, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Here, even for a relatively small block size (<span class="math inline">\(b=7\)</span>), the estimate is not significantly different from results for larger blocks, and it makes sense to use the estimate obtained for <span class="math inline">\(b=7\)</span>.</p>
+<p>Another possibility is to estimate the extremal index based on threshold exceedances. We set a probability level for the threshold corresponding to correspond to approximately one exceedance per month. We here explore two possible estimator, the <span class="math inline">\(K\)</span>-gaps and $D$-gaps estimators.</p>
+<div class="cell" data-hash="timeseries_cache/html/unnamed-chunk-11_fb7213d12b4b36c8bff3a8ebf3befd76">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>prob <span class="ot">=</span> <span class="dv">1-1</span><span class="sc">/</span><span class="dv">30</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>u <span class="ot">=</span> <span class="fu">quantile</span>(obs, prob)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>theta <span class="ot">=</span> <span class="fu">kgaps</span>(obs, u, <span class="at">k =</span> <span class="dv">1</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(theta)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+kgaps(data = obs, u = u, k = 1)
+
+      Estimate Std. Error
+theta   0.7973    0.01532</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>theta <span class="ot">=</span> <span class="fu">dgaps</span>(obs, u, <span class="at">D =</span> <span class="dv">3</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(theta)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+dgaps(data = obs, u = u, D = 3)
+
+      Estimate Std. Error
+theta   0.7936    0.01902</code></pre>
+</div>
+</div>
+<p>Again, for the sake of choosing optimal tuning parameters, we have visual tool for the <span class="math inline">\(K\)</span>-gaps estimator to explore different thresholds and <span class="math inline">\(K\)</span>-values.</p>
+<div class="cell" data-hash="timeseries_cache/html/unnamed-chunk-12_c0f00180f3958c19f30e9bc19dbf31ee">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">=</span> <span class="fu">choose_uk</span>(obs, <span class="at">u =</span> <span class="fu">quantile</span>(obs, <span class="dv">1-1</span><span class="sc">/</span><span class="fu">c</span>(<span class="dv">7</span>, <span class="dv">14</span>, <span class="dv">30</span>, <span class="dv">60</span>, <span class="dv">90</span>, <span class="dv">180</span>)), <span class="at">k =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>) </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(res, <span class="at">y =</span> <span class="st">"theta"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The estimates look more stable only at relatively high thresholds. In practice, this lack of asymptotic stability makes threshold choice difficult. However, sometimes, there may be a specific application-relevant threshold that provides a natural choice. For example, the monthly return level with <span class="math inline">\(K=3\)</span> leads to estimates similar to the blocks estimates.</p>
+<p>Another implementation of an extremal-index estimator comes from the <code>extRemes</code> package.</p>
+<div class="cell" data-hash="timeseries_cache/html/unnamed-chunk-13_c085caf7fbea0aaf6d022d5e1c1d7f38">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">extremalindex</span>(obs, u, <span class="at">method =</span> <span class="st">"runs"</span>, <span class="at">run.length =</span> <span class="dv">2</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ Runs Estimator for the Extremal Index
+    extremal.index number.of.clusters         run.length 
+         0.7628319        431.0000000          2.0000000 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">extremalindex</span>(obs, u, <span class="at">method =</span> <span class="st">"intervals"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ Intervals Method Estimator for the Extremal Index
+NULL
+
+ theta.tilde used because there exist inter-exceedance times &gt; 2.
+    extremal.index number.of.clusters         run.length 
+         0.6547669        358.0000000          7.0000000 </code></pre>
+</div>
+</div>
+<p>In general, it is recommended to check sensitivity of estimates to different methods/thresholds.</p>
+</section>
+<section id="peaks-over-threshold-with-declustering" class="level2">
+<h2 class="anchored" data-anchor-id="peaks-over-threshold-with-declustering">Peaks-over-threshold with declustering</h2>
+<p>Here, we exemplify the approach using the implementation in the <code>extRemes</code> package. We also provide a comparison to estimation without any prior declustering.</p>
+<div class="cell" data-hash="timeseries_cache/html/unnamed-chunk-14_b07038ccb0fc6e1ca0b0979dd2d17aa5">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>obs_decluster <span class="ot">=</span> <span class="fu">decluster</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> obs, </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">threshold =</span> u, </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">"runs"</span>, </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">run.length =</span> <span class="dv">2</span>)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">=</span> <span class="fu">fevd</span>(</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> obs_decluster, </span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">threshold =</span> u, </span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"GP"</span>, </span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">time.units =</span> <span class="st">"365/year"</span>)</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+fevd(x = obs_decluster, threshold = u, type = "GP", time.units = "365/year")
+
+[1] "Estimation Method used: MLE"
 
 
+ Negative Log-Likelihood Value:  1313.137 
+
+
+ Estimated parameters:
+     scale      shape 
+ 7.7617037 -0.1180915 
+
+ Standard Error Estimates:
+    scale     shape 
+0.4581816 0.0358274 
+
+ Estimated parameter covariance matrix.
+            scale        shape
+scale  0.20993036 -0.011767376
+shape -0.01176738  0.001283602
+
+ AIC = 2630.274 
+
+ BIC = 2638.484 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>fit2 <span class="ot">=</span> <span class="fu">fevd</span>(<span class="at">x =</span> obs, </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">threshold =</span> u, </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">type =</span> <span class="st">"GP"</span>, </span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">time.units =</span> <span class="st">"365/year"</span>)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(fit2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+fevd(x = obs, threshold = u, type = "GP", time.units = "365/year")
+
+[1] "Estimation Method used: MLE"
+
+
+ Negative Log-Likelihood Value:  1624.892 
+
+
+ Estimated parameters:
+     scale      shape 
+ 7.2300607 -0.1023352 
+
+ Standard Error Estimates:
+     scale      shape 
+0.38740656 0.03346132 
+
+ Estimated parameter covariance matrix.
+             scale        shape
+scale  0.150083839 -0.009270985
+shape -0.009270985  0.001119660
+
+ AIC = 3253.784 
+
+ BIC = 3262.457 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-14-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>As suggested by theory, the estimated values are relatively close. The standard error estimates without declustering are lower but may be biased towards too low values.</p>
+</section>
+<section id="likelihood-estimation-of-the-extremal-index-and-the-gpd-without-declustering" class="level2">
+<h2 class="anchored" data-anchor-id="likelihood-estimation-of-the-extremal-index-and-the-gpd-without-declustering">Likelihood estimation of the extremal index and the GPD without declustering</h2>
+<p>The lite package uses all exceedances for likelihood-based estimation with an adjustment to avoid biased uncertainty estimates. This avoids wasting information when we keep only cluster maxima. The <span class="math inline">\(K\)</span>-gaps estimator is used for the extremal index. Remember that there is the function <code>choose_uk(…)</code>from above to help with the choice of <span class="math inline">\(K\)</span> and the threshold. Finally, we can produce unbiased confidence intervals for parameters.</p>
+<div class="cell" data-hash="timeseries_cache/html/unnamed-chunk-15_5952cf48b752e28ae186ccfa6a91decd">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">=</span> <span class="fu">flite</span>(obs, <span class="at">u =</span> u, <span class="at">k =</span> <span class="dv">3</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+flite(data = obs, u = u, k = 3)
+
+         Estimate Std. Error
+p[u]      0.03283   0.001358
+sigma[u]  7.23000   0.377000
+xi       -0.10230   0.036500
+theta     0.74510   0.016190</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Waiting for profiling to be done...
+Waiting for profiling to be done...
+Waiting for profiling to be done...</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              2.5%       97.5%
+pu      0.03024674  0.03556012
+sigmau  6.50184018  7.98516959
+xi     -0.15912634 -0.01711611
+theta   0.71278235  0.77615902</code></pre>
+</div>
+</div>
+</section>
+<section id="joint-modeling-of-margins-and-dependence-of-time-series-extremes" class="level2">
+<h2 class="anchored" data-anchor-id="joint-modeling-of-margins-and-dependence-of-time-series-extremes">Joint modeling of margins and dependence of time-series extremes</h2>
+<p>We show how a first-order Markov chain model can be fitted using a censored likelihood thanks to the <code>POT</code> package. Here, we use the bivariate logistic distribution to define the Markov chain transitions densities. Some graphical output is available to diagnostic the fitted model. We first illustrate the estimation for simulated data where the true parameters are known.</p>
+<div class="cell" data-hash="timeseries_cache/html/unnamed-chunk-16_d5a702fcbe837005f8d08625df534e0b">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2</span>)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>obs_simulated <span class="ot">=</span> <span class="fu">simmc</span>(</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">n =</span> <span class="dv">5000</span>, </span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha =</span> .<span class="dv">5</span>, </span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> <span class="st">"log"</span>, </span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">margin =</span> <span class="st">"gumbel"</span>)</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>fit_mc_simulated <span class="ot">=</span> <span class="fu">fitmcgpd</span>(</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  obs_simulated, </span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">threshold =</span> <span class="fu">quantile</span>(obs_simulated, <span class="fl">0.95</span>),</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> <span class="st">"log"</span>)</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>fit_mc_simulated</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call: fitmcgpd(data = obs_simulated, threshold = quantile(obs_simulated,      0.95), model = "log") 
+Estimator: MLE 
+Dependence Model and Strenght:
+    Model : Logistic 
+    lim_u Pr[ X_1 &gt; u | X_2 &gt; u] = 0.565 
+Deviance: 1646.856 
+     AIC: 1652.856 
+
+Threshold Call: 
+Number Above: 250 
+Proportion Above: 0.05 
+
+Estimates
+  scale    shape    alpha  
+0.90763  0.02984  0.52114  
+
+Standard Errors
+  scale    shape    alpha  
+0.10411  0.06264  0.03056  
+
+Asymptotic Variance Covariance
+       scale       shape       alpha     
+scale   0.0108383  -0.0036266  -0.0019415
+shape  -0.0036266   0.0039242  -0.0001326
+alpha  -0.0019415  -0.0001326   0.0009339
+
+Optimization Information
+  Convergence: successful 
+  Function Evaluations: 26 
+  Gradient Evaluations: 8 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_mc_simulated)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-16-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in retlev.mcpot(x, opy = opy, exi = exi, main = mains[4], ...):
+Argument ``opy'' is missing. Setting it to 365.25.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-16-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-16-4.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Estimates are quite close to simulated parameters (scale = 1, shape = 0, alpha = 0.5)</p>
+<p>Next, we apply the method to our wind speed data. We also compare its estimation of marginal parameters to a marginal fit that does not take into account the dependence.</p>
+<div class="cell" data-hash="timeseries_cache/html/unnamed-chunk-17_d62ed34dc09ce9769f80338db7445c05">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>fit_mc <span class="ot">=</span> <span class="fu">fitmcgpd</span>(obs, u, <span class="at">model =</span> <span class="st">"log"</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>fit_mc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call: fitmcgpd(data = obs, threshold = u, model = "log") 
+Estimator: MLE 
+Dependence Model and Strenght:
+    Model : Logistic 
+    lim_u Pr[ X_1 &gt; u | X_2 &gt; u] = 0.18 
+Deviance: 7927.214 
+     AIC: 7933.214 
+
+Threshold Call: 
+Number Above: 565 
+Proportion Above: 0.0328 
+
+Estimates
+   scale     shape     alpha  
+ 7.31821  -0.07324   0.86402  
+
+Standard Errors
+  scale    shape    alpha  
+0.43003  0.03833  0.01356  
+
+Asymptotic Variance Covariance
+       scale       shape       alpha     
+scale   1.849e-01  -1.122e-02  -2.001e-03
+shape  -1.122e-02   1.469e-03  -4.220e-06
+alpha  -2.001e-03  -4.220e-06   1.838e-04
+
+Optimization Information
+  Convergence: successful 
+  Function Evaluations: 47 
+  Gradient Evaluations: 12 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_mc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-17-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in retlev.mcpot(x, opy = opy, exi = exi, main = mains[4], ...):
+Argument ``opy'' is missing. Setting it to 365.25.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-17-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="timeseries_files/figure-html/unnamed-chunk-17-4.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>fit_gpd <span class="ot">=</span> <span class="fu">fitgpd</span>(obs, u, <span class="at">est =</span> <span class="st">"mle"</span>)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>fit_gpd </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Estimator: MLE 
+ Deviance: 3249.784 
+      AIC: 3253.784 
+
+Varying Threshold: FALSE 
+
+  Threshold Call: c("96.66667%" = 51.84) 
+    Number Above: 565 
+Proportion Above: 0.0328 
+
+Estimates
+  scale    shape  
+ 7.2300  -0.1023  
+
+Standard Error Type: observed 
+
+Standard Errors
+  scale    shape  
+0.38740  0.03346  
+
+Asymptotic Variance Covariance
+       scale      shape    
+scale   0.150081  -0.009271
+shape  -0.009271   0.001120
+
+Optimization Information
+  Convergence: successful 
+  Function Evaluations: 29 
+  Gradient Evaluations: 9 </code></pre>
+</div>
+</div>
+<p>Good news: The marginal parameters estimates are very similar.</p>
+</section>
+<section id="exercice" class="level2">
+<h2 class="anchored" data-anchor-id="exercice">Exercice</h2>
+<p>Perform a similar analysis for one or several of the other stations (wind speeds) or for temperature data, and interpret results and compare them across stations.</p>
+
+
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

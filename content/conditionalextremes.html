@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.361">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Tutorial on Statistical Computing on Extremes with R - Conditional extremes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Tutorial on Statistical Computing on Extremes with R</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-notes" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Notes</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-notes">    
+        <li>
+    <a class="dropdown-item" href="../content/likelihood.html" rel="" target="">
+ <span class="dropdown-text">1: Likelihood-based inference</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../content/bayesian.html" rel="" target="">
+ <span class="dropdown-text">2: Bayesian modelling</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../content/semiparametric.html" rel="" target="">
+ <span class="dropdown-text">3: Semiparametric modelling</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../content/regression.html" rel="" target="">
+ <span class="dropdown-text">4: Nonstationary regression models</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://lbelzile.github.io/texmexIntro/" rel="" target="">
+ <span class="dropdown-text">5: Conditional extremes</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content column-page" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Conditional extremes</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="exploratory-analyses" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-analyses">Exploratory analyses</h2>
+<p>We begin by loading data and packages.</p>
+<div class="cell" data-hash="conditionalextremes_cache/html/unnamed-chunk-1_72e8c58be701441b733b69e8753eaf84">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(texmex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: mvtnorm</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: ggplot2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gridExtra)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GGally) <span class="co">#for exploratory plots</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Registered S3 method overwritten by 'GGally':
+  method from   
+  +.gg   ggplot2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(frwind, <span class="at">package =</span> <span class="st">"mev"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#?frwind</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We will work with the standard implementation in the <code>texmex</code> package, which also comes with nice ggplot-graphics. Package information with vignettes for various modeling contexts can be found <a href="https://cran.r-project.org/web/packages/texmex/index.html">here</a>.</p>
+<p>First, for exploration of data, we show bivariate scatter plots and linear correlation coefficients for the wind speed data.</p>
+<div class="cell" data-hash="conditionalextremes_cache/html/unnamed-chunk-2_0d6e7164e121327e4ccd2960c6f16d8d">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(frwind, <span class="at">columns =</span> <span class="dv">2</span><span class="sc">:</span><span class="fu">ncol</span>(frwind))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="conditionalextremes_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Let us check chi and chi-bar coefficients to see if there is asymptotic dependence. We give an example for stations <span class="math inline">\(S_2\)</span> and <span class="math inline">\(S_3\)</span>.</p>
+<div class="cell" data-hash="conditionalextremes_cache/html/unnamed-chunk-3_48eafd12c0edfc11ebbd14bde6e32292">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>chi23 <span class="ot">=</span> <span class="fu">chi</span>(frwind[, <span class="fu">c</span>(<span class="st">"S2"</span>, <span class="st">"S3"</span>)]) </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(chi23, </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">main =</span> <span class="fu">c</span>(<span class="st">"Chi"</span><span class="ot">=</span><span class="st">"Chi: S2 and S3"</span>, </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>              <span class="st">"ChiBar"</span><span class="ot">=</span><span class="st">"Chi-bar: S2 and S3"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="conditionalextremes_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The behavior of both curves suggest that there is asymptotic independence. We can also plot multivariate conditional Spearman’s correlation coefficients across a sliding window of values of the variables. Executing the following requires more time.</p>
+<div class="cell" data-hash="conditionalextremes_cache/html/unnamed-chunk-4_741945c01239997a23a2f77a17b37485">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>bootmcs23 <span class="ot">=</span> <span class="fu">bootMCS</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> frwind[, <span class="fu">c</span>(<span class="st">"S2"</span>, <span class="st">"S3"</span>)], </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">p =</span> <span class="fu">seq</span>(<span class="fl">0.5</span>, <span class="fl">0.99</span>, <span class="at">by =</span> <span class="fl">0.01</span>), </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">R =</span> <span class="dv">25</span>, <span class="co"># nb of bootstrap replicates</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">trace =</span> <span class="dv">1000</span>) </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bootmcs23, <span class="at">main =</span> <span class="st">"MCS: S2 and S3"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="conditionalextremes_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The behavior looks quite stable across different threshold levels.</p>
+</section>
+<section id="modeling-conditional-extremes" class="level2">
+<h2 class="anchored" data-anchor-id="modeling-conditional-extremes">Modeling conditional extremes</h2>
+<p>Now, we fit the multivariate conditional extremes model using mex. We here condition on the component <span class="math inline">\(j=2\)</span>. The <code>mex</code> function handles both marginal and dependence fits. We keep only those columns of <code>frwind</code> corresponding to wind speeds. Here, we use the same quantile (at level <code>mqu</code>) for marginal fits and dependence fits.</p>
+<div class="cell" data-hash="conditionalextremes_cache/html/unnamed-chunk-5_388491b853792948b131ef311f3a0972">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>mex2 <span class="ot">=</span> <span class="fu">mex</span>(frwind[, <span class="fu">paste0</span>(<span class="st">"S"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>)], </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">mqu =</span> .<span class="dv">95</span>, <span class="co"># marginal quantile of cond.</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">penalty =</span> <span class="st">"none"</span>, <span class="co"># penalized marginal estimation?</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">which =</span> <span class="st">"S2"</span>) <span class="co"># conditioning variable</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Assuming same quantile for dependence thesholding as was used
+     to fit corresponding marginal model...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>mex2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>mex(data = frwind[, paste0("S", 1:4)], which = "S2", mqu = 0.95, 
+    penalty = "none")
+
+
+Marginal models:
+
+Dependence model:
+
+Conditioning on S2 variable.
+Thresholding quantiles for transformed data: dqu = 0.9502586
+Using laplace margins for dependence estimation.
+Constrained estimation of dependence parameters using v = 10 .
+Log-likelihood = -1411.812 -1533.625 -1802.116 
+
+Dependence structure parameter estimates:
+      S1     S3     S4
+a 0.1087 0.2592 0.4354
+b 0.2524 0.3842 0.4189</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mex2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Marginal models:
+                      S1     S2     S3     S4
+Threshold         48.600 23.760 39.600 29.160
+P(X &lt; threshold)   0.951  0.950  0.952  0.952
+sigma              7.987  5.366  8.351  4.523
+xi                -0.127 -0.126 -0.195 -0.129
+Upper end point  111.560 66.353 82.337 64.168
+
+Dependence model:
+
+      S1      S3     S4
+a  0.109 0.25921  0.435
+b  0.252 0.38417  0.419
+c  0.000 0.00000  0.000
+d  0.000 0.00000  0.000
+m -0.206 0.00981 -0.357
+s  0.940 0.92974  1.222</code></pre>
+</div>
+</div>
+<p>Here are some diagnostic plots of the fitted model.</p>
+<div class="cell" data-hash="conditionalextremes_cache/html/unnamed-chunk-6_ef198f2d9b4a8c79e8723db883f826d9">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mex2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+`geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+`geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+`geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+`geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+`geom_smooth()` using method = 'loess' and formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="conditionalextremes_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>As assumed by the model, we do not see any notable dependence of residuals ($\mathbf{Z}$) on the level of the conditioning variable.</p>
+<p>Note: to estimate only marginal parameters, we can use <code>migpd</code>; to estimate only the dependence with prespecified marginal estimates, we can use `mexDependence`. Here is an example of explicit two-step estimation.</p>
+<div class="cell" data-hash="conditionalextremes_cache/html/unnamed-chunk-7_709a0019cfb78ebe913e822133d913b8">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>marg <span class="ot">=</span> <span class="fu">migpd</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> frwind[,<span class="fu">paste0</span>(<span class="st">"S"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>)], </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mqu =</span> <span class="fl">0.95</span>, </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">penalty =</span> <span class="st">"none"</span>) </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>mex2_twostep <span class="ot">=</span> <span class="fu">mexDependence</span>(marg, <span class="at">which =</span> <span class="st">"S2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Assuming same quantile for dependence thesholding as was used
+     to fit corresponding marginal model...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>mex2_twostep</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>mexDependence(x = marg, which = "S2")
+
+
+Marginal models:
+
+Dependence model:
+
+Conditioning on S2 variable.
+Thresholding quantiles for transformed data: dqu = 0.95
+Using laplace margins for dependence estimation.
+Constrained estimation of dependence parameters using v = 10 .
+Log-likelihood = -1411.812 -1533.625 -1802.116 
+
+Dependence structure parameter estimates:
+      S1     S3     S4
+a 0.1087 0.2592 0.4354
+b 0.2524 0.3842 0.4189</code></pre>
+</div>
+</div>
+<p>In the end, the result of <code>mex2_twostep</code> is exactly the same as that of <code>mex2</code>.</p>
+<p>Various diagnostics can be used to explore or validate tuning parameters such as the threshold. For example: do we have an appropriate marginal threshold? We can check this using parameter stability plots and mean-excess plots.</p>
+<div class="cell" data-hash="conditionalextremes_cache/html/unnamed-chunk-8_20f8a5f3e4b8bed6018d9808ec76c4f8">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gpdRangeFit</span>(frwind<span class="sc">$</span>S2, </span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">umin =</span> <span class="fu">quantile</span>(frwind<span class="sc">$</span>S2, .<span class="dv">90</span>), </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">umax =</span> <span class="fu">quantile</span>(frwind<span class="sc">$</span>S2, .<span class="dv">995</span>), </span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">nint =</span> <span class="dv">21</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="conditionalextremes_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+[[2]]</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="conditionalextremes_files/figure-html/unnamed-chunk-8-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">mrl</span>(frwind<span class="sc">$</span>S2, </span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">umin =</span> <span class="fu">quantile</span>(frwind<span class="sc">$</span>S2, .<span class="dv">90</span>), </span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">umax =</span> <span class="fu">quantile</span>(frwind<span class="sc">$</span>S2, .<span class="dv">995</span>), </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">nint =</span> <span class="dv">21</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="conditionalextremes_files/figure-html/unnamed-chunk-8-3.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The tail index estimates looks relatively stable across different thresholds, and the mean excess plots show a relatively nice linear slope, which correspond to the tail index.</p>
+<p>Moreover, we can explore if the estimated dependence model is sensible to the choice of the threshold. Note that running this analysis can be very time-consuming. Here, to avoid very long computations, we use a very small number of quantiles and a very low number <code>R</code> of bootstrap replicates, but for a serious application you should of course use larger numbers.</p>
+<div class="cell" data-hash="conditionalextremes_cache/html/unnamed-chunk-9_45941dda3ce8ab00fa4935f35fa1ed35">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>mrf <span class="ot">=</span> <span class="fu">mexRangeFit</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> marg, </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">which =</span> <span class="st">"S2"</span>, </span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">quantiles =</span> <span class="fu">c</span>(<span class="fl">0.95</span>, <span class="fl">0.96</span>, <span class="fl">0.97</span>), </span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">R =</span> <span class="dv">3</span>) </span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mrf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="conditionalextremes_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>For the chosen quantiles, and given the uncertainty in the bootstrap estimates, we do not see any strong dependence of parameters on the threshold level.</p>
+</section>
+<section id="simulation-and-prediction" class="level2">
+<h2 class="anchored" data-anchor-id="simulation-and-prediction">Simulation and prediction</h2>
+<p>We can simulate from the fitted model but for a higher conditioning threshold than the one used during estimation.</p>
+<div class="cell" data-hash="conditionalextremes_cache/html/unnamed-chunk-10_ad07abc8eab7b181e3683f8eecb40678">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>nsim <span class="ot">=</span> <span class="dv">100</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>pred2 <span class="ot">=</span> <span class="fu">predict</span>(mex2, <span class="at">pqu=</span>.<span class="dv">99</span>, <span class="at">nsim =</span> nsim)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(pred2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>predict.mex(object = mex2, pqu = 0.99, nsim = nsim)
+
+Conditioned on S2 being above its 99th percentile.
+
+
+Conditional Mean and Quantiles:
+
+     S2|S2&gt;Q99 S1|S2&gt;Q99 S3|S2&gt;Q99 S4|S2&gt;Q99
+mean      35.4      27.1     30.50     23.00
+5%        31.9      10.4      8.64      5.72
+50%       34.4      23.6     27.20     22.70
+95%       40.6      56.6     61.60     39.00
+
+Conditional probability of threshold exceedance:
+
+ P(S2&gt;23.76|S2&gt;Q99) P(S1&gt;48.6|S2&gt;Q99) P(S3&gt;39.6|S2&gt;Q99) P(S4&gt;29.16|S2&gt;Q99)
+                  1              0.08              0.29               0.39</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(pred2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="conditionalextremes_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>There are also commands to estimate all four conditional extremes models (for <span class="math inline">\(j=1, \ldots, 4\)</span> here), and to conduct simulation from the estimated models.</p>
+<div class="cell" data-hash="conditionalextremes_cache/html/unnamed-chunk-11_c79a29ae09ebaa96fd6ea715e4ea6f30">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>mAll <span class="ot">=</span> <span class="fu">mexAll</span>(frwind[,<span class="fu">paste0</span>(<span class="st">"S"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>)], <span class="at">mqu=</span><span class="fl">0.95</span>, <span class="at">dqu=</span><span class="fu">rep</span>(<span class="fl">0.95</span>,<span class="dv">4</span>))</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>mAll</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>mex(data = data, which = i, mqu = mqu, dqu = dqu[i])
+
+
+Marginal models:
+
+Dependence model:
+
+Conditioning on S1 variable.
+Thresholding quantiles for transformed data: dqu = 0.95
+Using laplace margins for dependence estimation.
+Constrained estimation of dependence parameters using v = 10 .
+Log-likelihood = -1351.649 -1417.491 -1e+40 
+
+Dependence structure parameter estimates:
+      S2      S3   S4
+a 0.1181  0.3110 0.01
+b 0.3425 -0.2607 0.01
+
+______
+Conditioning on S2 variable.
+Thresholding quantiles for transformed data: dqu = 0.95
+Using laplace margins for dependence estimation.
+Constrained estimation of dependence parameters using v = 10 .
+Log-likelihood = -1411.555 -1533.564 -1802.01 
+
+Dependence structure parameter estimates:
+      S1     S3     S4
+a 0.1081 0.2596 0.4364
+b 0.2519 0.3852 0.4198
+
+______
+Conditioning on S3 variable.
+Thresholding quantiles for transformed data: dqu = 0.95
+Using laplace margins for dependence estimation.
+Constrained estimation of dependence parameters using v = 10 .
+Log-likelihood = -1512.871 -1e+40 -1346.54 
+
+Dependence structure parameter estimates:
+       S1   S2     S4
+a 0.20410 0.01 0.4660
+b 0.04996 0.01 0.0997
+
+______
+Conditioning on S4 variable.
+Thresholding quantiles for transformed data: dqu = 0.95
+Using laplace margins for dependence estimation.
+Constrained estimation of dependence parameters using v = 10 .
+Log-likelihood = -1540.897 -1e+40 -1654.156 
+
+Dependence structure parameter estimates:
+       S1   S2     S3
+a 0.03745 0.01 0.3048
+b 0.23540 0.01 0.2503</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>pred_sim <span class="ot">=</span>  <span class="fu">mexMonteCarlo</span>(nsim, mAll)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(pred_sim<span class="sc">$</span>MCsample)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="conditionalextremes_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We can use the conditional extremes models to provide model-based joint exceedance curves (for a given probability) at very high levels. Let’s first plot empirical joint exceedance curves at relatively high observed levels. We here consider the two variables at <span class="math inline">\(S_2\)</span> and <span class="math inline">\(S_3\)</span>.</p>
+<div class="cell" data-hash="conditionalextremes_cache/html/unnamed-chunk-12_a2350ef6c07d349e0509af9d6c307663">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>wind23 <span class="ot">=</span> frwind[, <span class="fu">c</span>(<span class="st">"S2"</span>, <span class="st">"S3"</span>)]</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>j1 <span class="ot">=</span> <span class="fu">JointExceedanceCurve</span>(wind23, <span class="fl">0.1</span>) </span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>j2 <span class="ot">=</span> <span class="fu">JointExceedanceCurve</span>(wind23, <span class="fl">0.05</span>) </span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>j3 <span class="ot">=</span> <span class="fu">JointExceedanceCurve</span>(wind23, <span class="fl">0.025</span>) </span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(wind23, <span class="fu">aes</span>(S2,S3)) <span class="sc">+</span> </span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>(<span class="at">colour=</span><span class="st">"dark blue"</span>,<span class="at">alpha=</span><span class="fl">0.5</span>) <span class="sc">+</span> </span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_jointExcCurve</span>(j1,<span class="at">colour=</span><span class="st">"orange"</span>) <span class="sc">+</span> </span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_jointExcCurve</span>(j2,<span class="at">colour=</span><span class="st">"orange"</span>) <span class="sc">+</span> </span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_jointExcCurve</span>(j3,<span class="at">colour=</span><span class="st">"orange"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="conditionalextremes_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Finally, we estimate joint exceedance curves at much higher levels by combining Monte-Carlo simulations of the different conditional-extremes models. We here use a relatively small number of simulations (100) for reasons of computation time, but results can be made more precise by using a larger number of simulations. Joint exceedance curves are implemented for two variables.</p>
+<div class="cell" data-hash="conditionalextremes_cache/html/unnamed-chunk-13_1637d001d167f47d0c838cd69e1e25c1">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>pred_sim <span class="ot">=</span>  <span class="fu">mexMonteCarlo</span>(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">nSample =</span> <span class="dv">500</span>, </span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">mexList =</span> mAll)</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>j1 <span class="ot">=</span> <span class="fu">JointExceedanceCurve</span>(</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sample =</span> pred_sim, </span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">ExceedanceProb =</span> <span class="fl">0.05</span>, </span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">which =</span> <span class="fu">c</span>(<span class="st">"S2"</span>,<span class="st">"S3"</span>))</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>j2 <span class="ot">=</span> <span class="fu">JointExceedanceCurve</span>(</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  pred_sim, </span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.025</span>, </span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">which =</span> <span class="fu">c</span>(<span class="st">"S2"</span>,<span class="st">"S3"</span>))</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>j3 <span class="ot">=</span> <span class="fu">JointExceedanceCurve</span>(</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>  pred_sim, </span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.01</span>, </span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">which =</span> <span class="fu">c</span>(<span class="st">"S2"</span>,<span class="st">"S3"</span>)) </span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> <span class="fu">as.data.frame</span>(</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>    pred_sim<span class="sc">$</span>MCsample[,<span class="fu">c</span>(<span class="st">"S2"</span>,<span class="st">"S3"</span>)]), </span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(S2, S3)) <span class="sc">+</span></span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>(<span class="at">col=</span><span class="st">"light blue"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> </span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_jointExcCurve</span>(j1, <span class="fu">aes</span>(S2,S3), <span class="at">col=</span><span class="st">"orange"</span>) <span class="sc">+</span> </span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_jointExcCurve</span>(j2, <span class="fu">aes</span>(S2,S3), <span class="at">col=</span><span class="st">"orange"</span>) <span class="sc">+</span> </span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_jointExcCurve</span>(j3, <span class="fu">aes</span>(S2,S3), <span class="at">col=</span><span class="st">"orange"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="conditionalextremes_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>To extrapolate joint exceedance curves towards very high levels using simulation at higher conditioning thresholds in <span class="math inline">\(S_2\)</span>, we can use the predict function. Simulated values in blue correspond to those where the conditioning component is largest, otherwise the color is orange. The orange line indicates where we have the same marginal quantile levels in the two variables.</p>
+<div class="cell" data-hash="conditionalextremes_cache/html/unnamed-chunk-14_f9967652c2217e8d13660190f1e4aa78">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>pred2 <span class="ot">=</span> <span class="fu">predict</span>(mex2, <span class="at">nsim =</span> <span class="dv">5000</span>, <span class="at">pqu =</span> <span class="fl">0.995</span>)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>gg <span class="ot">=</span> <span class="fu">ggplot</span>(pred2, <span class="at">plot. =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>j1 <span class="ot">=</span> <span class="fu">JointExceedanceCurve</span>(</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sample =</span> pred2, </span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">ExceedanceProb =</span> <span class="fl">0.002</span>, </span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">which =</span> <span class="fu">c</span>(<span class="st">"S2"</span>,<span class="st">"S3"</span>))</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>j2 <span class="ot">=</span> <span class="fu">JointExceedanceCurve</span>(</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  pred2, </span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.001</span>, </span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">which =</span> <span class="fu">c</span>(<span class="st">"S2"</span>,<span class="st">"S3"</span>))</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>j3 <span class="ot">=</span> <span class="fu">JointExceedanceCurve</span>(</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>  pred2, </span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.0005</span>, </span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">which =</span> <span class="fu">c</span>(<span class="st">"S2"</span>,<span class="st">"S3"</span>))</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>gg[[<span class="dv">1</span>]] <span class="sc">+</span> </span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jointExcCurve</span>(j1, <span class="fu">aes</span>(S2, S3), <span class="at">col =</span> <span class="st">"purple"</span>) <span class="sc">+</span> </span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jointExcCurve</span>(j2, <span class="fu">aes</span>(S2, S3), <span class="at">col =</span> <span class="st">"purple"</span>) <span class="sc">+</span> </span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jointExcCurve</span>(j3, <span class="fu">aes</span>(S2, S3), <span class="at">col =</span> <span class="st">"purple"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="conditionalextremes_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left"><a href="https://dec.unibocconi.eu/research/extreme-value-analysis-eva-2023">EVA 2023</a></div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">Website built with <a href="https://quarto.org/">Quarto</a></div>
+  </div>
+</footer>
+
+
+
+</body></html>
