@@ -94,6 +94,7 @@ f(\mathrm{X}_j) = \sum_{k=1}^K \beta_k b_k(\mathrm{X}_j)
 where $b_k$ are (compactly-supported) basis functions.
 
 Scale input first! More numerically stable.
+
 ## Parsimony is key
 
 - There are few exceedances or extremes...

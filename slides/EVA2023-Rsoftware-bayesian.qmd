@@ -356,6 +356,7 @@ While some MCMC algorithms are more costly, they yield samples that are less aut
 ```{r}
 coda::acfplot(chains)
 ```
+
 ## Summaries
 
 We can get directly summaries (e.g., posterior sample mean)
@@ -384,7 +385,7 @@ L(q, \widehat{q}(\theta)) =
 
 For given value of the return level $q_0$:
 \begin{align*}
- r(q_0) = \int_{\boldsymbol{\Theta}}L(q(\boldsymbol{\theta}), q_0) p (\boldsymbol{\theta}) \mathrm{d} \boldsymbol{\theta}
+ r(q_0) = \int_{\boldsymbol{\Theta}}L(q(\boldsymbol{\theta}), q_0) p (\boldsymbol{\theta} \mid \boldsymbol{y}) \mathrm{d} \boldsymbol{\theta}
 \end{align*}
 and we seek to minimize the risk, $\mathrm{min}_{q_0 \in \mathbb{R}_{+}} r(q_0)$
 

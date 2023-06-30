@@ -21,7 +21,7 @@ The tutorial takes place Friday, June 30th, 2023, from 14:00 until 18:15 in room
 
 # Exercices
 
-- [Exercise sheet](exercices/EVA2023-Rsoftware-exercices.pdf)
+- [Exercise sheet](exercices/EVA2023-Rsoftware-exercices.pdf) and some [code](exercices/EVA2023-Rsoftware-exercices-sol.R) to solve them.
 
 # Instructions
 
@@ -41,6 +41,10 @@ cranpkgs <- c("lite", "revdbayes", "texmex", "POT",
 install.packages(cranpkgs)
 remotes::install_github(devpkgs)
 ```
+
+You may need to download the [**R** tool chain](https://cran.r-project.org/bin/windows/Rtools/), the [`clang` and `gfortran` on Mac](https://cran.r-project.org/bin/macosx/tools/) to build packages.
+
+If you cannot download the package `mev`, use the CRAN version via `install.packages("mev")` and download the data from [here](https://github.com/lbelzile/mev/raw/b153a69044622f7155b3abe71f02a5716565a3de/data/frwind.rda).
 
 # Instructors
 

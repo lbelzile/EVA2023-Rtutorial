@@ -38,6 +38,24 @@ knitr::opts_chunk$set(fig.retina = 3, collapse = TRUE)
 options(digits = 3, width = 75)
 ```
 
+
+## Basics of likelihoods
+
+- Denote by $\boldsymbol{\theta} \in \mathcal{S} \subseteq \mathbb{R}^p$ the parameter vector.
+- Assume data has joint density $f(\boldsymbol{y}; \boldsymbol{\theta})$.
+- The log likelihood is $\ell(\boldsymbol{\theta}) = \log f(\boldsymbol{y}; \boldsymbol{\theta})$.
+- If the $n$ observations are independent with density or mass function $f_i$, then $\ell(\boldsymbol{\theta}) = \sum_{i=1}^n \log f_i(y_i; \boldsymbol{\theta})$.
+- The maximum likelihood estimate $\widehat{\boldsymbol{\theta}}$ is found by maximizing (numerically) $\ell(\boldsymbol{\theta})$.
+
+
+## Why use maximum likelihood?
+
+- Easy to generalize to complex settings (nonstationarity, regression models, censoring, rounding, etc.)
+- Known to be asymptotically most efficient (Cramér--Rao bound), even if they can be biased in small samples.
+- Point estimators, etc. are invariant to reparametrization.
+
+
+
 ## Extremal type theorem
 
 Consider $Y_i$ $(i=1,2,\ldots)$ i.i.d. with distribution $F$. 
@@ -94,15 +112,6 @@ lyon <- with(frwind,
 ymax <- apply.yearly(lyon, max)
 ```
 
-## Basics of likelihoods
-
-- Denote by $\boldsymbol{\theta} \in \mathcal{S} \subseteq \mathbb{R}^p$ the parameter vector.
-- Assume data has joint density $f(\boldsymbol{y}; \boldsymbol{\theta})$.
-- The log likelihood is $\ell(\boldsymbol{\theta}) = \log f(\boldsymbol{y}; \boldsymbol{\theta})$.
-- If the $n$ observations are independent with density or mass function $f_i$, then $\ell(\boldsymbol{\theta}) = \sum_{i=1}^n \log f_i(y_i; \boldsymbol{\theta})$.
-- The maximum likelihood estimate $\widehat{\boldsymbol{\theta}}$ is found by maximizing (numerically) $\ell(\boldsymbol{\theta})$.
-
----
 
 
 
@@ -134,33 +143,13 @@ plot(opt_gev)
     - use high precision arithmetic, e.g., `log1p`
     - replace the terms that blow up by Taylor series expansion near $\xi=0$ (interpolation).
 
-## Why use maximum likelihood?
-
-- Easy to generalize to complex settings (nonstationarity, regression models, censoring, rounding, etc.)
-- Known to be asymptotically most efficient (Cramér--Rao bound), even if they can be biased in small samples.
-- Point estimators, etc. are invariant to reparametrization.
-
-## Invariance property of maximum likelihood
-
-If $h$ is a mapping, then $h(\widehat{\boldsymbol{\theta}})$ is the MLE of $h(\boldsymbol{\theta})$.
-
-The expected value of the $N=50$-years maximum for $\xi < 1$, is  \begin{align*}\mathfrak{e}_N = h(\mu, \sigma, \xi) = \mu_N + \sigma_N\{\Gamma(1-\xi)-1\}/\xi.
-\end{align*}
-
-
-Thus, the MLE $\widehat{\mathfrak{e}}_N=h(\widehat{\mu}, \widehat{\sigma}, \widehat{\xi})$.
-
-```{r}
-# MLE of expectation of maximum of 50 blocks
-gev.mle(xdat = ymax, args = "Nmean", N = 50)
-```
 
 
 
 
 ## Score vector
 
-When the log likelihood is differentiable, the MLE is the root of the score equation, meaning $\ell_{\boldsymbol{\theta}}(\widehat{\boldsymbol{\theta}}) = \partial \ell(\boldsymbol{\theta}) / \partial \boldsymbol{\theta} = \boldsymbol{0}_p$.
+When the log likelihood is differentiable, the MLE is the root of the score equation, meaning $\ell_{\boldsymbol{\theta}}(\widehat{\boldsymbol{\theta}}) = \left.\partial \ell(\boldsymbol{\theta}) / \partial \boldsymbol{\theta} \right|_{\boldsymbol{\theta} = \widehat{\boldsymbol{\theta}}} = \boldsymbol{0}_p$.
 
 
 ```{r}
@@ -234,6 +223,21 @@ If $\widehat{\xi} < -1/2$, cannot evaluate the information matrix.
 In applications, shape is typically close to zero, so authors sometimes restrict $\xi \in (-0.5, 0.5)$. 
 
 Penalization of the shape helps ensure that we get reasonable estimates in small samples.
+
+## Invariance property of maximum likelihood
+
+If $h$ is a mapping, then $h(\widehat{\boldsymbol{\theta}})$ is the MLE of $h(\boldsymbol{\theta})$.
+
+The expected value of the $N=50$-years maximum for $\xi < 1$, is  \begin{align*}\mathfrak{e}_N = h(\mu, \sigma, \xi) = \mu_N + \sigma_N\{\Gamma(1-\xi)-1\}/\xi.
+\end{align*}
+
+
+Thus, the MLE $\widehat{\mathfrak{e}}_N=h(\widehat{\mu}, \widehat{\sigma}, \widehat{\xi})$.
+
+```{r}
+# MLE of expectation of maximum of 50 blocks
+gev.mle(xdat = ymax, args = "Nmean", N = 50)
+```
 
 ## Profile log likelihood
 
@@ -363,7 +367,7 @@ useq <- quantile(windlyon, seq(0.9, 0.99, by = 0.01))
 tstab.gpd(windlyon, 
           method = "profile",
           thresh = useq,
-          which = 2, 
+          which = "shape", 
           main = "", 
           sub = "")
 ```

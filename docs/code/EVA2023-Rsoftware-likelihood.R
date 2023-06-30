@@ -2,7 +2,7 @@
 library(mev)
 library(xts)
 library(lubridate)
-data(frwinds, package = "mev")
+data(frwind, package = "mev")
 # Extract time series of mean wind speed for Lyon
 lyon <- with(frwind, 
              xts(x = S2, order.by = date))
@@ -39,18 +39,18 @@ sqrt(diag(solve(jmat)))
 # Confidence intervals for functional of interest
 # via profile likelihood
 prof <- mev::gev.pll(
-   param = "Nmean", # functional of interest
-   dat = ymax, 
-   N = 50) # number of 'years'
+  param = "Nmean", # functional of interest
+  dat = ymax, 
+  N = 50) # number of 'years'
 # Obtain confidence intervals based on chi-square (1) 
 # asymptotic distribution
 (confint(prof))
 
 prof2 <- mev::gev.pll(
-   param = "Nquant",
-   dat = ymax, 
-   q = 0.5, # probability level (here median)
-   N = 50) # number of 'years'
+  param = "Nquant",
+  dat = ymax, 
+  q = 0.5, # probability level (here median)
+  N = 50) # number of 'years'
 confint(prof2, print = TRUE)
 # Peaks-over-threshold approach
 # First plot the time series
@@ -79,8 +79,8 @@ opt_gp <- mev::fit.gpd(
 # approximate threshold stability (needed for extrapolation)
 useq <- quantile(windlyon, seq(0.9, 0.99, by = 0.01))
 tstab <- tstab.gpd(windlyon,
-          method = "profile",
-          thresh = useq)
+                   method = "profile",
+                   thresh = useq)
 # Read from right: find lowest threshold such that later estimates
 # are included inside confidence intervals
 par(mfrow = c(1,1))
@@ -89,7 +89,16 @@ plot(tstab, which = 2, sub = "", main = "")
 W.diag(xdat = windlyon, u = useq)
 # Northrop-Coleman score test for penultimate approx
 NC.diag(xdat = windlyon, u = useq)
-
+# Varty et al approach
+varty <- vmetric.diag(
+  xdat = windlyon, 
+  thresh = useq,
+  B = 100)
+# 90 percentile returned
+varty$thresh
+with(varty, plot(x = cthresh, 
+                 y = metric,
+                 xlab = "threshold (in km/h)"))
 
 # No clear choice for threshold
 # Pick a high quantile level

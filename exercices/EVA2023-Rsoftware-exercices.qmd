@@ -31,7 +31,7 @@ Consider the data for station Montélimar from `frwind` (series `S4`).
 
 ## Bayesian and nonstationary models
 
-2. Using `evgam`, fit a binomial - generalized Pareto model to all four stations 
+2. Using `evgam`, fit a generalized Pareto model to all four stations 
   - set thresholds at the site-wise 98% empirical percentile.
   - consider site-specific scale 
   - and a common shape for all four stations. 
@@ -39,7 +39,7 @@ To this effect, create a new data frame by concatenating exceedances, with a fac
 3. Use a likelihood ratio test to compare the models with different shape parameters for each station. Are there evidence of different shapes?
 3. Based on the estimated coefficients, which model will yield the highest 50-year return level? Rank the stations from smallest to largest.
 4. Using `revdbayes` and a binomial/generalized Pareto model with a Beta/maximal data information prior, obtain 50% credible interval for the model fitted to each station separately.
-5. Compare these with approximate 50% credible interval obtained using the Gaussian approximation to the posterior from `evgam`.
+5. Compare these with approximate 90% credible interval for 50-year return levels obtained using the Gaussian approximation to the posterior from `evgam` for Montélimar.
 
 ## Time series
 

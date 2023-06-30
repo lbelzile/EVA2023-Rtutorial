@@ -423,6 +423,24 @@ Léo Belzile
 
   <p class="date">2023-06-30</p>
 </section>
+<section id="basics-of-likelihoods" class="slide level2">
+<h2>Basics of likelihoods</h2>
+<ul>
+<li>Denote by <span class="math inline">\(\boldsymbol{\theta} \in \mathcal{S} \subseteq \mathbb{R}^p\)</span> the parameter vector.</li>
+<li>Assume data has joint density <span class="math inline">\(f(\boldsymbol{y}; \boldsymbol{\theta})\)</span>.</li>
+<li>The log likelihood is <span class="math inline">\(\ell(\boldsymbol{\theta}) = \log f(\boldsymbol{y}; \boldsymbol{\theta})\)</span>.</li>
+<li>If the <span class="math inline">\(n\)</span> observations are independent with density or mass function <span class="math inline">\(f_i\)</span>, then <span class="math inline">\(\ell(\boldsymbol{\theta}) = \sum_{i=1}^n \log f_i(y_i; \boldsymbol{\theta})\)</span>.</li>
+<li>The maximum likelihood estimate <span class="math inline">\(\widehat{\boldsymbol{\theta}}\)</span> is found by maximizing (numerically) <span class="math inline">\(\ell(\boldsymbol{\theta})\)</span>.</li>
+</ul>
+</section>
+<section id="why-use-maximum-likelihood" class="slide level2">
+<h2>Why use maximum likelihood?</h2>
+<ul>
+<li>Easy to generalize to complex settings (nonstationarity, regression models, censoring, rounding, etc.)</li>
+<li>Known to be asymptotically most efficient (Cramér–Rao bound), even if they can be biased in small samples.</li>
+<li>Point estimators, etc. are invariant to reparametrization.</li>
+</ul>
+</section>
 <section id="extremal-type-theorem" class="slide level2">
 <h2>Extremal type theorem</h2>
 <p>Consider <span class="math inline">\(Y_i\)</span> <span class="math inline">\((i=1,2,\ldots)\)</span> i.i.d. with distribution <span class="math inline">\(F\)</span>.</p>
@@ -467,16 +485,6 @@ G(x) =\begin{cases}
 <span id="cb1-7"><a href="#cb1-7"></a><span class="co"># Create series of yearly maximum</span></span>
 <span id="cb1-8"><a href="#cb1-8"></a>ymax <span class="ot">&lt;-</span> <span class="fu">apply.yearly</span>(lyon, max)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-<section id="basics-of-likelihoods" class="slide level2">
-<h2>Basics of likelihoods</h2>
-<ul>
-<li>Denote by <span class="math inline">\(\boldsymbol{\theta} \in \mathcal{S} \subseteq \mathbb{R}^p\)</span> the parameter vector.</li>
-<li>Assume data has joint density <span class="math inline">\(f(\boldsymbol{y}; \boldsymbol{\theta})\)</span>.</li>
-<li>The log likelihood is <span class="math inline">\(\ell(\boldsymbol{\theta}) = \log f(\boldsymbol{y}; \boldsymbol{\theta})\)</span>.</li>
-<li>If the <span class="math inline">\(n\)</span> observations are independent with density or mass function <span class="math inline">\(f_i\)</span>, then <span class="math inline">\(\ell(\boldsymbol{\theta}) = \sum_{i=1}^n \log f_i(y_i; \boldsymbol{\theta})\)</span>.</li>
-<li>The maximum likelihood estimate <span class="math inline">\(\widehat{\boldsymbol{\theta}}\)</span> is found by maximizing (numerically) <span class="math inline">\(\ell(\boldsymbol{\theta})\)</span>.</li>
-</ul>
 </section>
 <section id="fitting-gev-using-mev-package" class="slide level2">
 <h2>Fitting GEV using <code>mev</code> package</h2>
@@ -525,33 +533,12 @@ G(x) =\begin{cases}
 </ul></li>
 </ul>
 </section>
-<section id="why-use-maximum-likelihood" class="slide level2">
-<h2>Why use maximum likelihood?</h2>
-<ul>
-<li>Easy to generalize to complex settings (nonstationarity, regression models, censoring, rounding, etc.)</li>
-<li>Known to be asymptotically most efficient (Cramér–Rao bound), even if they can be biased in small samples.</li>
-<li>Point estimators, etc. are invariant to reparametrization.</li>
-</ul>
-</section>
-<section id="invariance-property-of-maximum-likelihood" class="slide level2">
-<h2>Invariance property of maximum likelihood</h2>
-<p>If <span class="math inline">\(h\)</span> is a mapping, then <span class="math inline">\(h(\widehat{\boldsymbol{\theta}})\)</span> is the MLE of <span class="math inline">\(h(\boldsymbol{\theta})\)</span>.</p>
-<p>The expected value of the <span class="math inline">\(N=50\)</span>-years maximum for <span class="math inline">\(\xi &lt; 1\)</span>, is <span class="math display">\[\begin{align*}\mathfrak{e}_N = h(\mu, \sigma, \xi) = \mu_N + \sigma_N\{\Gamma(1-\xi)-1\}/\xi.
-\end{align*}\]</span></p>
-<p>Thus, the MLE <span class="math inline">\(\widehat{\mathfrak{e}}_N=h(\widehat{\mu}, \widehat{\sigma}, \widehat{\xi})\)</span>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># MLE of expectation of maximum of 50 blocks</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="fu">gev.mle</span>(<span class="at">xdat =</span> ymax, <span class="at">args =</span> <span class="st">"Nmean"</span>, <span class="at">N =</span> <span class="dv">50</span>)</span>
-<span id="cb4-3"><a href="#cb4-3"></a><span class="do">## Nmean </span></span>
-<span id="cb4-4"><a href="#cb4-4"></a><span class="do">##  53.4</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
 <section id="score-vector" class="slide level2">
 <h2>Score vector</h2>
-<p>When the log likelihood is differentiable, the MLE is the root of the score equation, meaning <span class="math inline">\(\ell_{\boldsymbol{\theta}}(\widehat{\boldsymbol{\theta}}) = \partial \ell(\boldsymbol{\theta}) / \partial \boldsymbol{\theta} = \boldsymbol{0}_p\)</span>.</p>
+<p>When the log likelihood is differentiable, the MLE is the root of the score equation, meaning <span class="math inline">\(\ell_{\boldsymbol{\theta}}(\widehat{\boldsymbol{\theta}}) = \left.\partial \ell(\boldsymbol{\theta}) / \partial \boldsymbol{\theta} \right|_{\boldsymbol{\theta} = \widehat{\boldsymbol{\theta}}} = \boldsymbol{0}_p\)</span>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>mev<span class="sc">::</span><span class="fu">gev.score</span>(<span class="at">par =</span> mle, <span class="at">dat =</span> ymax) <span class="co"># score</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a><span class="do">## [1]  4.44e-08 -5.53e-08 -1.49e-07</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>mev<span class="sc">::</span><span class="fu">gev.score</span>(<span class="at">par =</span> mle, <span class="at">dat =</span> ymax) <span class="co"># score</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="do">## [1]  4.44e-08 -5.53e-08 -1.49e-07</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ul>
 <li>Gradient-based algorithms exploit this feature for optimization</li>
@@ -568,13 +555,13 @@ G(x) =\begin{cases}
 </ul>
 <p>both evaluated at the MLE <span class="math inline">\(\widehat{\boldsymbol{\theta}}\)</span>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># Compute observed information matrix</span></span>
-<span id="cb6-2"><a href="#cb6-2"></a>jmat <span class="ot">&lt;-</span> mev<span class="sc">::</span><span class="fu">gev.infomat</span>(<span class="at">par =</span> mle, <span class="at">dat =</span> ymax)</span>
-<span id="cb6-3"><a href="#cb6-3"></a><span class="co"># Compute standard errors</span></span>
-<span id="cb6-4"><a href="#cb6-4"></a><span class="fu">sqrt</span>(<span class="fu">diag</span>(<span class="fu">solve</span>(jmat)))</span>
-<span id="cb6-5"><a href="#cb6-5"></a><span class="do">##   loc scale shape </span></span>
-<span id="cb6-6"><a href="#cb6-6"></a><span class="do">## 0.659 0.488 0.132</span></span>
-<span id="cb6-7"><a href="#cb6-7"></a><span class="co"># Compare with opt$std.err</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># Compute observed information matrix</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>jmat <span class="ot">&lt;-</span> mev<span class="sc">::</span><span class="fu">gev.infomat</span>(<span class="at">par =</span> mle, <span class="at">dat =</span> ymax)</span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="co"># Compute standard errors</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="fu">sqrt</span>(<span class="fu">diag</span>(<span class="fu">solve</span>(jmat)))</span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="do">##   loc scale shape </span></span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="do">## 0.659 0.488 0.132</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="co"># Compare with opt$std.err</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="some-remarks" class="slide level2">
@@ -615,6 +602,19 @@ G(x) =\begin{cases}
 </ul>
 <p>In applications, shape is typically close to zero, so authors sometimes restrict <span class="math inline">\(\xi \in (-0.5, 0.5)\)</span>.</p>
 <p>Penalization of the shape helps ensure that we get reasonable estimates in small samples.</p>
+</section>
+<section id="invariance-property-of-maximum-likelihood" class="slide level2">
+<h2>Invariance property of maximum likelihood</h2>
+<p>If <span class="math inline">\(h\)</span> is a mapping, then <span class="math inline">\(h(\widehat{\boldsymbol{\theta}})\)</span> is the MLE of <span class="math inline">\(h(\boldsymbol{\theta})\)</span>.</p>
+<p>The expected value of the <span class="math inline">\(N=50\)</span>-years maximum for <span class="math inline">\(\xi &lt; 1\)</span>, is <span class="math display">\[\begin{align*}\mathfrak{e}_N = h(\mu, \sigma, \xi) = \mu_N + \sigma_N\{\Gamma(1-\xi)-1\}/\xi.
+\end{align*}\]</span></p>
+<p>Thus, the MLE <span class="math inline">\(\widehat{\mathfrak{e}}_N=h(\widehat{\mu}, \widehat{\sigma}, \widehat{\xi})\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># MLE of expectation of maximum of 50 blocks</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="fu">gev.mle</span>(<span class="at">xdat =</span> ymax, <span class="at">args =</span> <span class="st">"Nmean"</span>, <span class="at">N =</span> <span class="dv">50</span>)</span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="do">## Nmean </span></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="do">##  53.4</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
 <section id="profile-log-likelihood" class="slide level2">
 <h2>Profile log likelihood</h2>

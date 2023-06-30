@@ -2,7 +2,7 @@
 library(mev)
 library(xts)
 library(lubridate)
-data(frwinds, package = "mev")
+data(frwind, package = "mev")
 # Extract time series of mean wind speed for Lyon
 lyon <- with(frwind, 
              xts(x = S2, order.by = date))

@@ -58,7 +58,7 @@ ggplot(data = data.frame(
 # Create a function to compute the N-year maximum median
 # Apply is equivalent to a for-loop, so for each posterior draw
 # Compute function with those arguments
-post_gev_Nmed <- apply(post$sim_vals, 1, function(x){
+post_gev_Nmed <- apply(post_1$sim_vals, 1, function(x){
 # *gev from 'revdbayes' has an argument 'm' that changes
 # the arguments so that the parameters correspond to m-max
   revdbayes::qgev(p = 0.5, loc = x[1], scale = x[2], 
@@ -73,10 +73,10 @@ quantile(post_gev_Nmed, c(0.025, 0.975))
 # Posterior predictive samples by simulating
 # new GEV with the parameters drawn
 postpred <- revdbayes::rgev(
-  n = nrow(post$sim_vals), 
-  loc = post$sim_vals[,1],
-  scale = post$sim_vals[,2],
-  shape = post$sim_vals[,3],
+  n = nrow(post_1$sim_vals), 
+  loc = post_1$sim_vals[,1],
+  scale = post_1$sim_vals[,2],
+  shape = post_1$sim_vals[,3],
   m = 50)
 
 
