@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.361">
+<meta name="generator" content="quarto-1.3.433">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -274,13 +274,13 @@ p(\boldsymbol{\theta} \mid \boldsymbol{Y}) = \frac{p(\boldsymbol{Y} \mid \boldsy
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(post_gev_mean, <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     25%      50%      75% 
-59.21709 67.08840 81.21272 </code></pre>
+59.17526 67.08397 81.61301 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># To get a 95% credible interval, simply compute quantiles</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(post_gev_mean, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     2.5%     97.5% 
- 52.22253 159.91206 </code></pre>
+ 52.18193 159.87293 </code></pre>
 </div>
 </div>
 <p>We can see that the credible intervals are quite asymmetric.</p>
@@ -295,7 +295,7 @@ p(\boldsymbol{\theta} \mid \boldsymbol{Y}) = \frac{p(\boldsymbol{Y} \mid \boldsy
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(post_pred_samp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  41.53   49.65   52.69   55.38   57.42  792.15 </code></pre>
+  42.39   49.57   52.58   55.41   57.42  528.61 </code></pre>
 </div>
 </div>
 <p>As part of the Bayesian workflow <span class="citation" data-cites="Gabry:2019">(<a href="#ref-Gabry:2019" role="doc-biblioref">Gabry et al., 2019</a>)</span>, we can also check if our model is in line with expectations by computing a summary statistic on simulate datasets from the posterior predictive, and comparing it with that of the original data. If the value for the original sample lies far into the tails of the distribution of simulated samples, this provides evidence of model misspecification.</p>

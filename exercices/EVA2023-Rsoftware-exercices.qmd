@@ -51,7 +51,7 @@ To this effect, create a new data frame by concatenating exceedances, with a fac
 We could also consider a conditional model by taking as covariates humidity (`H2`) and mean temperature (`T2`). Fit the Heffernan--Tawn conditional extremes model to the trivariate data (`S2`, `H2`, `T2`), given that humidity is above 80%
 
 1. preprocess the data to ensure approximate stationarity by keeping only data for the summer months (June, July and August)
-2. are there evidence of asymptotic dependent variables?
+2. are there evidence of asymptotic dependence between variables?
 3. produce threshold stability plots for the dependence parameters
-4. estimate the probability that the temperature exceed it's 95% marginal summer quantile, given that humidity is above the 80% and wind speed is lower than the 50%.
+4. estimate the probability that wind speed exceeds it's 95% percentile given that humidity is above 80% percentile and wind speed is below it's 50% percentile.
 

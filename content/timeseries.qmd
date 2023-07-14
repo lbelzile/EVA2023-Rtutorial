@@ -3,6 +3,8 @@ title: "Time series"
 page-layout: full
 title-block-banner: false
 cache: true
+message: false
+warning: false
 ---
 
 # Getting ready

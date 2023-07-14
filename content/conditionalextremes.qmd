@@ -3,6 +3,8 @@ title: "Conditional extremes"
 page-layout: full
 title-block-banner: false
 cache: true
+message: false
+warning: false
 ---
 
 
@@ -18,7 +20,7 @@ data(frwind, package = "mev")
 #?frwind
 ```
 
-We will work with the standard implementation in the `texmex` package, which also comes with nice ggplot-graphics. Package information with vignettes for various modeling contexts can be found [here]( https://cran.r-project.org/web/packages/texmex/index.html).
+We will work with the standard implementation in the `texmex` package, which also comes with nice ggplot-graphics. Package information with vignettes for various modeling contexts can be found [here](https://cran.r-project.org/web/packages/texmex/index.html).
 
 First, for exploration of data, we show bivariate scatter plots and linear correlation coefficients for the wind speed data.
 
@@ -29,10 +31,11 @@ ggpairs(frwind, columns = 2:ncol(frwind))
 Let us check chi and chi-bar coefficients to see if there is asymptotic dependence. We give an example for stations $S_2$ and $S_3$.
 
 ```{r}
-chi23 = chi(frwind[, c("S2", "S3")]) 
+chi23 <- chi(frwind[, c("S2", "S3")]) 
 ggplot(chi23, 
        main = c("Chi"="Chi: S2 and S3", 
-              "ChiBar"="Chi-bar: S2 and S3"))
+                "ChiBar"="Chi-bar: S2 and S3"),
+       xlim = c(0.8, 1))
 ```
 
 The behavior of both curves suggest that there is asymptotic independence. We can also plot multivariate conditional Spearman's correlation coefficients across a sliding window of values of the variables. Executing the following requires more time.
@@ -67,9 +70,9 @@ Here are some diagnostic plots of the fitted model.
 ggplot(mex2)
 ```
 
-As assumed by the model, we do not see any notable dependence of residuals (\$\\mathbf{Z}\$) on the level of the conditioning variable.
+As assumed by the model, we do not see any notable dependence of residuals ($\mathbf{Z}$) on the level of the conditioning variable.
 
-Note: to estimate only marginal parameters, we can use `migpd`; to estimate only the dependence with prespecified marginal estimates, we can use \`mexDependence\`. Here is an example of explicit two-step estimation.
+Note: to estimate only marginal parameters, we can use `migpd`; to estimate only the dependence with prespecified marginal estimates, we can use `mexDependence`. Here is an example of explicit two-step estimation.
 
 ```{r}
 marg = migpd(

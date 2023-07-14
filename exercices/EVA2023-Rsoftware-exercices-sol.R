@@ -1,4 +1,6 @@
-
+#################################
+# Maximum likelihood estimation #
+#################################
 library(mev)
 nrep <- 1000L
 ests <- matrix(0, nrow = nrep, ncol = 2)
@@ -56,8 +58,9 @@ prof <- gev.pll(psi = seq(27, 34, length.out = 51),
                 dat = tlarg[,1])
 confint(prof, level = 0.5)
 
-
-## Bayesian and nonstationary models
+#####################################
+# Bayesian and nonstationary models #
+#####################################
 
 library(evgam)
 library(lubridate)
@@ -143,3 +146,58 @@ retlev_evgam <- with(S4_evgam_post,
                 npy = npy,
                 thresh = th))
 quantile(retlev_evgam, probs = c(0.05, 0.95))
+
+######################
+# Time series models #
+######################
+library(extremogram)
+library(lite)
+# plot extremogram
+with(data, extremogram1(S2, quant = 0.95, type = 1, maxlag = 10))
+
+# Estimate model with clustering index
+flite_out <- with(data,
+     lite::flite(data = S2, u = quantile(S2, 0.95), k = 2))
+summary(flite_out)
+lite::returnLevel(flite_out, m = 50, ny = 47)
+# compare with model that doesn't account for clustering
+prof_gpd <- with(data, mev::gpd.pll(
+  dat = data$S2,
+  param = "quant", 
+  p = 1/(sum(data$S2 > quantile(data$S2, 0.95))/47*50), 
+  threshold =  quantile(S2, 0.95)))
+confint(prof_gpd, print = TRUE)
+
+########################
+# Conditional extremes #
+########################
+
+# Filter data for approximate nonstationarity
+data <- frwind|>
+  filter(month(date) %in% 6:8) |>
+  select(S2, H2, T2) |>
+  na.omit()
+# Negative dependence for humidity and wind speed, AI
+ggplot(texmex::chi(data |> select(S2, H2)), xlim = c(0.8, 1))
+# Weak positive dependence, AI
+ggplot(texmex::chi(data |> select(S2, T2)), xlim = c(0.8, 1))
+# Negative dependence, AI
+ggplot(texmex::chi(data |> select(H2, T2)), xlim = c(0.8, 1))
+# Logical choice would be the temperature series
+# But the latter is subject to heavy rounding and negative shape
+with(data, 
+     mev::tstab.gpd(
+       xdat = T2, 
+       which = "shape",
+       method = "profile",
+       thresh = quantile(T2, seq(0.9, 0.99, by = 0.01))))
+condext <- mex(data =data, which = "S2", mqu = 0.9)
+ggplot(condext)
+summary(condext)
+# Generate new simulations and compute Monte Carlo probability
+bootsamp <- predict(condext, which = "S2", pqu = 0.95, nsim = 1e5)$data
+# Estimate Monte Carlo for the conditional probability
+# then multiply by marginal probability
+mean(bootsamp$simulated$H2 > quantile(data$H2, 0.8) & 
+        bootsamp$simulated$T2 <= quantile(data$T2, 0.5))*0.05
+# We could fit different models and combine estimates
