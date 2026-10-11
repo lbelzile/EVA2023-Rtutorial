@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.433">
+<meta name="generator" content="quarto-1.7.3">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Tutorial on Statistical Computing on Extremes with R - Likelihood-based inference</title>
+<title>Likelihood-based inference – Tutorial on Statistical Computing on Extremes with R</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -22,7 +22,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -33,7 +33,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -58,6 +58,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -87,17 +88,22 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-81b5c3e63835cfde897ecd3d35a35a41.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-4136e55dfffcd7a36132f453cb15e922.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "textbox",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -106,14 +112,42 @@ div.csl-indent {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -121,50 +155,50 @@ div.csl-indent {
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">Tutorial on Statistical Computing on Extremes with R</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-notes" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-notes" role="link" data-bs-toggle="dropdown" aria-expanded="false">
  <span class="menu-text">Notes</span>
     </a>
     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-notes">    
         <li>
-    <a class="dropdown-item" href="../content/likelihood.html" rel="" target="">
+    <a class="dropdown-item" href="../content/likelihood.html">
  <span class="dropdown-text">1: Likelihood-based inference</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../content/bayesian.html" rel="" target="">
+    <a class="dropdown-item" href="../content/bayesian.html">
  <span class="dropdown-text">2: Bayesian modelling</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../content/semiparametric.html" rel="" target="">
+    <a class="dropdown-item" href="../content/semiparametric.html">
  <span class="dropdown-text">3: Semiparametric modelling</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../content/regression.html" rel="" target="">
+    <a class="dropdown-item" href="../content/regression.html">
  <span class="dropdown-text">4: Nonstationary regression models</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="https://lbelzile.github.io/texmexIntro/" rel="" target="">
+    <a class="dropdown-item" href="https://lbelzile.github.io/texmexIntro/">
  <span class="dropdown-text">5: Conditional extremes</span></a>
   </li>  
     </ul>
   </li>
 </ul>
+          </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
-          </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -183,7 +217,7 @@ div.csl-indent {
 
 
 
-<div class="quarto-title-meta">
+<div class="quarto-title-meta column-page">
 
     
   
@@ -191,28 +225,36 @@ div.csl-indent {
   </div>
   
 
+
 </header>
+
 
 <p>The <code>mev</code> package provides gradient-based optimization routines for fitting univariate extreme value models, either block maxima or threshold exceedances, using one of four likelihoods: that of the generalized extreme value distribution, the generalized Pareto distribution, and the inhomogeneous Poisson point process and the <span class="math inline">\(r\)</span>-largest order statistics.</p>
 <p>Relative to other packages such as <code>evd</code> or <code>ismev</code>, the package functions include analytic expressions for the score and observed informations, with careful interpolation when <span class="math inline">\(\xi \approx 0\)</span>. However, <code>mev</code> does not handle generalized linear or generalized additive models for the parameters, to avoid having as many inequality constraints in the optimization as there are observations times the number of covariates.</p>
 <section id="basic-theory" class="level2">
 <h2 class="anchored" data-anchor-id="basic-theory">Basic theory</h2>
-<p>Let <span class="math inline">\(\ell(\boldsymbol{y}; \boldsymbol{\theta})\)</span> denotes the log-likelihood of an <span class="math inline">\(n\)</span> sample with a <span class="math inline">\(p\)</span>-dimensional parameter <span class="math inline">\(\boldsymbol{\theta}\)</span>. The score vector is <span class="math inline">\(\ell_{\boldsymbol{\theta}}(\boldsymbol{\theta})=\partial \ell / \partial \boldsymbol{\theta}\)</span>, while the Fisher information is <span class="math inline">\(\imath(\boldsymbol{\theta})=\mathrm{E}\{\ell_{\boldsymbol{\theta}}(\boldsymbol{\theta})\ell_{\boldsymbol{\theta}}(\boldsymbol{\theta})^\top\}\)</span>. Under regularity conditions, we also have <span class="math inline">\(\imath(\boldsymbol{\theta}) = - \mathrm{E}(\partial^2 \ell / \partial \boldsymbol{\theta}\partial \boldsymbol{\theta}^\top)\)</span>. The observed information is the negative Hessian <span class="math inline">\(\jmath(\boldsymbol{\theta})-\partial^2 \ell / \partial \boldsymbol{\theta}\partial \boldsymbol{\theta}^\top\)</span>, evaluated at the maximum likelihood estimator <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span>.</p>
+<p>Let <span class="math inline">\(\ell(\boldsymbol{y}; \boldsymbol{\theta})\)</span> denotes the log-likelihood of an <span class="math inline">\(n\)</span> sample with a <span class="math inline">\(p\)</span>-dimensional parameter <span class="math inline">\(\boldsymbol{\theta}\)</span>. The score vector is <span class="math inline">\(\ell_{\boldsymbol{\theta}}(\boldsymbol{\theta})=\partial \ell / \partial \boldsymbol{\theta}\)</span>, while the Fisher information is <span class="math inline">\(\imath(\boldsymbol{\theta})=\mathrm{E}\{\ell_{\boldsymbol{\theta}}(\boldsymbol{\theta})\ell_{\boldsymbol{\theta}}(\boldsymbol{\theta})^\top\}\)</span>. Under regularity conditions, we also have <span class="math inline">\(\imath(\boldsymbol{\theta}) = - \mathrm{E}(\partial^2 \ell / \partial \boldsymbol{\theta}\partial \boldsymbol{\theta}^\top)\)</span>. The observed information is the negative Hessian <span class="math inline">\(\jmath(\boldsymbol{\theta})=-\partial^2 \ell / \partial \boldsymbol{\theta}\partial \boldsymbol{\theta}^\top\)</span>, evaluated at the maximum likelihood estimator <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span>.</p>
 <p>By definition, the maximum likelihood estimator solves the score equation, i.e.&nbsp;<span class="math inline">\(\ell_{\boldsymbol{\theta}}(\hat{\boldsymbol{\theta}})=\boldsymbol{0}_p\)</span>. If the maximum likelihood estimator is not available in closed-form, its solution is found numerically and this property can be used to verify that the optimization routine has converged or for gradient-based maximization algorithms.</p>
 </section>
 <section id="statistical-inference" class="level2">
 <h2 class="anchored" data-anchor-id="statistical-inference">Statistical inference</h2>
 <p>This section presents some test statistics that can easily be computed using some of the functionalities of <code>mev</code>, as well as confidence intervals for parameters and common functionals, based on the profile likelihood.</p>
-<p>The three main type of test statistics for likelihood-based inference are the Wald, score and likelihood ratio tests. The three main classes of statistics for testing a simple null hypothesis <span class="math inline">\(\mathscr{H}_0: \boldsymbol{\theta}=\boldsymbol{\theta}_0\)</span> against the alternative <span class="math inline">\(\mathscr{H}_a: \boldsymbol{\theta} \neq \boldsymbol{\theta}_0\)</span> are the likelihood ratio, the score and the Wald statistics, defined respectively as <span class="math display">\[\begin{align*}
-w &amp;= 2 \left\{ \ell(\hat{\boldsymbol{\theta}})-\ell(\boldsymbol{\theta}_0)\right\},\qquad
-\\w_{\mathsf{score}} &amp;= U^\top(\boldsymbol{\theta}_0)i^{-1}(\boldsymbol{\theta}_0)\ell_{\boldsymbol{   heta}}(\boldsymbol{\theta}_0),\qquad
+<p>The three main type of test statistics for likelihood-based inference are the Wald, score and likelihood ratio tests. The three main classes of statistics for testing a simple null hypothesis <span class="math inline">\(\mathscr{H}_0:
+\boldsymbol{\theta}=\boldsymbol{\theta}_0\)</span> against the alternative <span class="math inline">\(\mathscr{H}_a: \boldsymbol{\theta}
+\neq \boldsymbol{\theta}_0\)</span> are the likelihood ratio, the score and the Wald statistics, defined respectively as <span class="math display">\[\begin{align*}
+w &amp;= 2 \big\{ \ell(\hat{\boldsymbol{\theta}})-\ell(\boldsymbol{\theta}_0)\big\},\qquad
+\\w_{\mathsf{score}} &amp;= U^\top(\boldsymbol{\theta}_0)i^{-1}(\boldsymbol{\theta}_0)\ell_{\boldsymbol{\theta}}(\boldsymbol{\theta}_0),\qquad
 \\ w_{\mathsf{wald}} &amp;= (\hat{\boldsymbol{\theta}}-\boldsymbol{\theta}_0)^\top i(\boldsymbol{\theta}_0)(\hat{\boldsymbol{\theta}}-\boldsymbol{\theta}_0),
 \end{align*}\]</span> where <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span> is the maximum likelihood estimate under the alternative and <span class="math inline">\(\boldsymbol{\theta}_0\)</span> is the null value of the parameter vector. The statistics <span class="math inline">\(w, w_{\mathsf{score}}, w_{\mathsf{wald}}\)</span> are all first order equivalent and asymptotically follow a <span class="math inline">\(\chi^2_p\)</span> distribution, where <span class="math inline">\(q\)</span> is the difference between <span class="math inline">\(p\)</span> and the number of parameters under the null hypothesis. Under the conditions of the Neyman–Pearson theorem, the likelihood ratio test is most powerful test of the lot. The score statistic <span class="math inline">\(w_{\mathsf{score}}\)</span> only requires calculation of the score and information under <span class="math inline">\(\mathscr{H}_0\)</span>, which can be useful in problems where calculations under the alternative are difficult to obtain. The Wald statistic <span class="math inline">\(w_{\mathsf{wald}}\)</span> is not parametrization-invariant and typically has poor coverage properties.</p>
 <p>Oftentimes, we are interested in a functional of the parameter vector <span class="math inline">\(\boldsymbol{\theta}\)</span>. The profile likelihood <span class="math inline">\(\ell_\mathsf{p}\)</span>, a function of <span class="math inline">\(\boldsymbol{\psi}\)</span> alone, is obtained by maximizing the likelihood pointwise at each fixed value <span class="math inline">\(\boldsymbol{\psi}=\boldsymbol{\psi}_0\)</span> over the nuisance vector <span class="math inline">\(\boldsymbol{\lambda}_{\psi_0}\)</span>, <span class="math display">\[\begin{align*}
    \ell_\mathsf{p}(\boldsymbol{\psi})=\max_{\boldsymbol{\lambda}}\ell(\boldsymbol{\psi}, \boldsymbol{\lambda})=\ell(\boldsymbol{\psi}, \hat{\boldsymbol{\lambda}}_{\boldsymbol{\psi}}).
 \end{align*}\]</span> We denote the restricted maximum likelihood estimator <span class="math inline">\(\hat{\boldsymbol{\theta}}_\psi= (\psi, \hat{\lambda}_{\psi})\)</span>.</p>
-<p>We can define score and information in the usual fashion: for example, the observed profile information function is [j_() =- = {j^{}(, _{})}^{-1}. ]</p>
-<p>We can turn tests and their asymptotic distribution into confidence intervals. For the hypothesis <span class="math inline">\(\psi = \psi_0\)</span>, a <span class="math inline">\((1-\alpha)\)</span> confidence interval based on the profile likelihood ratio test is <span class="math inline">\(\{ \psi: 2\{\ell(\hat{\theta}) - \ell(\hat{\theta}_{\psi})\} \leq \chi^2_1(0.95)\}\)</span>.</p>
+<p>We can define score and information in the usual fashion: for example, the observed profile information function is <span class="math display">\[\begin{align*}
+j_\mathsf{p}(\boldsymbol{\psi})
+=-\frac{\partial \ell_\mathsf{p}(\boldsymbol{\psi})}{\partial \boldsymbol{\psi}\partial \boldsymbol{\psi}^\top}
+= \left\{j^{\boldsymbol{\psi\psi}}(\boldsymbol{\psi}, \hat{\boldsymbol{\lambda}}_{\boldsymbol{\psi}})\right\}^{-1}.
+\end{align*}\]</span></p>
+<p>We can turn tests and their asymptotic distribution into confidence intervals. For the hypothesis <span class="math inline">\(\psi = \psi_0\)</span>, a <span class="math inline">\((1-\alpha)\)</span> confidence interval based on the profile likelihood ratio test is <span class="math inline">\(\{ \psi: 2\{\ell(\hat{\theta}) - \ell(\hat{\theta}_{\psi})\} \leq  \chi^2_1(0.95)\}\)</span>.</p>
 <section id="likelihoods" class="level3">
 <h3 class="anchored" data-anchor-id="likelihoods">Likelihoods</h3>
 <p>There are four basic likelihoods for univariate extremes: the likelihood of the generalized extreme value (GEV) distribution for block maxima, the likelihood for the generalized Pareto distribution and that of the non-homogeneous Poisson process (NHPP) for exceedances above a threshold <span class="math inline">\(u\)</span> and lastly the likelihood of the <span class="math inline">\(r\)</span>-largest observations.</p>
@@ -234,7 +276,7 @@ w &amp;= 2 \left\{ \ell(\hat{\boldsymbol{\theta}})-\ell(\boldsymbol{\theta}_0)\r
 <section id="numerical-example" class="level3">
 <h3 class="anchored" data-anchor-id="numerical-example">Numerical example</h3>
 <p>We consider in the tutorial daily mean wind speed data, measured in km/h, at four weather stations located in the south of France. We first take the data for Lyon’s airport (station <span class="math inline">\(S_2\)</span>) and compute the annual maximum.</p>
-<div class="cell" data-hash="likelihood_cache/html/unnamed-chunk-1_7cc7c227102fc34005bd1e884779bf3e">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mev)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># library(xts)</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># library(lubridate)</span></span>
@@ -245,18 +287,18 @@ w &amp;= 2 \left\{ \ell(\hat{\boldsymbol{\theta}})-\ell(\boldsymbol{\theta}_0)\r
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>ymax <span class="ot">&lt;-</span> xts<span class="sc">::</span><span class="fu">apply.yearly</span>(lyon, max)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We can then fit a GEV distribution via maximum likelihood to the yearly maximum, extract the coefficients <span class="math inline">\(\widehat{\boldsymbol{\theta}}\)</span> and check convergence by computing the score <span class="math inline">\(\ell_{\boldsymbol{\theta}}(\widehat{\boldsymbol{\theta}})\)</span> and comparing it to the zero vector.</p>
-<div class="cell" data-hash="likelihood_cache/html/unnamed-chunk-2_615ec3fd6d47d80970eabcf45203b2c2">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>opt_gev <span class="ot">&lt;-</span> mev<span class="sc">::</span><span class="fu">fit.gev</span>(<span class="at">xdat =</span> ymax, <span class="at">show =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Log-likelihood: -141.6626 
 
 Estimates
-     loc     scale     shape  
-36.18449   3.94287  -0.01124  
+    loc    scale    shape  
+36.1845   3.9429  -0.0112  
 
 Standard Errors
-   loc   scale   shape  
-0.6589  0.4881  0.1318  
+  loc  scale  shape  
+0.659  0.488  0.132  
 
 Optimization Information
   Convergence: successful 
@@ -273,7 +315,7 @@ Optimization Information
 </div>
 </div>
 <p>Having found the MLE, we can compute the covariance matrix of the parameters from the observed information matrix. The standard errors are the square root of the elements on the diagonal. While <code>mev</code> uses exact formulae, these can be approximated by computing the hessian via finite differences.</p>
-<div class="cell" data-hash="likelihood_cache/html/unnamed-chunk-3_70797374f7e53c40f29baeb8204155d2">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute observed information matrix</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>jmat <span class="ot">&lt;-</span> mev<span class="sc">::</span><span class="fu">gev.infomat</span>(<span class="at">par =</span> mle, <span class="at">dat =</span> ymax)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute standard errors</span></span>
@@ -285,20 +327,17 @@ Optimization Information
 </div>
 </div>
 <p>Even if we have parameter estimates, there is no guarantee that the model is adequate. Standard visual goodness-of-fit diagnostics can be obtained with the <code>plot</code> method. To see other methods, query <code>methods(class = "mev_gev")</code>.</p>
-<div class="cell" data-hash="likelihood_cache/html/unnamed-chunk-4_5c1c0c739680a2d59d1a2bef4884f20c">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># PP and QQ plots</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(opt_gev)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="likelihood_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">graphics.off</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(opt_gev)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">graphics.off</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The Gumbel distribution, which corresponds to a GEV with shape <span class="math inline">\(\xi=0\)</span>, can be estimated by restricting a parameter. We then do a likelihood ratio test since models are nested.</p>
-<div class="cell" data-hash="likelihood_cache/html/unnamed-chunk-5_a644718169c55ca68a4953751948a25b">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>opt_gumb <span class="ot">&lt;-</span> mev<span class="sc">::</span><span class="fu">fit.gev</span>(<span class="at">xdat =</span> ymax,</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">fpar =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="dv">0</span>))</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(opt_gev, opt_gumb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>opt_gumb <span class="ot">&lt;-</span> mev<span class="sc">::</span><span class="fu">fit.gev</span>(<span class="at">xdat =</span> ymax,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">fpar =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="dv">0</span>))</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(opt_gev, opt_gumb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Analysis of Deviance Table
 
@@ -309,19 +348,23 @@ opt_gumb    2   283.33  1 0.0073     0.9321</code></pre>
 </div>
 <p>None of the parameters are of interest in themselves. We may be interested rather by a risk summary, which is a function of parameters. For example, we could get the parameters of the GEV for 50 years via max-stability and return the average if <span class="math inline">\(\widehat{\xi}&lt;1\)</span>, or quantiles — the most popular choices are the median and 0.368, which corresponds roughly to the 50 year return level for threshold exceedances.</p>
 <p>All of these are invariant to reparametrization, so we can use the formula and plug-in the parameter values. For inference, we reparametrize the model in terms of this quantity, then vary over a grid of values of the 50-year average maximum and compute profile-likelihood-based confidence intervals at level 95%.</p>
-<div class="cell" data-hash="likelihood_cache/html/unnamed-chunk-6_bef02d849ae3765d5c037db0b60adc37">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gev.mle</span>(<span class="at">xdat =</span> ymax, <span class="at">args =</span> <span class="st">"Nmean"</span>, <span class="at">N =</span> <span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gev.mle</span>(<span class="at">xdat =</span> ymax, <span class="at">args =</span> <span class="st">"Nmean"</span>, <span class="at">N =</span> <span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Nmean 
 53.4114 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute profile log-likelihood</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>prof <span class="ot">&lt;-</span> mev<span class="sc">::</span><span class="fu">gev.pll</span>(<span class="at">param =</span> <span class="st">"Nmean"</span>, <span class="at">dat =</span> ymax, <span class="at">N =</span> <span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute profile log-likelihood</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>prof <span class="ot">&lt;-</span> mev<span class="sc">::</span><span class="fu">gev.pll</span>(<span class="at">param =</span> <span class="st">"Nmean"</span>, <span class="at">dat =</span> ymax, <span class="at">N =</span> <span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="likelihood_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="likelihood_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
 </div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract confidence intervals</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>(<span class="fu">confint</span>(prof))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract confidence intervals</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>(<span class="fu">confint</span>(prof))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Estimate Lower CI Upper CI 
 53.41140 47.79346 73.63881 </code></pre>
@@ -339,96 +382,87 @@ opt_gumb    2   283.33  1 0.0073     0.9321</code></pre>
 \end{align*}\]</span> The range of the generalized Pareto distribution is <span class="math inline">\([0, -\sigma/\xi)\)</span> if <span class="math inline">\(\xi &lt; 0\)</span> and is <span class="math inline">\(\mathbb{R}_{+}\)</span> otherwise. We denote the distribution by <span class="math inline">\(\mathsf{GP}(\sigma, \xi)\)</span>. The default optimization algorithm for this model is that of <span class="citation" data-cites="Grimshaw:1993">Grimshaw (<a href="#ref-Grimshaw:1993" role="doc-biblioref">1993</a>)</span>, which reduces the dimension of the optimization through profiling. The exponential distribution and the case <span class="math inline">\(\xi=-1\)</span> are handled separately. If the sample coefficient of variation is less than one, the global maximum lies on the boundary of the parameter space since there exists for any <span class="math inline">\(\xi&lt;-1\)</span> a value <span class="math inline">\(\sigma^*\)</span> such that <span class="math inline">\(\ell(\sigma^*, \xi) \to \infty\)</span>: the search is thus restricted to <span class="math inline">\(\xi \geq -1\)</span>. These cases are more frequent in small samples due to the negative bias of the maximum likelihood estimator of the shape.</p>
 <p>Except for this boundary case, the maximum likelihood estimator solves the score equation <span class="math inline">\(\partial \ell(\boldsymbol{\theta}) / \partial \boldsymbol{\theta} = \boldsymbol{0}_2\)</span>. We can thus check convergence by verifying that the score vanishes at the maximum likelihood estimate.</p>
 <p>If <span class="math inline">\(\widehat{\xi} &lt; -0.5\)</span>, the asymptotic regime is nonstandard <span class="citation" data-cites="Smith:1985">(<a href="#ref-Smith:1985" role="doc-biblioref">Smith, 1985</a>)</span> and the standard errors obtained from the inverse information matrix are unreliable; as such, <code>mev</code> does not report them and prints an optional warning.</p>
-<div class="cell" data-layout-align="center" data-fig.caption="Profile log likelihood of the generalized Pareto distribution" data-hash="likelihood_cache/html/gpprofile_b89e7d6c78887544e77e016184c3d5a1">
+<div class="cell" data-layout-align="center" data-fig.caption="Profile log likelihood of the generalized Pareto distribution">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="likelihood_files/figure-html/gpprofile-1.png" class="img-fluid figure-img" width="768"></p>
+<p><img src="likelihood_files/figure-html/gpprofile-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="768"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>The figure shows the profile likelihood for <span class="math inline">\(\eta = -\xi/\sigma\)</span> for two datasets, one of which (leftmost) achieves its maximum at <span class="math inline">\(\widehat{\xi} = -1\)</span> and <span class="math inline">\(\widehat{\eta} = 1/\max(\boldsymbol{y})\)</span>.</p>
-<div class="cell" data-layout-align="center" data-fig.caption="Diagnostic plot for fitted model, with pointwise 0.95 confidence intervals from order statistics" data-hash="likelihood_cache/html/gp2_2baf2ae28f6d553708ea15156f6fa36a">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Only keep data from September to April</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>windlyon <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  frwind, </span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  S2[lubridate<span class="sc">::</span><span class="fu">month</span>(date) <span class="sc">&lt;=</span> <span class="dv">4</span> <span class="sc">|</span> </span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>       lubridate<span class="sc">::</span><span class="fu">month</span>(date) <span class="sc">&gt;=</span> <span class="dv">9</span>])</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only 100 largest points (fewer because of ties)</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>u <span class="ot">&lt;-</span> <span class="fu">quantile</span>(windlyon, </span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">probs =</span> <span class="dv">1-100</span><span class="sc">/</span><span class="fu">length</span>(windlyon))</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit generalized Pareto via ML</span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>fitted_gp <span class="ot">&lt;-</span> <span class="fu">fit.gpd</span>(</span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">xdat =</span> windlyon,</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">threshold =</span> u,</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">show =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-layout-align="center" data-fig.caption="Diagnostic plot for fitted model, with pointwise 0.95 confidence intervals from order statistics">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Only keep data from September to April</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>windlyon <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  frwind, </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  S2[lubridate<span class="sc">::</span><span class="fu">month</span>(date) <span class="sc">&lt;=</span> <span class="dv">4</span> <span class="sc">|</span> </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>       lubridate<span class="sc">::</span><span class="fu">month</span>(date) <span class="sc">&gt;=</span> <span class="dv">9</span>])</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only 100 largest points (fewer because of ties)</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>u <span class="ot">&lt;-</span> <span class="fu">quantile</span>(windlyon, </span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">probs =</span> <span class="dv">1-100</span><span class="sc">/</span><span class="fu">length</span>(windlyon))</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit generalized Pareto via ML</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>fitted_gp <span class="ot">&lt;-</span> <span class="fu">fit.gpd</span>(</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">xdat =</span> windlyon,</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">threshold =</span> u,</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">show =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Method: Grimshaw 
-Log-likelihood: -207.5276 
+Log-likelihood: -207.528 
 
 Threshold: 33.84 
 Number Above: 90 
-Proportion Above: 0.0079 
+Proportion Above: 0.008 
 
 Estimates
-  scale    shape  
-3.57863  0.03088  
+ scale   shape  
+3.5786  0.0309  
 
 Standard Errors
- scale   shape  
-0.6091  0.1337  
+scale  shape  
+0.609  0.134  
 
 Optimization Information
   Convergence: successful </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># P-P and Q-Q diagnostic plots </span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fitted_gp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="likelihood_files/figure-html/gp2-1.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">graphics.off</span>()</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit exponential by passing a list with a fixed parameter</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>reduced_gp <span class="ot">&lt;-</span> <span class="fu">fit.gpd</span>(windlyon,</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">threshold =</span> u, </span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">fpar =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="dv">0</span>))</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="co"># The MLE is sample mean of exceedances - check this</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="fu">isTRUE</span>(<span class="fu">coef</span>(reduced_gp) <span class="sc">==</span> <span class="fu">mean</span>(windlyon))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># P-P and Q-Q diagnostic plots </span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fitted_gp)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">graphics.off</span>()</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit exponential by passing a list with a fixed parameter</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>reduced_gp <span class="ot">&lt;-</span> <span class="fu">fit.gpd</span>(windlyon,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">threshold =</span> u, </span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>                   <span class="at">fpar =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="dv">0</span>))</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="co"># The MLE is sample mean of exceedances - check this</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="fu">isTRUE</span>(<span class="fu">coef</span>(reduced_gp) <span class="sc">==</span> <span class="fu">mean</span>(windlyon))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] TRUE</code></pre>
+<pre><code>[1] FALSE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare nested models using likelihood ratio test</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fitted_gp, reduced_gp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare nested models using likelihood ratio test</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fitted_gp, reduced_gp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Analysis of Deviance Table
 
-           npar Deviance Df  Chisq Pr(&gt;Chisq)    
-fitted_gp     2   415.06                         
-reduced_gp    1   502.50  1 87.448  &lt; 2.2e-16 ***
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+           npar Deviance Df  Chisq Pr(&gt;Chisq)
+fitted_gp     2   415.06                     
+reduced_gp    1   415.11  1 0.0551     0.8144</code></pre>
 </div>
 </div>
 <p>The <code>mev</code> package includes alternative routines for estimation, including the optimal bias-robust estimator of <span class="citation" data-cites="Dupuis:1999">Dupuis (<a href="#ref-Dupuis:1999" role="doc-biblioref">1999</a>)</span> and the approximate Bayesian estimators of <span class="citation" data-cites="Zhang.Stephens:2009">Zhang &amp; Stephens (<a href="#ref-Zhang.Stephens:2009" role="doc-biblioref">2009</a>)</span> and <span class="citation" data-cites="Zhang:2010">Zhang (<a href="#ref-Zhang:2010" role="doc-biblioref">2010</a>)</span>. The latter two are obtained by running a Markov chain Monte Carlo algorithm, but only the posterior mean and standard deviation are returned to reduce the memory footprint of the returned object, and these are calculated on the fly using running mean and variance estimators.</p>
-<div class="cell" data-hash="likelihood_cache/html/gpalternative_1715b1f708c887744713fd65ddcca1f0">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bayesian point estimates (based on MAP)</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">fit.gpd</span>(windlyon, </span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">threshold =</span> u, </span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">show =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">MCMC =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">method =</span> <span class="st">"zhang"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bayesian point estimates (based on MAP)</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">fit.gpd</span>(windlyon, </span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">threshold =</span> u, </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">show =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">MCMC =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">method =</span> <span class="st">"zhang"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Method: Zhang 
 
 Threshold: 33.84 
 Number Above: 90 
-Proportion Above: 0.0079 
+Proportion Above: 0.008 
 
 Approximate posterior mean estimates
 scale  shape  
@@ -452,25 +486,27 @@ Estimates based on an adaptive MCMC
 <p>If the sample is small, maximum likelihood estimators are biased for the generalized Pareto distribution (the shape parameter is negatively biased, regardless of the true value for <span class="math inline">\(\xi\)</span>). Bias correction methods includes the modified score of Firth, but the default method is the implicit correction (<code>subtract</code>), which solves the implicit equation <span class="math display">\[\begin{align}
    \boldsymbol{\tilde{\theta}}=\hat{\boldsymbol{\theta}}-\boldsymbol{b}(\tilde{\boldsymbol{\theta}}). \label{eq:implbias}
 \end{align}\]</span> The point estimate <span class="math inline">\(\boldsymbol{\tilde{\theta}}\)</span> is obtained numerically as the root of this nonlinear system of equations. In the present case, the sample size is large and hence the first-order correction, derived through asymptotic arguments from the generalized Pareto distribution likelihood, is small. Note that the bias correction requires <span class="math inline">\(\xi &gt; -1/3\)</span>, since it is based on third-order cumulants of the distribution.</p>
-<div class="cell" data-hash="likelihood_cache/html/biascorr-gpd_deeb3a591d396bcce316d213e538eac9">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First-order bias corrected estimates</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>corr_coef <span class="ot">&lt;-</span> <span class="fu">gpd.bcor</span>(<span class="at">par =</span> <span class="fu">coef</span>(fitted_gp), </span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">dat =</span> windlyon, </span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">corr =</span> <span class="st">"firth"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Error in bcor.st$value : $ operator is invalid for atomic vectors</code></pre>
-</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First-order bias corrected estimates</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>corr_coef <span class="ot">&lt;-</span> <span class="fu">gpd.bcor</span>(<span class="at">par =</span> <span class="fu">coef</span>(fitted_gp), </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">dat =</span> windlyon[windlyon <span class="sc">&gt;</span> u] <span class="sc">-</span> u, </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">corr =</span> <span class="st">"firth"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="inhomogeneous-poisson-process" class="level3">
 <h3 class="anchored" data-anchor-id="inhomogeneous-poisson-process">Inhomogeneous Poisson process</h3>
-<p>Let <span class="math inline">\(Y_{(1)} \geq \cdots \geq Y_{(r)}\)</span> denote the <span class="math inline">\(r\)</span> largest observations from a sample. The likelihood of the limiting distribution of the point process for the <span class="math inline">\(r\)</span>-largest observations is, for <span class="math inline">\(\mu,\xi\in\mathbb{R}, \sigma&gt;0\)</span>, [ (,,; ) -r() - (1+)<em>{j=1}^r (1 + )</em>{+} - (1 + )^{-1/}_+. ] This likelihood can be used to model the <span class="math inline">\(r\)</span>-largest observations per block or threshold exceedances where the threshold is the <span class="math inline">\(r\)</span>th order statistic</p>
+<p>Let <span class="math inline">\(Y_{(1)}  \geq \cdots \geq  Y_{(r)}\)</span> denote the <span class="math inline">\(r\)</span> largest observations from a sample. The likelihood of the limiting distribution of the point process for the <span class="math inline">\(r\)</span>-largest observations is, for <span class="math inline">\(\mu,\xi\in\mathbb{R}, \sigma&gt;0\)</span>,<br>
+<span class="math display">\[\begin{align*}
+\ell(\mu,\sigma,\xi; \boldsymbol{y}) \equiv  -r\log(\sigma) - \left(1+\frac{1}{\xi}\right)\sum_{j=1}^r \log\left(1 + \xi\frac{y_{(j)}-\mu}{\sigma}\right)_{+} - \left(1 + \xi\frac{y_{(r)}-\mu}{\sigma}\right)^{-1/\xi}_+.
+\end{align*}\]</span> This likelihood can be used to model the <span class="math inline">\(r\)</span>-largest observations per block or threshold exceedances where the threshold is the <span class="math inline">\(r\)</span>th order statistic</p>
 <p>Consider a sample of <span class="math inline">\(N\)</span> observations, of which <span class="math inline">\(n_u\)</span> exceed <span class="math inline">\(u\)</span> and which we denote by <span class="math inline">\(y_1, \ldots, y_{n_u}\)</span>. The likelihood associated to the limiting distribution of threshold exceedances is, for <span class="math inline">\(\mu, \xi \in \mathbb{R}, \sigma &gt;0\)</span>, <span class="math display">\[\begin{align}
 L(\mu, \sigma, \xi; \boldsymbol{y}) = \exp \left[ - c \left\{1+ \xi \left( \frac{u-\mu}{\sigma}\right)\right\}^{-1/\xi}_{+}\right] (c\sigma)^{-n_u}\prod_{i=1}^{n_u} \left\{1+\xi\left( \frac{y_i-\mu}{\sigma}\right)\right\}^{-1/\xi-1}_{+},\label{eq:ppp_lik}
 \end{align}\]</span> where <span class="math inline">\((\cdot)_{+} = \max\{0, \cdot\}\)</span>. The quantity <span class="math inline">\(c\)</span> is a tuning parameter whose role is described in 7.5 of <span class="citation" data-cites="Coles:2001">Coles (<a href="#ref-Coles:2001" role="doc-biblioref">2001</a>)</span>. If we take <span class="math inline">\(c=N/m\)</span>, the parameters of the point process likelihood correspond to those of the generalized extreme value distribution fitted to blocks of size <span class="math inline">\(m\)</span>. The NHPP likelihood includes a contribution for the fraction of points that exceeds the threshold, whereas the generalized Pareto is a conditional distribution, whose third parameter is the normalizing constant <span class="math inline">\(\zeta_u=\Pr(Y&gt;u)\)</span>. Since the latter has a Bernoulli and <span class="math inline">\(\zeta_u\)</span> is orthogonal to the pair <span class="math inline">\((\sigma, \xi)\)</span>, it is often omitted from further analyses and estimated as the proportion of samples above the threshold.</p>
 <p>The model includes additional arguments, <code>np</code> and <code>npp</code> (number of observations per period). If data are recorded on a daily basis, using a value of <code>npp = 365.25</code> yields location and scale parameters that correspond to those of the generalized extreme value distribution fitted to block maxima. Alternatively, one can specify instead the number of periods <code>np</code>, akin to <span class="math inline">\(n_y\)</span> in Eq. 7.8 of <span class="citation" data-cites="Coles:2001">Coles (<a href="#ref-Coles:2001" role="doc-biblioref">2001</a>)</span> — only the latter is used by the function, with <code>npp*np</code> theoretically equal to the number of exceedances.</p>
 <p>The tuning parameters impact the convergence of the estimation since the dependence between parameters becomes very strong: <span class="citation" data-cites="Sharkey:2017">Sharkey &amp; Tawn (<a href="#ref-Sharkey:2017" role="doc-biblioref">2017</a>)</span> suggest to pick a value of <code>np</code> that near-orthogonalize the parameters. Wadsworth:2011 recommended picking this to be the number of observations (so <code>npp=1</code>), but <span class="citation" data-cites="Moins:arxiv">Moins et al. (<a href="#ref-Moins:arxiv" role="doc-biblioref">2023</a>)</span> show that a better choice leads to orthogonalization.</p>
-<p>Another option is to fit the generalized Pareto model: if the probability of exceeding threshold <span class="math inline">\(u\)</span> is small, the Poisson approximation to binomial distribution implies [c {1+ ( )}^{-1/} n_u, ] where <span class="math inline">\(n_u\)</span> is the number of threshold exceedances above <span class="math inline">\(u\)</span> and <span class="math inline">\(c\)</span> is the tuning parameter <code>np</code>. With the point estimates of the generalized Pareto model, say <span class="math inline">\((\widehat{\sigma}_u, \widehat{\xi})\)</span>, we thus use <span class="math display">\[\begin{align*}
+<p>Another option is to fit the generalized Pareto model: if the probability of exceeding threshold <span class="math inline">\(u\)</span> is small, the Poisson approximation to binomial distribution implies <span class="math display">\[\begin{align*}
+c \left\{1+ \xi \left( \frac{u-\mu}{\sigma}\right)\right\}^{-1/\xi} \approx n_u,
+\end{align*}\]</span> where <span class="math inline">\(n_u\)</span> is the number of threshold exceedances above <span class="math inline">\(u\)</span> and <span class="math inline">\(c\)</span> is the tuning parameter <code>np</code>. With the point estimates of the generalized Pareto model, say <span class="math inline">\((\widehat{\sigma}_u, \widehat{\xi})\)</span>, we thus use <span class="math display">\[\begin{align*}
 \mu_0 &amp;= u - \sigma_0\{(n_u/c)^{-\widehat{\xi}}-1\}/\widehat{\xi},\\
 \sigma_0 &amp;= \widehat{\sigma}_u\times (n_u/c)^{\widehat{\xi}},
 \end{align*}\]</span> and <span class="math inline">\(\xi_0=\widehat{\xi}\)</span> as starting values. Most of the time, these values are so close to the solution of the score equation that numerical convergence of the optimization routine is all but guaranteed in a few likelihood evaluations. If no starting value is provided and some fixed parameters are provided, the model will approximate the distribution of the vector of parameters by a multivariate Gaussian distribution and compute the best linear predictor of the remaining parameters given those are fixed. This method works well if the log-likelihood is near quadratic and the values are not too far from the maximum, but does not deal with the boundary constraints. In case these starting values are invalid, and an error message is returned.</p>
@@ -484,7 +520,7 @@ L(\mu, \sigma, \xi; \boldsymbol{y}) = \exp \left[ - c \left\{1+ \xi \left( \frac
 <section id="risk-measures" class="level2">
 <h2 class="anchored" data-anchor-id="risk-measures">Risk measures</h2>
 <p>Two typical questions in extreme values are: given the intensity of an extreme event, what is its recurrence period? and what is a typical worst-case scenario over a given period of time? For the latter, suppose for simplicity that the daily observations are blocked into years, so that inference is based on <span class="math inline">\(N\)</span> points for the <span class="math inline">\(N\)</span> years during which the data were recorded. The <em>return level</em> is a quantile of the underlying distribution corresponding to an event of probability <span class="math inline">\(p=1-1/T\)</span> for an annual maximum, which is interpreted as ``the level exceeded by an annual maximum on average every <span class="math inline">\(T\)</span> years’’. If observations are independent and identically distributed, then we can approximate the probability that a return level is exceeded <span class="math inline">\(l\)</span> times over a <span class="math inline">\(T\)</span> year period using a binomial distribution with probability of success <span class="math inline">\(1-1/T\)</span> and <span class="math inline">\(T\)</span> trials. For <span class="math inline">\(T\)</span> large, the return level is exceeded <span class="math inline">\(l=0, 1, 2, 3, 4\)</span> times within any <span class="math inline">\(T\)</span>-years period with approximate probabilities 36.8%, 36.8%, 18.4%, 6.1% and 1.5%. The probability that the maximum observation over <span class="math inline">\(T\)</span> years is exceeded with a given probability is readily obtained from the distribution of the <span class="math inline">\(T\)</span>-year maximum, leading <span class="citation" data-cites="Cox:2002">(<a href="#ref-Cox:2002" role="doc-biblioref">Cox et al., 2002, p. 3(b)</a>)</span> to advocate its use over return levels, among other quantities of interest such as the number of times a threshold <span class="math inline">\(u\)</span> will be exceeded in <span class="math inline">\(T\)</span> years or the average number of years before a threshold <span class="math inline">\(u\)</span> is exceeded.</p>
-<p><strong>Quantiles, mean and return levels of <span class="math inline">\(T\)</span>-maxima</strong>: consider the distribution <span class="math inline">\(H(x) = G^T(x)\)</span> of the maximum of <span class="math inline">\(T\)</span> independent and identically distributed generalized extreme value variates with parameters <span class="math inline">\((\mu, \sigma, \xi)\)</span> and distribution function <span class="math inline">\(G\)</span>. By max-stability, the parameters of <span class="math inline">\(H(x)\)</span> are <span class="math inline">\(\mu_T=\mu-\sigma(1-T^\xi)/\xi\)</span> and <span class="math inline">\(\sigma_T=\sigma T^\xi\)</span> when <span class="math inline">\(\xi \neq 0\)</span>. We denote the expectation of the <span class="math inline">\(T\)</span>-observation maximum by <span class="math inline">\(\mathfrak{e}_T\)</span>, the <span class="math inline">\(p\)</span> quantile of the <span class="math inline">\(T\)</span>-observation maximum by <span class="math inline">\(\mathfrak{q}_p = H^{-1}(p)\)</span> and the associated return level by <span class="math inline">\(z_{1/T} = G^{-1}(1-1/T)\)</span>. Then, any of these three quantities can be written as <span class="math display">\[\begin{align*}
+<p><strong>Quantiles, mean and return levels of <span class="math inline">\(T\)</span>-maxima</strong>: consider the distribution <span class="math inline">\(H(x) = G^T(x)\)</span> of the maximum of <span class="math inline">\(T\)</span> independent and identically distributed generalized extreme value variates with parameters <span class="math inline">\((\mu, \sigma, \xi)\)</span> and distribution function <span class="math inline">\(G\)</span>. By max-stability, the parameters of <span class="math inline">\(H(x)\)</span> are <span class="math inline">\(\mu_T=\mu-\sigma(1-T^\xi)/\xi\)</span> and <span class="math inline">\(\sigma_T=\sigma T^\xi\)</span> when <span class="math inline">\(\xi \neq 0\)</span>. We denote the expectation of the <span class="math inline">\(T\)</span>-observation maximum by <span class="math inline">\(\mathfrak{e}_T\)</span>, the <span class="math inline">\(p\)</span> quantile of the <span class="math inline">\(T\)</span>-observation maximum by <span class="math inline">\(\mathfrak{q}_p = H^{-1}(p)\)</span> and the associated return level by <span class="math inline">\(z_{1/T} =  G^{-1}(1-1/T)\)</span>. Then, any of these three quantities can be written as <span class="math display">\[\begin{align*}
 \begin{cases}
 \mu-\frac{\sigma}{\xi}\left\{1-\kappa_{\xi}\right\}, &amp;  \xi &lt;1, \xi \neq 0, \\
 \mu+\sigma\kappa_0, &amp;  \xi =0,
@@ -498,7 +534,7 @@ L(\mu, \sigma, \xi; \boldsymbol{y}) = \exp \left[ - c \left\{1+ \xi \left( \frac
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-line-spacing="2" role="list">
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
 <div id="ref-Belzile:2022" class="csl-entry" role="listitem">
 Belzile, L. R., &amp; Davison, A. C. (2022). Improved inference on risk measures for univariate extremes. <em>The Annals of Applied Statistics</em>, <em>16</em>(3), 1524–1549. <a href="https://doi.org/10.1214/21-AOAS1555">https://doi.org/10.1214/21-AOAS1555</a>
 </div>
@@ -565,18 +601,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -608,11 +633,48 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -622,8 +684,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -635,7 +706,129 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -679,6 +872,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -704,6 +898,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -766,13 +986,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
-    <div class="nav-footer-left"><a href="https://dec.unibocconi.eu/research/extreme-value-analysis-eva-2023">EVA 2023</a></div>   
+    <div class="nav-footer-left">
+<p><a href="https://dec.unibocconi.eu/research/extreme-value-analysis-eva-2023">EVA 2023</a></p>
+</div>   
     <div class="nav-footer-center">
       &nbsp;
     </div>
-    <div class="nav-footer-right">Website built with <a href="https://quarto.org/">Quarto</a></div>
+    <div class="nav-footer-right">
+<p>Website built with <a href="https://quarto.org/">Quarto</a></p>
+</div>
   </div>
 </footer>
+
 
 
 
